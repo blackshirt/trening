@@ -1,0 +1,83 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type AddressItem {
+	id: ID!
+	roadname: String!
+	number: String!
+	city: String!
+	province: String!	
+}
+
+type LocationItem {
+	id: ID!
+	name: String!
+	address: AddressItem!
+}
+
+type OrganizerItem {
+  	id: ID!
+  	name: String!
+  	longname: String!
+  	location: LocationItem!
+}
+
+type CategoryItem {
+	id: ID!
+	name: String!
+	description: String!
+}
+
+type ScheduleItem {
+	id: ID!
+	description: String!
+	start: String!
+	finish: String!
+}
+
+type OPDItem {
+	id: ID!
+	name: String!
+	address: AddressItem!
+}
+
+type ASNItem {
+	id: ID!
+	name: String!
+	nip: String!
+	current_grade: String!
+	current_places: OPDItem!
+}
+
+type ParticipantItem {
+	id: ID!
+	asn: ASNItem!
+}
+
+type TrainingItem {
+	id: ID!
+	name: String!
+	description: String!
+	heldat: ScheduleItem!
+	organizer: OrganizerItem!
+	participants: [ParticipantItem!]!
+}
+
+
+# Query
+type Query {
+	traininglist: [TrainingItem!]!
+}
+
+
+#type Mutation {
+#	createAddressItem()
+#	createLocationItem()
+#	createOrganizerItem()
+#	createCategoryItem()
+#	createOPDItem()
+#	createTrainingItem()
+#	createASNItem()
+#	createParticipantItem()
+#}

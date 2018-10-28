@@ -7,10 +7,10 @@ import (
 	context "context"
 	strconv "strconv"
 	sync "sync"
+	time "time"
 
 	graphql "github.com/99designs/gqlgen/graphql"
 	introspection "github.com/99designs/gqlgen/graphql/introspection"
-	entity "github.com/blackshirt/trening/entity"
 	gqlparser "github.com/vektah/gqlparser"
 	ast "github.com/vektah/gqlparser/ast"
 )
@@ -31,6 +31,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Mutation() MutationResolver
 	Query() QueryResolver
 }
 
@@ -38,7 +39,7 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	Asnitem struct {
+	Asn struct {
 		Id            func(childComplexity int) int
 		Name          func(childComplexity int) int
 		Nip           func(childComplexity int) int
@@ -46,7 +47,7 @@ type ComplexityRoot struct {
 		CurrentPlaces func(childComplexity int) int
 	}
 
-	AddressItem struct {
+	Address struct {
 		Id       func(childComplexity int) int
 		Roadname func(childComplexity int) int
 		Number   func(childComplexity int) int
@@ -54,32 +55,36 @@ type ComplexityRoot struct {
 		Province func(childComplexity int) int
 	}
 
-	CategoryItem struct {
+	Category struct {
 		Id          func(childComplexity int) int
 		Name        func(childComplexity int) int
 		Description func(childComplexity int) int
 	}
 
-	LocationItem struct {
+	Location struct {
 		Id      func(childComplexity int) int
 		Name    func(childComplexity int) int
 		Address func(childComplexity int) int
 	}
 
-	Opditem struct {
+	Mutation struct {
+		CreateTraining func(childComplexity int, input TrainingInput) int
+	}
+
+	Opd struct {
 		Id      func(childComplexity int) int
 		Name    func(childComplexity int) int
 		Address func(childComplexity int) int
 	}
 
-	OrganizerItem struct {
+	Organizer struct {
 		Id       func(childComplexity int) int
 		Name     func(childComplexity int) int
 		Longname func(childComplexity int) int
 		Location func(childComplexity int) int
 	}
 
-	ParticipantItem struct {
+	Participant struct {
 		Id  func(childComplexity int) int
 		Asn func(childComplexity int) int
 	}
@@ -88,25 +93,43 @@ type ComplexityRoot struct {
 		Traininglist func(childComplexity int) int
 	}
 
-	ScheduleItem struct {
+	Schedule struct {
 		Id          func(childComplexity int) int
 		Description func(childComplexity int) int
 		Start       func(childComplexity int) int
 		Finish      func(childComplexity int) int
 	}
 
-	TrainingItem struct {
+	Training struct {
 		Id           func(childComplexity int) int
 		Name         func(childComplexity int) int
 		Description  func(childComplexity int) int
-		Heldat       func(childComplexity int) int
+		HeldAt       func(childComplexity int) int
 		Organizer    func(childComplexity int) int
 		Participants func(childComplexity int) int
 	}
 }
 
+type MutationResolver interface {
+	CreateTraining(ctx context.Context, input TrainingInput) (Training, error)
+}
 type QueryResolver interface {
-	Traininglist(ctx context.Context) ([]entity.TrainingItem, error)
+	Traininglist(ctx context.Context) ([]Training, error)
+}
+
+func field_Mutation_createTraining_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 TrainingInput
+	if tmp, ok := rawArgs["input"]; ok {
+		var err error
+		arg0, err = UnmarshalTrainingInput(tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+
 }
 
 func field_Query___type_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
@@ -167,180 +190,192 @@ func (e *executableSchema) Schema() *ast.Schema {
 func (e *executableSchema) Complexity(typeName, field string, childComplexity int, rawArgs map[string]interface{}) (int, bool) {
 	switch typeName + "." + field {
 
-	case "ASNItem.id":
-		if e.complexity.Asnitem.Id == nil {
+	case "ASN.id":
+		if e.complexity.Asn.Id == nil {
 			break
 		}
 
-		return e.complexity.Asnitem.Id(childComplexity), true
+		return e.complexity.Asn.Id(childComplexity), true
 
-	case "ASNItem.name":
-		if e.complexity.Asnitem.Name == nil {
+	case "ASN.name":
+		if e.complexity.Asn.Name == nil {
 			break
 		}
 
-		return e.complexity.Asnitem.Name(childComplexity), true
+		return e.complexity.Asn.Name(childComplexity), true
 
-	case "ASNItem.nip":
-		if e.complexity.Asnitem.Nip == nil {
+	case "ASN.nip":
+		if e.complexity.Asn.Nip == nil {
 			break
 		}
 
-		return e.complexity.Asnitem.Nip(childComplexity), true
+		return e.complexity.Asn.Nip(childComplexity), true
 
-	case "ASNItem.current_grade":
-		if e.complexity.Asnitem.CurrentGrade == nil {
+	case "ASN.current_grade":
+		if e.complexity.Asn.CurrentGrade == nil {
 			break
 		}
 
-		return e.complexity.Asnitem.CurrentGrade(childComplexity), true
+		return e.complexity.Asn.CurrentGrade(childComplexity), true
 
-	case "ASNItem.current_places":
-		if e.complexity.Asnitem.CurrentPlaces == nil {
+	case "ASN.current_places":
+		if e.complexity.Asn.CurrentPlaces == nil {
 			break
 		}
 
-		return e.complexity.Asnitem.CurrentPlaces(childComplexity), true
+		return e.complexity.Asn.CurrentPlaces(childComplexity), true
 
-	case "AddressItem.id":
-		if e.complexity.AddressItem.Id == nil {
+	case "Address.id":
+		if e.complexity.Address.Id == nil {
 			break
 		}
 
-		return e.complexity.AddressItem.Id(childComplexity), true
+		return e.complexity.Address.Id(childComplexity), true
 
-	case "AddressItem.roadname":
-		if e.complexity.AddressItem.Roadname == nil {
+	case "Address.roadname":
+		if e.complexity.Address.Roadname == nil {
 			break
 		}
 
-		return e.complexity.AddressItem.Roadname(childComplexity), true
+		return e.complexity.Address.Roadname(childComplexity), true
 
-	case "AddressItem.number":
-		if e.complexity.AddressItem.Number == nil {
+	case "Address.number":
+		if e.complexity.Address.Number == nil {
 			break
 		}
 
-		return e.complexity.AddressItem.Number(childComplexity), true
+		return e.complexity.Address.Number(childComplexity), true
 
-	case "AddressItem.city":
-		if e.complexity.AddressItem.City == nil {
+	case "Address.city":
+		if e.complexity.Address.City == nil {
 			break
 		}
 
-		return e.complexity.AddressItem.City(childComplexity), true
+		return e.complexity.Address.City(childComplexity), true
 
-	case "AddressItem.province":
-		if e.complexity.AddressItem.Province == nil {
+	case "Address.province":
+		if e.complexity.Address.Province == nil {
 			break
 		}
 
-		return e.complexity.AddressItem.Province(childComplexity), true
+		return e.complexity.Address.Province(childComplexity), true
 
-	case "CategoryItem.id":
-		if e.complexity.CategoryItem.Id == nil {
+	case "Category.id":
+		if e.complexity.Category.Id == nil {
 			break
 		}
 
-		return e.complexity.CategoryItem.Id(childComplexity), true
+		return e.complexity.Category.Id(childComplexity), true
 
-	case "CategoryItem.name":
-		if e.complexity.CategoryItem.Name == nil {
+	case "Category.name":
+		if e.complexity.Category.Name == nil {
 			break
 		}
 
-		return e.complexity.CategoryItem.Name(childComplexity), true
+		return e.complexity.Category.Name(childComplexity), true
 
-	case "CategoryItem.description":
-		if e.complexity.CategoryItem.Description == nil {
+	case "Category.description":
+		if e.complexity.Category.Description == nil {
 			break
 		}
 
-		return e.complexity.CategoryItem.Description(childComplexity), true
+		return e.complexity.Category.Description(childComplexity), true
 
-	case "LocationItem.id":
-		if e.complexity.LocationItem.Id == nil {
+	case "Location.id":
+		if e.complexity.Location.Id == nil {
 			break
 		}
 
-		return e.complexity.LocationItem.Id(childComplexity), true
+		return e.complexity.Location.Id(childComplexity), true
 
-	case "LocationItem.name":
-		if e.complexity.LocationItem.Name == nil {
+	case "Location.name":
+		if e.complexity.Location.Name == nil {
 			break
 		}
 
-		return e.complexity.LocationItem.Name(childComplexity), true
+		return e.complexity.Location.Name(childComplexity), true
 
-	case "LocationItem.address":
-		if e.complexity.LocationItem.Address == nil {
+	case "Location.address":
+		if e.complexity.Location.Address == nil {
 			break
 		}
 
-		return e.complexity.LocationItem.Address(childComplexity), true
+		return e.complexity.Location.Address(childComplexity), true
 
-	case "OPDItem.id":
-		if e.complexity.Opditem.Id == nil {
+	case "Mutation.createTraining":
+		if e.complexity.Mutation.CreateTraining == nil {
 			break
 		}
 
-		return e.complexity.Opditem.Id(childComplexity), true
+		args, err := field_Mutation_createTraining_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
 
-	case "OPDItem.name":
-		if e.complexity.Opditem.Name == nil {
+		return e.complexity.Mutation.CreateTraining(childComplexity, args["input"].(TrainingInput)), true
+
+	case "OPD.id":
+		if e.complexity.Opd.Id == nil {
 			break
 		}
 
-		return e.complexity.Opditem.Name(childComplexity), true
+		return e.complexity.Opd.Id(childComplexity), true
 
-	case "OPDItem.address":
-		if e.complexity.Opditem.Address == nil {
+	case "OPD.name":
+		if e.complexity.Opd.Name == nil {
 			break
 		}
 
-		return e.complexity.Opditem.Address(childComplexity), true
+		return e.complexity.Opd.Name(childComplexity), true
 
-	case "OrganizerItem.id":
-		if e.complexity.OrganizerItem.Id == nil {
+	case "OPD.address":
+		if e.complexity.Opd.Address == nil {
 			break
 		}
 
-		return e.complexity.OrganizerItem.Id(childComplexity), true
+		return e.complexity.Opd.Address(childComplexity), true
 
-	case "OrganizerItem.name":
-		if e.complexity.OrganizerItem.Name == nil {
+	case "Organizer.id":
+		if e.complexity.Organizer.Id == nil {
 			break
 		}
 
-		return e.complexity.OrganizerItem.Name(childComplexity), true
+		return e.complexity.Organizer.Id(childComplexity), true
 
-	case "OrganizerItem.longname":
-		if e.complexity.OrganizerItem.Longname == nil {
+	case "Organizer.name":
+		if e.complexity.Organizer.Name == nil {
 			break
 		}
 
-		return e.complexity.OrganizerItem.Longname(childComplexity), true
+		return e.complexity.Organizer.Name(childComplexity), true
 
-	case "OrganizerItem.location":
-		if e.complexity.OrganizerItem.Location == nil {
+	case "Organizer.longname":
+		if e.complexity.Organizer.Longname == nil {
 			break
 		}
 
-		return e.complexity.OrganizerItem.Location(childComplexity), true
+		return e.complexity.Organizer.Longname(childComplexity), true
 
-	case "ParticipantItem.id":
-		if e.complexity.ParticipantItem.Id == nil {
+	case "Organizer.location":
+		if e.complexity.Organizer.Location == nil {
 			break
 		}
 
-		return e.complexity.ParticipantItem.Id(childComplexity), true
+		return e.complexity.Organizer.Location(childComplexity), true
 
-	case "ParticipantItem.asn":
-		if e.complexity.ParticipantItem.Asn == nil {
+	case "Participant.id":
+		if e.complexity.Participant.Id == nil {
 			break
 		}
 
-		return e.complexity.ParticipantItem.Asn(childComplexity), true
+		return e.complexity.Participant.Id(childComplexity), true
+
+	case "Participant.asn":
+		if e.complexity.Participant.Asn == nil {
+			break
+		}
+
+		return e.complexity.Participant.Asn(childComplexity), true
 
 	case "Query.traininglist":
 		if e.complexity.Query.Traininglist == nil {
@@ -349,75 +384,75 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Traininglist(childComplexity), true
 
-	case "ScheduleItem.id":
-		if e.complexity.ScheduleItem.Id == nil {
+	case "Schedule.id":
+		if e.complexity.Schedule.Id == nil {
 			break
 		}
 
-		return e.complexity.ScheduleItem.Id(childComplexity), true
+		return e.complexity.Schedule.Id(childComplexity), true
 
-	case "ScheduleItem.description":
-		if e.complexity.ScheduleItem.Description == nil {
+	case "Schedule.description":
+		if e.complexity.Schedule.Description == nil {
 			break
 		}
 
-		return e.complexity.ScheduleItem.Description(childComplexity), true
+		return e.complexity.Schedule.Description(childComplexity), true
 
-	case "ScheduleItem.start":
-		if e.complexity.ScheduleItem.Start == nil {
+	case "Schedule.start":
+		if e.complexity.Schedule.Start == nil {
 			break
 		}
 
-		return e.complexity.ScheduleItem.Start(childComplexity), true
+		return e.complexity.Schedule.Start(childComplexity), true
 
-	case "ScheduleItem.finish":
-		if e.complexity.ScheduleItem.Finish == nil {
+	case "Schedule.finish":
+		if e.complexity.Schedule.Finish == nil {
 			break
 		}
 
-		return e.complexity.ScheduleItem.Finish(childComplexity), true
+		return e.complexity.Schedule.Finish(childComplexity), true
 
-	case "TrainingItem.id":
-		if e.complexity.TrainingItem.Id == nil {
+	case "Training.id":
+		if e.complexity.Training.Id == nil {
 			break
 		}
 
-		return e.complexity.TrainingItem.Id(childComplexity), true
+		return e.complexity.Training.Id(childComplexity), true
 
-	case "TrainingItem.name":
-		if e.complexity.TrainingItem.Name == nil {
+	case "Training.name":
+		if e.complexity.Training.Name == nil {
 			break
 		}
 
-		return e.complexity.TrainingItem.Name(childComplexity), true
+		return e.complexity.Training.Name(childComplexity), true
 
-	case "TrainingItem.description":
-		if e.complexity.TrainingItem.Description == nil {
+	case "Training.description":
+		if e.complexity.Training.Description == nil {
 			break
 		}
 
-		return e.complexity.TrainingItem.Description(childComplexity), true
+		return e.complexity.Training.Description(childComplexity), true
 
-	case "TrainingItem.heldat":
-		if e.complexity.TrainingItem.Heldat == nil {
+	case "Training.heldAt":
+		if e.complexity.Training.HeldAt == nil {
 			break
 		}
 
-		return e.complexity.TrainingItem.Heldat(childComplexity), true
+		return e.complexity.Training.HeldAt(childComplexity), true
 
-	case "TrainingItem.organizer":
-		if e.complexity.TrainingItem.Organizer == nil {
+	case "Training.organizer":
+		if e.complexity.Training.Organizer == nil {
 			break
 		}
 
-		return e.complexity.TrainingItem.Organizer(childComplexity), true
+		return e.complexity.Training.Organizer(childComplexity), true
 
-	case "TrainingItem.participants":
-		if e.complexity.TrainingItem.Participants == nil {
+	case "Training.participants":
+		if e.complexity.Training.Participants == nil {
 			break
 		}
 
-		return e.complexity.TrainingItem.Participants(childComplexity), true
+		return e.complexity.Training.Participants(childComplexity), true
 
 	}
 	return 0, false
@@ -440,7 +475,20 @@ func (e *executableSchema) Query(ctx context.Context, op *ast.OperationDefinitio
 }
 
 func (e *executableSchema) Mutation(ctx context.Context, op *ast.OperationDefinition) *graphql.Response {
-	return graphql.ErrorResponse(ctx, "mutations are not supported")
+	ec := executionContext{graphql.GetRequestContext(ctx), e}
+
+	buf := ec.RequestMiddleware(ctx, func(ctx context.Context) []byte {
+		data := ec._Mutation(ctx, op.SelectionSet)
+		var buf bytes.Buffer
+		data.MarshalGQL(&buf)
+		return buf.Bytes()
+	})
+
+	return &graphql.Response{
+		Data:       buf,
+		Errors:     ec.Errors,
+		Extensions: ec.Extensions,
+	}
 }
 
 func (e *executableSchema) Subscription(ctx context.Context, op *ast.OperationDefinition) func() *graphql.Response {
@@ -452,11 +500,11 @@ type executionContext struct {
 	*executableSchema
 }
 
-var aSNItemImplementors = []string{"ASNItem"}
+var aSNImplementors = []string{"ASN"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _ASNItem(ctx context.Context, sel ast.SelectionSet, obj *entity.ASNItem) graphql.Marshaler {
-	fields := graphql.CollectFields(ctx, sel, aSNItemImplementors)
+func (ec *executionContext) _ASN(ctx context.Context, sel ast.SelectionSet, obj *ASN) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, aSNImplementors)
 
 	out := graphql.NewOrderedMap(len(fields))
 	invalid := false
@@ -465,29 +513,29 @@ func (ec *executionContext) _ASNItem(ctx context.Context, sel ast.SelectionSet, 
 
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ASNItem")
+			out.Values[i] = graphql.MarshalString("ASN")
 		case "id":
-			out.Values[i] = ec._ASNItem_id(ctx, field, obj)
+			out.Values[i] = ec._ASN_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "name":
-			out.Values[i] = ec._ASNItem_name(ctx, field, obj)
+			out.Values[i] = ec._ASN_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "nip":
-			out.Values[i] = ec._ASNItem_nip(ctx, field, obj)
+			out.Values[i] = ec._ASN_nip(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "current_grade":
-			out.Values[i] = ec._ASNItem_current_grade(ctx, field, obj)
+			out.Values[i] = ec._ASN_current_grade(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "current_places":
-			out.Values[i] = ec._ASNItem_current_places(ctx, field, obj)
+			out.Values[i] = ec._ASN_current_places(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
@@ -503,9 +551,9 @@ func (ec *executionContext) _ASNItem(ctx context.Context, sel ast.SelectionSet, 
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _ASNItem_id(ctx context.Context, field graphql.CollectedField, obj *entity.ASNItem) graphql.Marshaler {
+func (ec *executionContext) _ASN_id(ctx context.Context, field graphql.CollectedField, obj *ASN) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "ASNItem",
+		Object: "ASN",
 		Args:   nil,
 		Field:  field,
 	}
@@ -526,9 +574,9 @@ func (ec *executionContext) _ASNItem_id(ctx context.Context, field graphql.Colle
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _ASNItem_name(ctx context.Context, field graphql.CollectedField, obj *entity.ASNItem) graphql.Marshaler {
+func (ec *executionContext) _ASN_name(ctx context.Context, field graphql.CollectedField, obj *ASN) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "ASNItem",
+		Object: "ASN",
 		Args:   nil,
 		Field:  field,
 	}
@@ -549,9 +597,9 @@ func (ec *executionContext) _ASNItem_name(ctx context.Context, field graphql.Col
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _ASNItem_nip(ctx context.Context, field graphql.CollectedField, obj *entity.ASNItem) graphql.Marshaler {
+func (ec *executionContext) _ASN_nip(ctx context.Context, field graphql.CollectedField, obj *ASN) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "ASNItem",
+		Object: "ASN",
 		Args:   nil,
 		Field:  field,
 	}
@@ -572,9 +620,9 @@ func (ec *executionContext) _ASNItem_nip(ctx context.Context, field graphql.Coll
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _ASNItem_current_grade(ctx context.Context, field graphql.CollectedField, obj *entity.ASNItem) graphql.Marshaler {
+func (ec *executionContext) _ASN_current_grade(ctx context.Context, field graphql.CollectedField, obj *ASN) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "ASNItem",
+		Object: "ASN",
 		Args:   nil,
 		Field:  field,
 	}
@@ -595,9 +643,9 @@ func (ec *executionContext) _ASNItem_current_grade(ctx context.Context, field gr
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _ASNItem_current_places(ctx context.Context, field graphql.CollectedField, obj *entity.ASNItem) graphql.Marshaler {
+func (ec *executionContext) _ASN_current_places(ctx context.Context, field graphql.CollectedField, obj *ASN) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "ASNItem",
+		Object: "ASN",
 		Args:   nil,
 		Field:  field,
 	}
@@ -612,17 +660,17 @@ func (ec *executionContext) _ASNItem_current_places(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(entity.OPDItem)
+	res := resTmp.(OPD)
 	rctx.Result = res
 
-	return ec._OPDItem(ctx, field.Selections, &res)
+	return ec._OPD(ctx, field.Selections, &res)
 }
 
-var addressItemImplementors = []string{"AddressItem"}
+var addressImplementors = []string{"Address"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _AddressItem(ctx context.Context, sel ast.SelectionSet, obj *entity.AddressItem) graphql.Marshaler {
-	fields := graphql.CollectFields(ctx, sel, addressItemImplementors)
+func (ec *executionContext) _Address(ctx context.Context, sel ast.SelectionSet, obj *Address) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, addressImplementors)
 
 	out := graphql.NewOrderedMap(len(fields))
 	invalid := false
@@ -631,29 +679,29 @@ func (ec *executionContext) _AddressItem(ctx context.Context, sel ast.SelectionS
 
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("AddressItem")
+			out.Values[i] = graphql.MarshalString("Address")
 		case "id":
-			out.Values[i] = ec._AddressItem_id(ctx, field, obj)
+			out.Values[i] = ec._Address_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "roadname":
-			out.Values[i] = ec._AddressItem_roadname(ctx, field, obj)
+			out.Values[i] = ec._Address_roadname(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "number":
-			out.Values[i] = ec._AddressItem_number(ctx, field, obj)
+			out.Values[i] = ec._Address_number(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "city":
-			out.Values[i] = ec._AddressItem_city(ctx, field, obj)
+			out.Values[i] = ec._Address_city(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "province":
-			out.Values[i] = ec._AddressItem_province(ctx, field, obj)
+			out.Values[i] = ec._Address_province(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
@@ -669,9 +717,9 @@ func (ec *executionContext) _AddressItem(ctx context.Context, sel ast.SelectionS
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _AddressItem_id(ctx context.Context, field graphql.CollectedField, obj *entity.AddressItem) graphql.Marshaler {
+func (ec *executionContext) _Address_id(ctx context.Context, field graphql.CollectedField, obj *Address) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "AddressItem",
+		Object: "Address",
 		Args:   nil,
 		Field:  field,
 	}
@@ -692,9 +740,9 @@ func (ec *executionContext) _AddressItem_id(ctx context.Context, field graphql.C
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _AddressItem_roadname(ctx context.Context, field graphql.CollectedField, obj *entity.AddressItem) graphql.Marshaler {
+func (ec *executionContext) _Address_roadname(ctx context.Context, field graphql.CollectedField, obj *Address) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "AddressItem",
+		Object: "Address",
 		Args:   nil,
 		Field:  field,
 	}
@@ -715,9 +763,9 @@ func (ec *executionContext) _AddressItem_roadname(ctx context.Context, field gra
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _AddressItem_number(ctx context.Context, field graphql.CollectedField, obj *entity.AddressItem) graphql.Marshaler {
+func (ec *executionContext) _Address_number(ctx context.Context, field graphql.CollectedField, obj *Address) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "AddressItem",
+		Object: "Address",
 		Args:   nil,
 		Field:  field,
 	}
@@ -738,9 +786,9 @@ func (ec *executionContext) _AddressItem_number(ctx context.Context, field graph
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _AddressItem_city(ctx context.Context, field graphql.CollectedField, obj *entity.AddressItem) graphql.Marshaler {
+func (ec *executionContext) _Address_city(ctx context.Context, field graphql.CollectedField, obj *Address) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "AddressItem",
+		Object: "Address",
 		Args:   nil,
 		Field:  field,
 	}
@@ -761,9 +809,9 @@ func (ec *executionContext) _AddressItem_city(ctx context.Context, field graphql
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _AddressItem_province(ctx context.Context, field graphql.CollectedField, obj *entity.AddressItem) graphql.Marshaler {
+func (ec *executionContext) _Address_province(ctx context.Context, field graphql.CollectedField, obj *Address) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "AddressItem",
+		Object: "Address",
 		Args:   nil,
 		Field:  field,
 	}
@@ -783,11 +831,11 @@ func (ec *executionContext) _AddressItem_province(ctx context.Context, field gra
 	return graphql.MarshalString(res)
 }
 
-var categoryItemImplementors = []string{"CategoryItem"}
+var categoryImplementors = []string{"Category"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _CategoryItem(ctx context.Context, sel ast.SelectionSet, obj *entity.CategoryItem) graphql.Marshaler {
-	fields := graphql.CollectFields(ctx, sel, categoryItemImplementors)
+func (ec *executionContext) _Category(ctx context.Context, sel ast.SelectionSet, obj *Category) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, categoryImplementors)
 
 	out := graphql.NewOrderedMap(len(fields))
 	invalid := false
@@ -796,19 +844,19 @@ func (ec *executionContext) _CategoryItem(ctx context.Context, sel ast.Selection
 
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("CategoryItem")
+			out.Values[i] = graphql.MarshalString("Category")
 		case "id":
-			out.Values[i] = ec._CategoryItem_id(ctx, field, obj)
+			out.Values[i] = ec._Category_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "name":
-			out.Values[i] = ec._CategoryItem_name(ctx, field, obj)
+			out.Values[i] = ec._Category_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "description":
-			out.Values[i] = ec._CategoryItem_description(ctx, field, obj)
+			out.Values[i] = ec._Category_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
@@ -824,9 +872,9 @@ func (ec *executionContext) _CategoryItem(ctx context.Context, sel ast.Selection
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _CategoryItem_id(ctx context.Context, field graphql.CollectedField, obj *entity.CategoryItem) graphql.Marshaler {
+func (ec *executionContext) _Category_id(ctx context.Context, field graphql.CollectedField, obj *Category) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "CategoryItem",
+		Object: "Category",
 		Args:   nil,
 		Field:  field,
 	}
@@ -847,9 +895,9 @@ func (ec *executionContext) _CategoryItem_id(ctx context.Context, field graphql.
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _CategoryItem_name(ctx context.Context, field graphql.CollectedField, obj *entity.CategoryItem) graphql.Marshaler {
+func (ec *executionContext) _Category_name(ctx context.Context, field graphql.CollectedField, obj *Category) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "CategoryItem",
+		Object: "Category",
 		Args:   nil,
 		Field:  field,
 	}
@@ -870,9 +918,9 @@ func (ec *executionContext) _CategoryItem_name(ctx context.Context, field graphq
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _CategoryItem_description(ctx context.Context, field graphql.CollectedField, obj *entity.CategoryItem) graphql.Marshaler {
+func (ec *executionContext) _Category_description(ctx context.Context, field graphql.CollectedField, obj *Category) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "CategoryItem",
+		Object: "Category",
 		Args:   nil,
 		Field:  field,
 	}
@@ -892,11 +940,11 @@ func (ec *executionContext) _CategoryItem_description(ctx context.Context, field
 	return graphql.MarshalString(res)
 }
 
-var locationItemImplementors = []string{"LocationItem"}
+var locationImplementors = []string{"Location"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _LocationItem(ctx context.Context, sel ast.SelectionSet, obj *entity.LocationItem) graphql.Marshaler {
-	fields := graphql.CollectFields(ctx, sel, locationItemImplementors)
+func (ec *executionContext) _Location(ctx context.Context, sel ast.SelectionSet, obj *Location) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, locationImplementors)
 
 	out := graphql.NewOrderedMap(len(fields))
 	invalid := false
@@ -905,19 +953,19 @@ func (ec *executionContext) _LocationItem(ctx context.Context, sel ast.Selection
 
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("LocationItem")
+			out.Values[i] = graphql.MarshalString("Location")
 		case "id":
-			out.Values[i] = ec._LocationItem_id(ctx, field, obj)
+			out.Values[i] = ec._Location_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "name":
-			out.Values[i] = ec._LocationItem_name(ctx, field, obj)
+			out.Values[i] = ec._Location_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "address":
-			out.Values[i] = ec._LocationItem_address(ctx, field, obj)
+			out.Values[i] = ec._Location_address(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
@@ -933,9 +981,9 @@ func (ec *executionContext) _LocationItem(ctx context.Context, sel ast.Selection
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _LocationItem_id(ctx context.Context, field graphql.CollectedField, obj *entity.LocationItem) graphql.Marshaler {
+func (ec *executionContext) _Location_id(ctx context.Context, field graphql.CollectedField, obj *Location) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "LocationItem",
+		Object: "Location",
 		Args:   nil,
 		Field:  field,
 	}
@@ -956,9 +1004,9 @@ func (ec *executionContext) _LocationItem_id(ctx context.Context, field graphql.
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _LocationItem_name(ctx context.Context, field graphql.CollectedField, obj *entity.LocationItem) graphql.Marshaler {
+func (ec *executionContext) _Location_name(ctx context.Context, field graphql.CollectedField, obj *Location) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "LocationItem",
+		Object: "Location",
 		Args:   nil,
 		Field:  field,
 	}
@@ -979,9 +1027,9 @@ func (ec *executionContext) _LocationItem_name(ctx context.Context, field graphq
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _LocationItem_address(ctx context.Context, field graphql.CollectedField, obj *entity.LocationItem) graphql.Marshaler {
+func (ec *executionContext) _Location_address(ctx context.Context, field graphql.CollectedField, obj *Location) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "LocationItem",
+		Object: "Location",
 		Args:   nil,
 		Field:  field,
 	}
@@ -996,17 +1044,21 @@ func (ec *executionContext) _LocationItem_address(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(entity.AddressItem)
+	res := resTmp.(Address)
 	rctx.Result = res
 
-	return ec._AddressItem(ctx, field.Selections, &res)
+	return ec._Address(ctx, field.Selections, &res)
 }
 
-var oPDItemImplementors = []string{"OPDItem"}
+var mutationImplementors = []string{"Mutation"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _OPDItem(ctx context.Context, sel ast.SelectionSet, obj *entity.OPDItem) graphql.Marshaler {
-	fields := graphql.CollectFields(ctx, sel, oPDItemImplementors)
+func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, mutationImplementors)
+
+	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{
+		Object: "Mutation",
+	})
 
 	out := graphql.NewOrderedMap(len(fields))
 	invalid := false
@@ -1015,19 +1067,9 @@ func (ec *executionContext) _OPDItem(ctx context.Context, sel ast.SelectionSet, 
 
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("OPDItem")
-		case "id":
-			out.Values[i] = ec._OPDItem_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalid = true
-			}
-		case "name":
-			out.Values[i] = ec._OPDItem_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalid = true
-			}
-		case "address":
-			out.Values[i] = ec._OPDItem_address(ctx, field, obj)
+			out.Values[i] = graphql.MarshalString("Mutation")
+		case "createTraining":
+			out.Values[i] = ec._Mutation_createTraining(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
@@ -1043,9 +1085,79 @@ func (ec *executionContext) _OPDItem(ctx context.Context, sel ast.SelectionSet, 
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _OPDItem_id(ctx context.Context, field graphql.CollectedField, obj *entity.OPDItem) graphql.Marshaler {
+func (ec *executionContext) _Mutation_createTraining(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Mutation_createTraining_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
 	rctx := &graphql.ResolverContext{
-		Object: "OPDItem",
+		Object: "Mutation",
+		Args:   args,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateTraining(rctx, args["input"].(TrainingInput))
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(Training)
+	rctx.Result = res
+
+	return ec._Training(ctx, field.Selections, &res)
+}
+
+var oPDImplementors = []string{"OPD"}
+
+// nolint: gocyclo, errcheck, gas, goconst
+func (ec *executionContext) _OPD(ctx context.Context, sel ast.SelectionSet, obj *OPD) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, oPDImplementors)
+
+	out := graphql.NewOrderedMap(len(fields))
+	invalid := false
+	for i, field := range fields {
+		out.Keys[i] = field.Alias
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("OPD")
+		case "id":
+			out.Values[i] = ec._OPD_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		case "name":
+			out.Values[i] = ec._OPD_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		case "address":
+			out.Values[i] = ec._OPD_address(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+
+	if invalid {
+		return graphql.Null
+	}
+	return out
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _OPD_id(ctx context.Context, field graphql.CollectedField, obj *OPD) graphql.Marshaler {
+	rctx := &graphql.ResolverContext{
+		Object: "OPD",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1066,9 +1178,9 @@ func (ec *executionContext) _OPDItem_id(ctx context.Context, field graphql.Colle
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _OPDItem_name(ctx context.Context, field graphql.CollectedField, obj *entity.OPDItem) graphql.Marshaler {
+func (ec *executionContext) _OPD_name(ctx context.Context, field graphql.CollectedField, obj *OPD) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "OPDItem",
+		Object: "OPD",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1089,9 +1201,9 @@ func (ec *executionContext) _OPDItem_name(ctx context.Context, field graphql.Col
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _OPDItem_address(ctx context.Context, field graphql.CollectedField, obj *entity.OPDItem) graphql.Marshaler {
+func (ec *executionContext) _OPD_address(ctx context.Context, field graphql.CollectedField, obj *OPD) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "OPDItem",
+		Object: "OPD",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1106,17 +1218,17 @@ func (ec *executionContext) _OPDItem_address(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(entity.AddressItem)
+	res := resTmp.(Address)
 	rctx.Result = res
 
-	return ec._AddressItem(ctx, field.Selections, &res)
+	return ec._Address(ctx, field.Selections, &res)
 }
 
-var organizerItemImplementors = []string{"OrganizerItem"}
+var organizerImplementors = []string{"Organizer"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _OrganizerItem(ctx context.Context, sel ast.SelectionSet, obj *entity.OrganizerItem) graphql.Marshaler {
-	fields := graphql.CollectFields(ctx, sel, organizerItemImplementors)
+func (ec *executionContext) _Organizer(ctx context.Context, sel ast.SelectionSet, obj *Organizer) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, organizerImplementors)
 
 	out := graphql.NewOrderedMap(len(fields))
 	invalid := false
@@ -1125,24 +1237,24 @@ func (ec *executionContext) _OrganizerItem(ctx context.Context, sel ast.Selectio
 
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("OrganizerItem")
+			out.Values[i] = graphql.MarshalString("Organizer")
 		case "id":
-			out.Values[i] = ec._OrganizerItem_id(ctx, field, obj)
+			out.Values[i] = ec._Organizer_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "name":
-			out.Values[i] = ec._OrganizerItem_name(ctx, field, obj)
+			out.Values[i] = ec._Organizer_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "longname":
-			out.Values[i] = ec._OrganizerItem_longname(ctx, field, obj)
+			out.Values[i] = ec._Organizer_longname(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "location":
-			out.Values[i] = ec._OrganizerItem_location(ctx, field, obj)
+			out.Values[i] = ec._Organizer_location(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
@@ -1158,9 +1270,9 @@ func (ec *executionContext) _OrganizerItem(ctx context.Context, sel ast.Selectio
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _OrganizerItem_id(ctx context.Context, field graphql.CollectedField, obj *entity.OrganizerItem) graphql.Marshaler {
+func (ec *executionContext) _Organizer_id(ctx context.Context, field graphql.CollectedField, obj *Organizer) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "OrganizerItem",
+		Object: "Organizer",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1181,9 +1293,9 @@ func (ec *executionContext) _OrganizerItem_id(ctx context.Context, field graphql
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _OrganizerItem_name(ctx context.Context, field graphql.CollectedField, obj *entity.OrganizerItem) graphql.Marshaler {
+func (ec *executionContext) _Organizer_name(ctx context.Context, field graphql.CollectedField, obj *Organizer) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "OrganizerItem",
+		Object: "Organizer",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1204,9 +1316,9 @@ func (ec *executionContext) _OrganizerItem_name(ctx context.Context, field graph
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _OrganizerItem_longname(ctx context.Context, field graphql.CollectedField, obj *entity.OrganizerItem) graphql.Marshaler {
+func (ec *executionContext) _Organizer_longname(ctx context.Context, field graphql.CollectedField, obj *Organizer) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "OrganizerItem",
+		Object: "Organizer",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1227,9 +1339,9 @@ func (ec *executionContext) _OrganizerItem_longname(ctx context.Context, field g
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _OrganizerItem_location(ctx context.Context, field graphql.CollectedField, obj *entity.OrganizerItem) graphql.Marshaler {
+func (ec *executionContext) _Organizer_location(ctx context.Context, field graphql.CollectedField, obj *Organizer) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "OrganizerItem",
+		Object: "Organizer",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1244,17 +1356,17 @@ func (ec *executionContext) _OrganizerItem_location(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(entity.LocationItem)
+	res := resTmp.(Location)
 	rctx.Result = res
 
-	return ec._LocationItem(ctx, field.Selections, &res)
+	return ec._Location(ctx, field.Selections, &res)
 }
 
-var participantItemImplementors = []string{"ParticipantItem"}
+var participantImplementors = []string{"Participant"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _ParticipantItem(ctx context.Context, sel ast.SelectionSet, obj *entity.ParticipantItem) graphql.Marshaler {
-	fields := graphql.CollectFields(ctx, sel, participantItemImplementors)
+func (ec *executionContext) _Participant(ctx context.Context, sel ast.SelectionSet, obj *Participant) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, participantImplementors)
 
 	out := graphql.NewOrderedMap(len(fields))
 	invalid := false
@@ -1263,14 +1375,14 @@ func (ec *executionContext) _ParticipantItem(ctx context.Context, sel ast.Select
 
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ParticipantItem")
+			out.Values[i] = graphql.MarshalString("Participant")
 		case "id":
-			out.Values[i] = ec._ParticipantItem_id(ctx, field, obj)
+			out.Values[i] = ec._Participant_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "asn":
-			out.Values[i] = ec._ParticipantItem_asn(ctx, field, obj)
+			out.Values[i] = ec._Participant_asn(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
@@ -1286,9 +1398,9 @@ func (ec *executionContext) _ParticipantItem(ctx context.Context, sel ast.Select
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _ParticipantItem_id(ctx context.Context, field graphql.CollectedField, obj *entity.ParticipantItem) graphql.Marshaler {
+func (ec *executionContext) _Participant_id(ctx context.Context, field graphql.CollectedField, obj *Participant) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "ParticipantItem",
+		Object: "Participant",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1309,9 +1421,9 @@ func (ec *executionContext) _ParticipantItem_id(ctx context.Context, field graph
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _ParticipantItem_asn(ctx context.Context, field graphql.CollectedField, obj *entity.ParticipantItem) graphql.Marshaler {
+func (ec *executionContext) _Participant_asn(ctx context.Context, field graphql.CollectedField, obj *Participant) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "ParticipantItem",
+		Object: "Participant",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1326,10 +1438,10 @@ func (ec *executionContext) _ParticipantItem_asn(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(entity.ASNItem)
+	res := resTmp.(ASN)
 	rctx.Result = res
 
-	return ec._ASNItem(ctx, field.Selections, &res)
+	return ec._ASN(ctx, field.Selections, &res)
 }
 
 var queryImplementors = []string{"Query"}
@@ -1393,7 +1505,7 @@ func (ec *executionContext) _Query_traininglist(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]entity.TrainingItem)
+	res := resTmp.([]Training)
 	rctx.Result = res
 
 	arr1 := make(graphql.Array, len(res))
@@ -1417,7 +1529,7 @@ func (ec *executionContext) _Query_traininglist(ctx context.Context, field graph
 			}
 			arr1[idx1] = func() graphql.Marshaler {
 
-				return ec._TrainingItem(ctx, field.Selections, &res[idx1])
+				return ec._Training(ctx, field.Selections, &res[idx1])
 			}()
 		}
 		if isLen1 {
@@ -1487,11 +1599,11 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	return ec.___Schema(ctx, field.Selections, res)
 }
 
-var scheduleItemImplementors = []string{"ScheduleItem"}
+var scheduleImplementors = []string{"Schedule"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _ScheduleItem(ctx context.Context, sel ast.SelectionSet, obj *entity.ScheduleItem) graphql.Marshaler {
-	fields := graphql.CollectFields(ctx, sel, scheduleItemImplementors)
+func (ec *executionContext) _Schedule(ctx context.Context, sel ast.SelectionSet, obj *Schedule) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, scheduleImplementors)
 
 	out := graphql.NewOrderedMap(len(fields))
 	invalid := false
@@ -1500,24 +1612,24 @@ func (ec *executionContext) _ScheduleItem(ctx context.Context, sel ast.Selection
 
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("ScheduleItem")
+			out.Values[i] = graphql.MarshalString("Schedule")
 		case "id":
-			out.Values[i] = ec._ScheduleItem_id(ctx, field, obj)
+			out.Values[i] = ec._Schedule_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "description":
-			out.Values[i] = ec._ScheduleItem_description(ctx, field, obj)
+			out.Values[i] = ec._Schedule_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "start":
-			out.Values[i] = ec._ScheduleItem_start(ctx, field, obj)
+			out.Values[i] = ec._Schedule_start(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "finish":
-			out.Values[i] = ec._ScheduleItem_finish(ctx, field, obj)
+			out.Values[i] = ec._Schedule_finish(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
@@ -1533,9 +1645,9 @@ func (ec *executionContext) _ScheduleItem(ctx context.Context, sel ast.Selection
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _ScheduleItem_id(ctx context.Context, field graphql.CollectedField, obj *entity.ScheduleItem) graphql.Marshaler {
+func (ec *executionContext) _Schedule_id(ctx context.Context, field graphql.CollectedField, obj *Schedule) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "ScheduleItem",
+		Object: "Schedule",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1556,9 +1668,9 @@ func (ec *executionContext) _ScheduleItem_id(ctx context.Context, field graphql.
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _ScheduleItem_description(ctx context.Context, field graphql.CollectedField, obj *entity.ScheduleItem) graphql.Marshaler {
+func (ec *executionContext) _Schedule_description(ctx context.Context, field graphql.CollectedField, obj *Schedule) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "ScheduleItem",
+		Object: "Schedule",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1579,9 +1691,9 @@ func (ec *executionContext) _ScheduleItem_description(ctx context.Context, field
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _ScheduleItem_start(ctx context.Context, field graphql.CollectedField, obj *entity.ScheduleItem) graphql.Marshaler {
+func (ec *executionContext) _Schedule_start(ctx context.Context, field graphql.CollectedField, obj *Schedule) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "ScheduleItem",
+		Object: "Schedule",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1596,15 +1708,15 @@ func (ec *executionContext) _ScheduleItem_start(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	rctx.Result = res
-	return graphql.MarshalString(res)
+	return graphql.MarshalTime(res)
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _ScheduleItem_finish(ctx context.Context, field graphql.CollectedField, obj *entity.ScheduleItem) graphql.Marshaler {
+func (ec *executionContext) _Schedule_finish(ctx context.Context, field graphql.CollectedField, obj *Schedule) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "ScheduleItem",
+		Object: "Schedule",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1619,16 +1731,16 @@ func (ec *executionContext) _ScheduleItem_finish(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	rctx.Result = res
-	return graphql.MarshalString(res)
+	return graphql.MarshalTime(res)
 }
 
-var trainingItemImplementors = []string{"TrainingItem"}
+var trainingImplementors = []string{"Training"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _TrainingItem(ctx context.Context, sel ast.SelectionSet, obj *entity.TrainingItem) graphql.Marshaler {
-	fields := graphql.CollectFields(ctx, sel, trainingItemImplementors)
+func (ec *executionContext) _Training(ctx context.Context, sel ast.SelectionSet, obj *Training) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, trainingImplementors)
 
 	out := graphql.NewOrderedMap(len(fields))
 	invalid := false
@@ -1637,34 +1749,34 @@ func (ec *executionContext) _TrainingItem(ctx context.Context, sel ast.Selection
 
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("TrainingItem")
+			out.Values[i] = graphql.MarshalString("Training")
 		case "id":
-			out.Values[i] = ec._TrainingItem_id(ctx, field, obj)
+			out.Values[i] = ec._Training_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "name":
-			out.Values[i] = ec._TrainingItem_name(ctx, field, obj)
+			out.Values[i] = ec._Training_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "description":
-			out.Values[i] = ec._TrainingItem_description(ctx, field, obj)
+			out.Values[i] = ec._Training_description(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
-		case "heldat":
-			out.Values[i] = ec._TrainingItem_heldat(ctx, field, obj)
+		case "heldAt":
+			out.Values[i] = ec._Training_heldAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "organizer":
-			out.Values[i] = ec._TrainingItem_organizer(ctx, field, obj)
+			out.Values[i] = ec._Training_organizer(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "participants":
-			out.Values[i] = ec._TrainingItem_participants(ctx, field, obj)
+			out.Values[i] = ec._Training_participants(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
@@ -1680,9 +1792,9 @@ func (ec *executionContext) _TrainingItem(ctx context.Context, sel ast.Selection
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _TrainingItem_id(ctx context.Context, field graphql.CollectedField, obj *entity.TrainingItem) graphql.Marshaler {
+func (ec *executionContext) _Training_id(ctx context.Context, field graphql.CollectedField, obj *Training) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "TrainingItem",
+		Object: "Training",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1703,9 +1815,9 @@ func (ec *executionContext) _TrainingItem_id(ctx context.Context, field graphql.
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _TrainingItem_name(ctx context.Context, field graphql.CollectedField, obj *entity.TrainingItem) graphql.Marshaler {
+func (ec *executionContext) _Training_name(ctx context.Context, field graphql.CollectedField, obj *Training) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "TrainingItem",
+		Object: "Training",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1726,9 +1838,9 @@ func (ec *executionContext) _TrainingItem_name(ctx context.Context, field graphq
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _TrainingItem_description(ctx context.Context, field graphql.CollectedField, obj *entity.TrainingItem) graphql.Marshaler {
+func (ec *executionContext) _Training_description(ctx context.Context, field graphql.CollectedField, obj *Training) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "TrainingItem",
+		Object: "Training",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1749,16 +1861,16 @@ func (ec *executionContext) _TrainingItem_description(ctx context.Context, field
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _TrainingItem_heldat(ctx context.Context, field graphql.CollectedField, obj *entity.TrainingItem) graphql.Marshaler {
+func (ec *executionContext) _Training_heldAt(ctx context.Context, field graphql.CollectedField, obj *Training) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "TrainingItem",
+		Object: "Training",
 		Args:   nil,
 		Field:  field,
 	}
 	ctx = graphql.WithResolverContext(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Heldat, nil
+		return obj.HeldAt, nil
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -1766,16 +1878,16 @@ func (ec *executionContext) _TrainingItem_heldat(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(entity.ScheduleItem)
+	res := resTmp.(Schedule)
 	rctx.Result = res
 
-	return ec._ScheduleItem(ctx, field.Selections, &res)
+	return ec._Schedule(ctx, field.Selections, &res)
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _TrainingItem_organizer(ctx context.Context, field graphql.CollectedField, obj *entity.TrainingItem) graphql.Marshaler {
+func (ec *executionContext) _Training_organizer(ctx context.Context, field graphql.CollectedField, obj *Training) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "TrainingItem",
+		Object: "Training",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1790,16 +1902,16 @@ func (ec *executionContext) _TrainingItem_organizer(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(entity.OrganizerItem)
+	res := resTmp.(Organizer)
 	rctx.Result = res
 
-	return ec._OrganizerItem(ctx, field.Selections, &res)
+	return ec._Organizer(ctx, field.Selections, &res)
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _TrainingItem_participants(ctx context.Context, field graphql.CollectedField, obj *entity.TrainingItem) graphql.Marshaler {
+func (ec *executionContext) _Training_participants(ctx context.Context, field graphql.CollectedField, obj *Training) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "TrainingItem",
+		Object: "Training",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1814,7 +1926,7 @@ func (ec *executionContext) _TrainingItem_participants(ctx context.Context, fiel
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]entity.ParticipantItem)
+	res := resTmp.([]Participant)
 	rctx.Result = res
 
 	arr1 := make(graphql.Array, len(res))
@@ -1838,7 +1950,7 @@ func (ec *executionContext) _TrainingItem_participants(ctx context.Context, fiel
 			}
 			arr1[idx1] = func() graphql.Marshaler {
 
-				return ec._ParticipantItem(ctx, field.Selections, &res[idx1])
+				return ec._Participant(ctx, field.Selections, &res[idx1])
 			}()
 		}
 		if isLen1 {
@@ -3161,6 +3273,156 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 	return ec.___Type(ctx, field.Selections, res)
 }
 
+func UnmarshalASNInput(v interface{}) (ASNInput, error) {
+	var it ASNInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+			it.Name, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func UnmarshalAddressInput(v interface{}) (AddressInput, error) {
+	var it AddressInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "roadname":
+			var err error
+			it.Roadname, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "number":
+			var err error
+			it.Number, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "city":
+			var err error
+			it.City, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "province":
+			var err error
+			it.Province, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func UnmarshalLocationInput(v interface{}) (LocationInput, error) {
+	var it LocationInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+			it.Name, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func UnmarshalOrganizerInput(v interface{}) (OrganizerInput, error) {
+	var it OrganizerInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+			it.Name, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "longname":
+			var err error
+			it.Longname, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func UnmarshalScheduleInput(v interface{}) (ScheduleInput, error) {
+	var it ScheduleInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "description":
+			var err error
+			it.Description, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "start":
+			var err error
+			it.Start, err = graphql.UnmarshalTime(v)
+			if err != nil {
+				return it, err
+			}
+		case "finish":
+			var err error
+			it.Finish, err = graphql.UnmarshalTime(v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func UnmarshalTrainingInput(v interface{}) (TrainingInput, error) {
+	var it TrainingInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+			it.Name, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "description":
+			var err error
+			it.Description, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) FieldMiddleware(ctx context.Context, obj interface{}, next graphql.Resolver) (ret interface{}) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -3189,7 +3451,9 @@ var parsedSchema = gqlparser.MustLoadSchema(
 #
 # https://gqlgen.com/getting-started/
 
-type AddressItem {
+scalar Time
+
+type Address {
 	id: ID!
 	roadname: String!
 	number: String!
@@ -3197,75 +3461,106 @@ type AddressItem {
 	province: String!	
 }
 
-type LocationItem {
-	id: ID!
-	name: String!
-	address: AddressItem!
+input AddressInput {
+	roadname: String!
+	number: String!
+	city: String!
+	province: String!
 }
 
-type OrganizerItem {
+input LocationInput {
+	name: String!
+}
+
+type Location {
+	id: ID!
+	name: String!
+	address: Address!
+}
+
+input OrganizerInput {
+	name: String!
+	longname: String!
+}
+
+type Organizer {
   	id: ID!
   	name: String!
   	longname: String!
-  	location: LocationItem!
+  	location: Location!
 }
 
-type CategoryItem {
+type Category {
 	id: ID!
 	name: String!
 	description: String!
 }
 
-type ScheduleItem {
+type Schedule {
 	id: ID!
 	description: String!
-	start: String!
-	finish: String!
+	start: Time!
+	finish: Time!
 }
 
-type OPDItem {
+type OPD {
 	id: ID!
 	name: String!
-	address: AddressItem!
+	address: Address!
 }
 
-type ASNItem {
+input ASNInput {
+	name: String!
+}
+
+type ASN {
 	id: ID!
 	name: String!
 	nip: String!
 	current_grade: String!
-	current_places: OPDItem!
+	current_places: OPD!
 }
 
-type ParticipantItem {
+type Participant {
 	id: ID!
-	asn: ASNItem!
+	asn: ASN!
 }
 
-type TrainingItem {
+type Training {
 	id: ID!
 	name: String!
 	description: String!
-	heldat: ScheduleItem!
-	organizer: OrganizerItem!
-	participants: [ParticipantItem!]!
+	heldAt: Schedule!
+	organizer: Organizer!
+	participants: [Participant!]!
 }
 
 
 # Query
 type Query {
-	traininglist: [TrainingItem!]!
+	traininglist: [Training!]!
 }
 
+# input 
+input ScheduleInput {
+	description: String!
+	start: Time!
+	finish: Time!
+}
 
-#type Mutation {
-#	createAddressItem()
-#	createLocationItem()
-#	createOrganizerItem()
-#	createCategoryItem()
+input TrainingInput {
+	name: String!
+	description: String!
+}
+
+type Mutation {
+#	createAddress()
+#	createLocation()
+#	createOrganizer()
+#	createCategory()
 #	createOPDItem()
-#	createTrainingItem()
-#	createASNItem()
-#	createParticipantItem()
-#}`},
+	createTraining(input: TrainingInput!): Training!
+#	createASN()
+#	createParticipant()
+}`},
 )

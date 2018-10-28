@@ -2,7 +2,9 @@
 #
 # https://gqlgen.com/getting-started/
 
-type AddressItem {
+scalar Time
+
+type Address {
 	id: ID!
 	roadname: String!
 	number: String!
@@ -10,74 +12,105 @@ type AddressItem {
 	province: String!	
 }
 
-type LocationItem {
-	id: ID!
-	name: String!
-	address: AddressItem!
+input AddressInput {
+	roadname: String!
+	number: String!
+	city: String!
+	province: String!
 }
 
-type OrganizerItem {
+input LocationInput {
+	name: String!
+}
+
+type Location {
+	id: ID!
+	name: String!
+	address: Address!
+}
+
+input OrganizerInput {
+	name: String!
+	longname: String!
+}
+
+type Organizer {
   	id: ID!
   	name: String!
   	longname: String!
-  	location: LocationItem!
+  	location: Location!
 }
 
-type CategoryItem {
+type Category {
 	id: ID!
 	name: String!
 	description: String!
 }
 
-type ScheduleItem {
+type Schedule {
 	id: ID!
 	description: String!
-	start: String!
-	finish: String!
+	start: Time!
+	finish: Time!
 }
 
-type OPDItem {
+type OPD {
 	id: ID!
 	name: String!
-	address: AddressItem!
+	address: Address!
 }
 
-type ASNItem {
+input ASNInput {
+	name: String!
+}
+
+type ASN {
 	id: ID!
 	name: String!
 	nip: String!
 	current_grade: String!
-	current_places: OPDItem!
+	current_places: OPD!
 }
 
-type ParticipantItem {
+type Participant {
 	id: ID!
-	asn: ASNItem!
+	asn: ASN!
 }
 
-type TrainingItem {
+type Training {
 	id: ID!
 	name: String!
 	description: String!
-	heldat: ScheduleItem!
-	organizer: OrganizerItem!
-	participants: [ParticipantItem!]!
+	heldAt: Schedule!
+	organizer: Organizer!
+	participants: [Participant!]!
 }
 
 
 # Query
 type Query {
-	traininglist: [TrainingItem!]!
+	traininglist: [Training!]!
 }
 
+# input 
+input ScheduleInput {
+	description: String!
+	start: Time!
+	finish: Time!
+}
 
-#type Mutation {
-#	createAddressItem()
-#	createLocationItem()
-#	createOrganizerItem()
-#	createCategoryItem()
+input TrainingInput {
+	name: String!
+	description: String!
+}
+
+type Mutation {
+#	createAddress()
+#	createLocation()
+#	createOrganizer()
+#	createCategory()
 #	createOPDItem()
-#	createTrainingItem()
-#	createASNItem()
-#	createParticipantItem()
-#}
+	createTraining(input: TrainingInput!): Training!
+#	createASN()
+#	createParticipant()
+}

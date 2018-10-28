@@ -6,12 +6,12 @@
 schema:
 - schema.graphql
 exec:
-  filename: graph/generated.go
+  filename: graph/graph.go
   package: graph
 model:
-  filename: entity/entity.go
-  package: entity
+  filename: graph/entity.go
+  package: graph
 resolver:
-  filename: resolver/resolver.go
-  package: resolver
+  filename: graph/resolver.go
+  package: graph
   type: Resolver

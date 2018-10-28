@@ -42,6 +42,14 @@
   version = "v0.5.0"
 
 [[projects]]
+  digest = "1:c2a594011eed07da14918c519a5b1d08e4bafb2497037f6a426dc310428df4d3"
+  name = "github.com/segmentio/ksuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "ffd9a8aaaf8f40792e055371eba06542348e991e"
+  version = "v1.0.2"
+
+[[projects]]
   branch = "master"
   digest = "1:7fa8a2105f0b0853395a85d3dd8ef1475c44919374c6496dba7b987586edaced"
   name = "github.com/vektah/gqlparser"
@@ -64,6 +72,7 @@
     "github.com/99designs/gqlgen/graphql",
     "github.com/99designs/gqlgen/graphql/introspection",
     "github.com/99designs/gqlgen/handler",
+    "github.com/segmentio/ksuid",
     "github.com/vektah/gqlparser",
     "github.com/vektah/gqlparser/ast",
   ]

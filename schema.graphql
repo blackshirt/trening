@@ -1,10 +1,10 @@
 # GraphQL schema example
 #
-# https://gqlgen.com/getting-started/
+#https://gqlgen.com/getting-started
 
 scalar Time
 
-type Address {
+type Location {
 	id: ID!
 	roadname: String!
 	number: String!
@@ -12,39 +12,48 @@ type Address {
 	province: String!	
 }
 
-input AddressInput {
+input LocationInput {
 	roadname: String!
 	number: String!
 	city: String!
 	province: String!
 }
 
-input LocationInput {
-	name: String!
-}
 
-type Location {
+type Address {
 	id: ID!
 	name: String!
-	address: Address!
+	address: Location!
 }
 
-input OrganizerInput {
+input AddressInput {
 	name: String!
-	longname: String!
+	address: LocationInput!
 }
+
 
 type Organizer {
   	id: ID!
   	name: String!
   	longname: String!
-  	location: Location!
+  	address: Address!
+}
+
+input OrganizerInput {
+	name: String!
+	longname: String!
+	address: AddressInput!
 }
 
 type Category {
 	id: ID!
 	name: String!
 	description: String!
+}
+
+input CategoryInput {
+  name: String!
+  description: String!
 }
 
 type Schedule {
@@ -54,28 +63,42 @@ type Schedule {
 	finish: Time!
 }
 
+input ScheduleInput {
+	description: String!
+	start: Time!
+	finish: Time!
+}
+
+
 type OPD {
 	id: ID!
 	name: String!
 	address: Address!
 }
 
-input ASNInput {
-	name: String!
+input OPDInput {
+  name: String!
+  address: AddressInput!
 }
 
-type ASN {
+
+type Participant {
 	id: ID!
 	name: String!
 	nip: String!
+	current_job: String!
 	current_grade: String!
 	current_places: OPD!
 }
 
-type Participant {
-	id: ID!
-	asn: ASN!
+input ParticipantInput {
+  name: String!
+  nip: String!
+  current_job: String!
+  current_grade: String!
+  current_places: OPDInput!
 }
+
 
 type Training {
 	id: ID!
@@ -86,22 +109,18 @@ type Training {
 	participants: [Participant!]!
 }
 
+input TrainingInput {
+  name: String!
+  description: String!
+  heldAt: ScheduleInput!
+  organizer: OrganizerInput!
+  participants: [ParticipantInput!]!
+}
+
 
 # Query
 type Query {
 	traininglist: [Training!]!
-}
-
-# input 
-input ScheduleInput {
-	description: String!
-	start: Time!
-	finish: Time!
-}
-
-input TrainingInput {
-	name: String!
-	description: String!
 }
 
 type Mutation {

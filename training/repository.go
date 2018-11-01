@@ -9,8 +9,8 @@ import (
 
 type Repository interface {
 	PutTraining(ctx context.Context, t graph.Training) error
-	GetTrainingByID(ctx context.Context, id string) (graph.Training, error)
-	GetListTrainings(ctx context.Context, offset, limit int) ([]graph.Training, error)
+	GetTraining(ctx context.Context, id string) (graph.Training, error)
+	GetTrainings(ctx context.Context, offset, limit int) ([]graph.Training, error)
 }
 
 type mysqlRepository struct {
@@ -43,7 +43,7 @@ func (r mysqlRepository) PutTraining(ctx context.Context, t graph.Training) erro
 	return err
 }
 
-func (r mysqlRepository) GetTrainingByID(ctx context.Context, id string) (graph.Training, error) {
+func (r mysqlRepository) GetTraining(ctx context.Context, id string) (graph.Training, error) {
 	q := "SELECT id, name, description FROM training WHERE id=?"
 	row := r.db.QueryRowContext(ctx, q, id)
 	t := graph.Training{}
@@ -53,7 +53,7 @@ func (r mysqlRepository) GetTrainingByID(ctx context.Context, id string) (graph.
 	return t, nil
 }
 
-func (r mysqlRepository) (ctx context.Context, offset, limit int) ([]graph.Training, error) {
+func (r mysqlRepository) GetTrainings(ctx context.Context, offset, limit int) ([]graph.Training, error) {
 	q := "SELECT id, name, description FROM training ORDER BY id DESC OFFSET ? LIMIT ?"
 	rows, err := r.db.QueryContext(ctx, q, offset, limit)
 	if err != nil {

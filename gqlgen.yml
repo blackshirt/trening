@@ -3,15 +3,45 @@
 # Refer to https://gqlgen.com/config/
 # for detailed .gqlgen.yml documentation.
 
-schema:
-- schema.graphql
+schema: schema.graphql
 exec:
-  filename: graph/graph.go
+  filename: graph/runtime.go
   package: graph
 model:
-  filename: graph/entity.go
+  filename: graph/model_gen.go
   package: graph
 resolver:
   filename: graph/resolver.go
   package: graph
   type: Resolver
+
+
+models:
+  Training:
+    model: github.com/blackshirt/trening/models.Training
+    fields:
+      heldAt:
+        resolver: true
+      organizer:
+        resolver: true
+      participants:
+        resolver: true
+  Organizer:
+    model: github.com/blackshirt/trening/models.Organizer
+    fields:
+      address:
+        resolver: true	
+  Schedule:
+    model: github.com/blackshirt/trening/models.Schedule
+  Participant:
+    model: github.com/blackshirt/trening/models.Participant
+    fields:
+      current_places:
+        resolver: true
+  OPD:
+    model: github.com/blackshirt/trening/models.OPD
+    fields:
+      address:
+        resolver: true
+  Address:
+    model: github.com/blackshirt/trening/models.Address

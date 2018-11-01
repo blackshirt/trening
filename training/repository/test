@@ -1,0 +1,52 @@
+table opd (
+	id integer primary key auto_increment,
+	name string unique,
+	long_name string unique,
+	road string,
+	number string,
+	block string,
+	district string,
+	city string not null,
+	province string
+)
+
+table asn (
+	id integer not null primary key auto_increment,
+	nip string not null unique,
+	name string not null,
+	current_job string
+	current_grade string,
+	current_places int references opd(id),
+	primary key(id, nip)
+)
+
+table organisasi (
+	id integer not null primary key auto_increment,
+	name string unique,
+	long_name string unique,
+	road string,
+	number string,
+	block string,
+	district string,
+	city string not null,
+	province string
+)
+
+table schedule_detail (
+	id integer not null primary key auto_increment,
+	trainox integer references trainox(id),
+	description string,
+	start date
+	finish date
+)
+
+table trainox (
+	id integer not null primary key auto_increment,
+	name string not null,
+	description string,
+	location integer references organisasi(id),
+	organizer integer references organisasi(id),
+)
+
+
+

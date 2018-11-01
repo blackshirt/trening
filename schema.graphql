@@ -4,102 +4,6 @@
 
 scalar Time
 
-type Location {
-	id: ID!
-	roadname: String!
-	number: String!
-	city: String!
-	province: String!	
-}
-
-input LocationInput {
-	roadname: String!
-	number: String!
-	city: String!
-	province: String!
-}
-
-
-type Address {
-	id: ID!
-	name: String!
-	address: Location!
-}
-
-input AddressInput {
-	name: String!
-	address: LocationInput!
-}
-
-
-type Organizer {
-  	id: ID!
-  	name: String!
-  	longname: String!
-  	address: Address!
-}
-
-input OrganizerInput {
-	name: String!
-	longname: String!
-	address: AddressInput!
-}
-
-type Category {
-	id: ID!
-	name: String!
-	description: String!
-}
-
-input CategoryInput {
-  name: String!
-  description: String!
-}
-
-type Schedule {
-	id: ID!
-	description: String!
-	start: Time!
-	finish: Time!
-}
-
-input ScheduleInput {
-	description: String!
-	start: Time!
-	finish: Time!
-}
-
-
-type OPD {
-	id: ID!
-	name: String!
-	address: Address!
-}
-
-input OPDInput {
-  name: String!
-  address: AddressInput!
-}
-
-
-type Participant {
-	id: ID!
-	name: String!
-	nip: String!
-	current_job: String!
-	current_grade: String!
-	current_places: OPD!
-}
-
-input ParticipantInput {
-  name: String!
-  nip: String!
-  current_job: String!
-  current_grade: String!
-  current_places: OPDInput!
-}
-
-
 type Training {
 	id: ID!
 	name: String!
@@ -118,10 +22,83 @@ input TrainingInput {
 }
 
 
+type Schedule {
+	id: ID!
+	description: String!
+	start: Time!
+	finish: Time!
+}
+
+input ScheduleInput {
+	description: String!
+	start: Time!
+	finish: Time!
+}
+
+type Organizer {
+  	id: ID!
+  	name: String!
+  	longname: String!
+  	address: Address!
+}
+
+input OrganizerInput {
+	name: String!
+	longname: String!
+	address: AddressInput!
+}
+
+type Participant {
+	id: ID!
+	name: String!
+	nip: String!
+	current_job: String!
+	current_grade: String!
+	current_places: OPD!
+}
+
+input ParticipantInput {
+  name: String!
+  nip: String!
+  current_job: String!
+  current_grade: String!
+  current_places: OPDInput!
+}
+
+type OPD {
+	id: ID!
+	name: String!
+	address: Address!
+}
+
+input OPDInput {
+  name: String!
+  address: AddressInput!
+}
+
+type Address {
+	id: ID!
+	name: String!
+	roadname: String!
+	number: String!
+	city: String!
+	province: String!
+}
+
+input AddressInput {
+	name: String!
+	roadname: String!
+	number: String!
+	city: String!
+	province: String!
+}
+
 # Query
 type Query {
 	traininglist: [Training!]!
 }
+
+
 
 type Mutation {
 #	createAddress()

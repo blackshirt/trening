@@ -4,8 +4,6 @@ table opd (
 	long_name string unique,
 	road string,
 	number string,
-	block string,
-	district string,
 	city string not null,
 	province string
 )
@@ -26,24 +24,17 @@ table organisasi (
 	long_name string unique,
 	road string,
 	number string,
-	block string,
-	district string,
 	city string not null,
 	province string
 )
 
-table schedule_detail (
-	id integer not null primary key auto_increment,
-	trainox integer references trainox(id),
-	description string,
-	start date
-	finish date
-)
 
-table trainox (
+table trainox_master (
 	id integer not null primary key auto_increment,
 	name string not null,
 	description string,
+	start date,
+	finish date,
 	location integer references organisasi(id),
 	organizer integer references organisasi(id),
 )

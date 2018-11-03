@@ -10,7 +10,7 @@ type Training {
 	description: String!
 	heldAt: Schedule!
 	organizer: Organizer!
-	participants: [Participant!]!
+	participants: [ASN!]!
 }
 
 input TrainingInput {
@@ -48,7 +48,7 @@ input OrganizerInput {
 	address: AddressInput!
 }
 
-type Participant {
+type ASN {
 	id: ID!
 	name: String!
 	nip: String!

@@ -1,0 +1,61 @@
+CREATE TABLE IF NOT EXISTS `opd` (
+	`id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`name` VARCHAR(50) UNIQUE,
+	`long_name` VARCHAR(200) UNIQUE,
+	`road` VARCHAR(50) NOT NULL,
+	`number` VARCHAR(20) NOT NULL,
+	`city` VARCHAR(50) NOT NULL,
+	`province` VARCHAR(50) NOT NULL,
+
+	PRIMARY KEY (`id`)
+) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS `asn` (
+	`id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`nip` CHAR(18) NOT NULL UNIQUE, # nip exactly 18 char
+	`name` VARCHAR(50) NOT NULL,
+	`current_job` VARCHAR(100) NOT NULL,
+	`current_grade` VARCHAR(50) NOT NULL,
+	`current_places` SMALLINT UNSIGNED NOT NULL,
+
+	PRIMARY KEY (`id`, `nip`),
+	FOREIGN KEY (`current_places`) REFERENCES `opd`(`id`)
+) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS `organisasi` (
+	`id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`name` VARCHAR(100) UNIQUE,
+	`long_name` VARCHAR(200) UNIQUE,
+	`road` VARCHAR(50) NOT NULL,
+	`number` VARCHAR(20) NOT NULL,
+	`city` VARCHAR(50) NOT NULL,
+	`province` VARCHAR(50) NOT NULL,
+
+	PRIMARY KEY (`id`)
+) ENGINE = INNODB;
+
+
+CREATE TABLE IF NOT EXISTS `trainix_master` (
+	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`name` VARCHAR(150) NOT NULL,
+	`description` VARCHAR(250) NOT NULL,
+	`start` DATE NOT NULL,
+	`finish` DATE NOT NULL,
+
+  	PRIMARY KEY (`id`)
+) ENGINE = INNODB;
+
+CREATE TABLE IF NOT EXISTS `trainix_asn` (
+  	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  	`trainix` INT UNSIGNED NOT NULL,
+  	`asn` MEDIUMINT UNSIGNED NOT NULL,
+  	`location` MEDIUMINT UNSIGNED NOT NULL,
+	`organizer` MEDIUMINT UNSIGNED NOT NULL,
+
+	PRIMARY KEY (`id`),
+	FOREIGN KEY (`trainix`) REFERENCES `trainix_master`(`id`),
+	FOREIGN KEY (`asn`) REFERENCES `asn`(`id`),
+	FOREIGN KEY (`location`) REFERENCES `organisasi`(`id`),
+	FOREIGN KEY (`organizer`) REFERENCES `organisasi`(`id`)
+) ENGINE = INNODB;
+

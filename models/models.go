@@ -3,12 +3,12 @@ package models
 import "time"
 
 type Training struct {
-	ID           string        `json:"id"`
-	Name         string        `json:"name"`
-	Description  string        `json:"description"`
-	HeldAt       Schedule      `json:"heldAt"`
-	Organizer    Organizer     `json:"organizer"`
-	Participants []Participant `json:"participants"`
+	ID           string    `json:"id"`
+	Name         string    `json:"name"`
+	Description  string    `json:"description"`
+	HeldAt       Schedule  `json:"heldAt"`
+	Organizer    Organizer `json:"organizer"`
+	Participants []ASN     `json:"participants"`
 }
 
 type Schedule struct {
@@ -25,7 +25,7 @@ type Organizer struct {
 	Address  Address `json:"address"`
 }
 
-type Participant struct {
+type ASN struct {
 	ID            string `json:"id"`
 	Name          string `json:"name"`
 	Nip           string `json:"nip"`

@@ -2,14 +2,14 @@
 #
 #https://gqlgen.com/getting-started
 
-scalar Time
+scalar Date
 
 type Training {
-	id: ID!
+	id: Int!
 	name: String!
 	description: String!
 	heldAt: Schedule!
-	organizer: Organizer!
+	organizer: Organisasi!
 	participants: [ASN!]!
 }
 
@@ -17,39 +17,39 @@ input TrainingInput {
   name: String!
   description: String!
   heldAt: ScheduleInput!
-  organizer: OrganizerInput!
-  participants: [ParticipantInput!]!
+  organizer: OrganisasiInput!
+  participants: [ASNInput!]!
 }
 
 
 type Schedule {
-	id: ID!
+	id: Int!
 	description: String!
-	start: Time!
-	finish: Time!
+	start: Date!
+	finish: Date!
 }
 
 input ScheduleInput {
 	description: String!
-	start: Time!
-	finish: Time!
+	start: Date!
+	finish: Date!
 }
 
-type Organizer {
-  	id: ID!
+type Organisasi {
+  	id: Int!
   	name: String!
-  	longname: String!
+  	long_name: String!
   	address: Address!
 }
 
-input OrganizerInput {
+input OrganisasiInput {
 	name: String!
-	longname: String!
+	long_name: String!
 	address: AddressInput!
 }
 
 type ASN {
-	id: ID!
+	id: Int!
 	name: String!
 	nip: String!
 	current_job: String!
@@ -57,7 +57,7 @@ type ASN {
 	current_places: OPD!
 }
 
-input ParticipantInput {
+input ASNInput {
   name: String!
   nip: String!
   current_job: String!
@@ -66,20 +66,22 @@ input ParticipantInput {
 }
 
 type OPD {
-	id: ID!
-	name: String!
-	address: Address!
+  id: Int!
+	 name: String!
+  long_name: String!
+  address: Address!
 }
 
 input OPDInput {
   name: String!
+  long_name: String!
   address: AddressInput!
 }
 
 type Address {
-	id: ID!
+	id: Int!
 	name: String!
-	roadname: String!
+	road: String!
 	number: String!
 	city: String!
 	province: String!
@@ -87,11 +89,12 @@ type Address {
 
 input AddressInput {
 	name: String!
-	roadname: String!
+	road: String!
 	number: String!
 	city: String!
 	province: String!
 }
+
 
 # Query
 type Query {
@@ -99,14 +102,6 @@ type Query {
 }
 
 
-
 type Mutation {
-#	createAddress()
-#	createLocation()
-#	createOrganizer()
-#	createCategory()
-#	createOPDItem()
-	createTraining(input: TrainingInput!): Training!
-#	createASN()
-#	createParticipant()
+	 createTraining(input: TrainingInput!): Training!
 }

@@ -26,8 +26,8 @@ models:
         resolver: true
       participants:
         resolver: true
-  Organizer:
-    model: github.com/blackshirt/trening/models.Organizer
+  Organisasi:
+    model: github.com/blackshirt/trening/models.Organisasi
     fields:
       address:
         resolver: true	

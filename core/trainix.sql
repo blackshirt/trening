@@ -7,20 +7,9 @@ CREATE TABLE IF NOT EXISTS `opd` (
 	`city` VARCHAR(50) NOT NULL,
 	`province` VARCHAR(50) NOT NULL,
 
-	PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`)
 ) ENGINE = INNODB;
 
-CREATE TABLE IF NOT EXISTS `asn` (
-	`id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
-	`nip` CHAR(18) NOT NULL UNIQUE, # nip exactly 18 char
-	`name` VARCHAR(50) NOT NULL,
-	`current_job` VARCHAR(100) NOT NULL,
-	`current_grade` VARCHAR(50) NOT NULL,
-	`current_places` SMALLINT UNSIGNED NOT NULL,
-
-	PRIMARY KEY (`id`, `nip`),
-	FOREIGN KEY (`current_places`) REFERENCES `opd`(`id`)
-) ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `organisasi` (
 	`id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -31,29 +20,77 @@ CREATE TABLE IF NOT EXISTS `organisasi` (
 	`city` VARCHAR(50) NOT NULL,
 	`province` VARCHAR(50) NOT NULL,
 
-	PRIMARY KEY (`id`)
+	PRIMARY KEY (`id`),
+	KEY (`city`)
+) ENGINE = INNODB;
+
+
+CREATE TABLE IF NOT EXISTS `asn` (
+	`id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`nip` CHAR(18) NOT NULL UNIQUE, # nip exactly 18 char
+	`name` VARCHAR(50) NOT NULL,
+	`current_job` VARCHAR(100) NOT NULL,
+	`current_grade` VARCHAR(50) NOT NULL,
+	`current_places` SMALLINT UNSIGNED NOT NULL,
+
+	PRIMARY KEY (`id`, `nip`),
+	KEY (`name`),
+	FOREIGN KEY (`current_places`) REFERENCES `opd`(`id`)
+) ENGINE = INNODB;
+
+
+CREATE TABLE IF NOT EXISTS `trainix_category` (
+  `id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(20) NOT NULL UNIQUE,
+  `description` VARCHAR(200) NOT NULL,
+  
+  PRIMARY KEY (`id`),
+) ENGINE = INNODB;
+
+
+CREATE TABLE IF NOT EXISTS `trainix_type` (
+  `id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(20) NOT NULL UNIQUE,
+  `description` VARCHAR(200) NOT NULL,
+  
+  PRIMARY KEY (`id`),  
 ) ENGINE = INNODB;
 
 
 CREATE TABLE IF NOT EXISTS `trainix_master` (
-	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+ `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(150) NOT NULL,
 	`description` VARCHAR(250) NOT NULL,
-	`start` DATE NOT NULL,
-	`finish` DATE NOT NULL,
-
-  	PRIMARY KEY (`id`)
+ `category` SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  `type` SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  
+  PRIMARY KEY (`id`),
+  KEY (`name`)
+  FOREIGN KEY (`category`) REFERENCES `trainix_category`(`id`),
+  FOREIGN KEY (`type`) REFERENCES `trainix_type`(`id`)
 ) ENGINE = INNODB;
 
+
+CREATE TABLE IF NOT EXISTS `trainix_history` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `trx_id` INT UNSIGNED NOT NULL,
+  `start` DATE NOT NULL,
+	 `finish` DATE NOT NULL,
+	
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`trx_id`) REFERENCES `trainix_master`(`id`),
+) ENGINE = INNODB;
+
+
 CREATE TABLE IF NOT EXISTS `trainix_asn` (
-  	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  	`trainix` INT UNSIGNED NOT NULL,
-  	`asn` MEDIUMINT UNSIGNED NOT NULL,
-  	`location` MEDIUMINT UNSIGNED NOT NULL,
-	`organizer` MEDIUMINT UNSIGNED NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `trx_id` INT UNSIGNED NOT NULL,
+  `asn` MEDIUMINT UNSIGNED NOT NULL,
+  `location` MEDIUMINT UNSIGNED NOT NULL,
+  `organizer` MEDIUMINT UNSIGNED NOT NULL,
 
 	PRIMARY KEY (`id`),
-	FOREIGN KEY (`trainix`) REFERENCES `trainix_master`(`id`),
+	FOREIGN KEY (`trx_id`) REFERENCES `trainix_history`(`id`),
 	FOREIGN KEY (`asn`) REFERENCES `asn`(`id`),
 	FOREIGN KEY (`location`) REFERENCES `organisasi`(`id`),
 	FOREIGN KEY (`organizer`) REFERENCES `organisasi`(`id`)

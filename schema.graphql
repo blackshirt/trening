@@ -2,7 +2,6 @@
 #
 #https://gqlgen.com/getting-started
 
-scalar Date
 
 type Training {
 	id: Int!
@@ -25,14 +24,14 @@ input TrainingInput {
 type Schedule {
 	id: Int!
 	description: String!
-	start: Date!
-	finish: Date!
+	start: String!
+	finish: String!
 }
 
 input ScheduleInput {
 	description: String!
-	start: Date!
-	finish: Date!
+	start: String!
+	finish: String!
 }
 
 type Organisasi {
@@ -67,7 +66,7 @@ input ASNInput {
 
 type OPD {
   id: Int!
-	 name: String!
+  name: String!
   long_name: String!
   address: Address!
 }

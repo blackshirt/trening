@@ -58,36 +58,36 @@ CREATE TABLE IF NOT EXISTS `trainix_type` (
 
 
 CREATE TABLE IF NOT EXISTS `trainix_master` (
- `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(150) NOT NULL,
 	`description` VARCHAR(250) NOT NULL,
- `category` SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-  `type` SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+ 	`category` SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  	`type` SMALLINT UNSIGNED NOT NULL DEFAULT 0,
   
-  PRIMARY KEY (`id`),
-  KEY (`name`)
-  FOREIGN KEY (`category`) REFERENCES `trainix_category`(`id`),
-  FOREIGN KEY (`type`) REFERENCES `trainix_type`(`id`)
+  	PRIMARY KEY (`id`),
+  	KEY (`name`)
+  	FOREIGN KEY (`category`) REFERENCES `trainix_category`(`id`),
+  	FOREIGN KEY (`type`) REFERENCES `trainix_type`(`id`)
 ) ENGINE = INNODB;
 
 
 CREATE TABLE IF NOT EXISTS `trainix_history` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `trx_id` INT UNSIGNED NOT NULL,
-  `start` DATE NOT NULL,
-	 `finish` DATE NOT NULL,
+  	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  	`trx_id` INT UNSIGNED NOT NULL,
+  	`start` DATE NOT NULL,
+	`finish` DATE NOT NULL,
 	
-  PRIMARY KEY (`id`),
-  FOREIGN KEY (`trx_id`) REFERENCES `trainix_master`(`id`),
+ 	PRIMARY KEY (`id`),
+  	FOREIGN KEY (`trx_id`) REFERENCES `trainix_master`(`id`),
 ) ENGINE = INNODB;
 
 
 CREATE TABLE IF NOT EXISTS `trainix_asn` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `trx_id` INT UNSIGNED NOT NULL,
-  `asn` MEDIUMINT UNSIGNED NOT NULL,
-  `location` MEDIUMINT UNSIGNED NOT NULL,
-  `organizer` MEDIUMINT UNSIGNED NOT NULL,
+  	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  	`trx_id` INT UNSIGNED NOT NULL,
+  	`asn` MEDIUMINT UNSIGNED NOT NULL,
+  	`location` MEDIUMINT UNSIGNED NOT NULL,
+  	`organizer` MEDIUMINT UNSIGNED NOT NULL,
 
 	PRIMARY KEY (`id`),
 	FOREIGN KEY (`trx_id`) REFERENCES `trainix_history`(`id`),

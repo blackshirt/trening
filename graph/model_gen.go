@@ -2,30 +2,7 @@
 
 package graph
 
-import (
-	time "time"
-)
-
-type AddressInput struct {
-	Name     string `json:"name"`
-	Roadname string `json:"roadname"`
-	Number   string `json:"number"`
-	City     string `json:"city"`
-	Province string `json:"province"`
-}
-
-type OPDInput struct {
-	Name    string       `json:"name"`
-	Address AddressInput `json:"address"`
-}
-
-type OrganizerInput struct {
-	Name     string       `json:"name"`
-	Longname string       `json:"longname"`
-	Address  AddressInput `json:"address"`
-}
-
-type ParticipantInput struct {
+type ASNInput struct {
 	Name          string   `json:"name"`
 	Nip           string   `json:"nip"`
 	CurrentJob    string   `json:"current_job"`
@@ -33,16 +10,36 @@ type ParticipantInput struct {
 	CurrentPlaces OPDInput `json:"current_places"`
 }
 
+type AddressInput struct {
+	Name     string `json:"name"`
+	Road     string `json:"road"`
+	Number   string `json:"number"`
+	City     string `json:"city"`
+	Province string `json:"province"`
+}
+
+type OPDInput struct {
+	Name     string       `json:"name"`
+	LongName string       `json:"long_name"`
+	Address  AddressInput `json:"address"`
+}
+
+type OrganisasiInput struct {
+	Name     string       `json:"name"`
+	LongName string       `json:"long_name"`
+	Address  AddressInput `json:"address"`
+}
+
 type ScheduleInput struct {
-	Description string    `json:"description"`
-	Start       time.Time `json:"start"`
-	Finish      time.Time `json:"finish"`
+	Description string `json:"description"`
+	Start       string `json:"start"`
+	Finish      string `json:"finish"`
 }
 
 type TrainingInput struct {
-	Name         string             `json:"name"`
-	Description  string             `json:"description"`
-	HeldAt       ScheduleInput      `json:"heldAt"`
-	Organizer    OrganizerInput     `json:"organizer"`
-	Participants []ParticipantInput `json:"participants"`
+	Name         string          `json:"name"`
+	Description  string          `json:"description"`
+	HeldAt       ScheduleInput   `json:"heldAt"`
+	Organizer    OrganisasiInput `json:"organizer"`
+	Participants []ASNInput      `json:"participants"`
 }

@@ -1,21 +1,19 @@
 package models
 
-import "time"
-
 type Training struct {
-	ID           int    `json:"id"`
-	Name         string    `json:"name"`
-	Description  string    `json:"description"`
-	HeldAt       Schedule  `json:"heldAt"`
+	ID           int        `json:"id"`
+	Name         string     `json:"name"`
+	Description  string     `json:"description"`
+	HeldAt       Schedule   `json:"heldAt"`
 	Organizer    Organisasi `json:"organizer"`
-	Participants []ASN     `json:"participants"`
+	Participants []ASN      `json:"participants"`
 }
 
 type Schedule struct {
 	ID          int    `json:"id"`
-	Description string    `json:"description"`
-	Start       time.Time `json:"start"`
-	Finish      time.Time `json:"finish"`
+	Description string `json:"description"`
+	Start       string `json:"start"`
+	Finish      string `json:"finish"`
 }
 
 type Organisasi struct {
@@ -44,7 +42,8 @@ type Address struct {
 }
 
 type OPD struct {
-	ID      int     `json:"id"`
-	Name    string  `json:"name"`
-	Address Address `json:"address"`
+	ID       int     `json:"id"`
+	Name     string  `json:"name"`
+	LongName string  `json:"long_name"`
+	Address  Address `json:"address"`
 }

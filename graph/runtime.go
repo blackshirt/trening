@@ -7,7 +7,6 @@ import (
 	context "context"
 	strconv "strconv"
 	sync "sync"
-	time "time"
 
 	graphql "github.com/99designs/gqlgen/graphql"
 	introspection "github.com/99designs/gqlgen/graphql/introspection"
@@ -32,10 +31,10 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	ASN() ASNResolver
 	Mutation() MutationResolver
 	OPD() OPDResolver
-	Organizer() OrganizerResolver
-	Participant() ParticipantResolver
+	Organisasi() OrganisasiResolver
 	Query() QueryResolver
 	Training() TrainingResolver
 }
@@ -44,10 +43,19 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	Asn struct {
+		Id            func(childComplexity int) int
+		Name          func(childComplexity int) int
+		Nip           func(childComplexity int) int
+		CurrentJob    func(childComplexity int) int
+		CurrentGrade  func(childComplexity int) int
+		CurrentPlaces func(childComplexity int) int
+	}
+
 	Address struct {
 		Id       func(childComplexity int) int
 		Name     func(childComplexity int) int
-		Roadname func(childComplexity int) int
+		Road     func(childComplexity int) int
 		Number   func(childComplexity int) int
 		City     func(childComplexity int) int
 		Province func(childComplexity int) int
@@ -58,25 +66,17 @@ type ComplexityRoot struct {
 	}
 
 	Opd struct {
-		Id      func(childComplexity int) int
-		Name    func(childComplexity int) int
-		Address func(childComplexity int) int
-	}
-
-	Organizer struct {
 		Id       func(childComplexity int) int
 		Name     func(childComplexity int) int
-		Longname func(childComplexity int) int
+		LongName func(childComplexity int) int
 		Address  func(childComplexity int) int
 	}
 
-	Participant struct {
-		Id            func(childComplexity int) int
-		Name          func(childComplexity int) int
-		Nip           func(childComplexity int) int
-		CurrentJob    func(childComplexity int) int
-		CurrentGrade  func(childComplexity int) int
-		CurrentPlaces func(childComplexity int) int
+	Organisasi struct {
+		Id       func(childComplexity int) int
+		Name     func(childComplexity int) int
+		LongName func(childComplexity int) int
+		Address  func(childComplexity int) int
 	}
 
 	Query struct {
@@ -100,25 +100,25 @@ type ComplexityRoot struct {
 	}
 }
 
+type ASNResolver interface {
+	CurrentPlaces(ctx context.Context, obj *models.ASN) (models.OPD, error)
+}
 type MutationResolver interface {
 	CreateTraining(ctx context.Context, input TrainingInput) (models.Training, error)
 }
 type OPDResolver interface {
 	Address(ctx context.Context, obj *models.OPD) (models.Address, error)
 }
-type OrganizerResolver interface {
-	Address(ctx context.Context, obj *models.Organizer) (models.Address, error)
-}
-type ParticipantResolver interface {
-	CurrentPlaces(ctx context.Context, obj *models.Participant) (models.OPD, error)
+type OrganisasiResolver interface {
+	Address(ctx context.Context, obj *models.Organisasi) (models.Address, error)
 }
 type QueryResolver interface {
 	Traininglist(ctx context.Context) ([]models.Training, error)
 }
 type TrainingResolver interface {
 	HeldAt(ctx context.Context, obj *models.Training) (models.Schedule, error)
-	Organizer(ctx context.Context, obj *models.Training) (models.Organizer, error)
-	Participants(ctx context.Context, obj *models.Training) ([]models.Participant, error)
+	Organizer(ctx context.Context, obj *models.Training) (models.Organisasi, error)
+	Participants(ctx context.Context, obj *models.Training) ([]models.ASN, error)
 }
 
 func field_Mutation_createTraining_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
@@ -194,6 +194,48 @@ func (e *executableSchema) Schema() *ast.Schema {
 func (e *executableSchema) Complexity(typeName, field string, childComplexity int, rawArgs map[string]interface{}) (int, bool) {
 	switch typeName + "." + field {
 
+	case "ASN.id":
+		if e.complexity.Asn.Id == nil {
+			break
+		}
+
+		return e.complexity.Asn.Id(childComplexity), true
+
+	case "ASN.name":
+		if e.complexity.Asn.Name == nil {
+			break
+		}
+
+		return e.complexity.Asn.Name(childComplexity), true
+
+	case "ASN.nip":
+		if e.complexity.Asn.Nip == nil {
+			break
+		}
+
+		return e.complexity.Asn.Nip(childComplexity), true
+
+	case "ASN.current_job":
+		if e.complexity.Asn.CurrentJob == nil {
+			break
+		}
+
+		return e.complexity.Asn.CurrentJob(childComplexity), true
+
+	case "ASN.current_grade":
+		if e.complexity.Asn.CurrentGrade == nil {
+			break
+		}
+
+		return e.complexity.Asn.CurrentGrade(childComplexity), true
+
+	case "ASN.current_places":
+		if e.complexity.Asn.CurrentPlaces == nil {
+			break
+		}
+
+		return e.complexity.Asn.CurrentPlaces(childComplexity), true
+
 	case "Address.id":
 		if e.complexity.Address.Id == nil {
 			break
@@ -208,12 +250,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Address.Name(childComplexity), true
 
-	case "Address.roadname":
-		if e.complexity.Address.Roadname == nil {
+	case "Address.road":
+		if e.complexity.Address.Road == nil {
 			break
 		}
 
-		return e.complexity.Address.Roadname(childComplexity), true
+		return e.complexity.Address.Road(childComplexity), true
 
 	case "Address.number":
 		if e.complexity.Address.Number == nil {
@@ -262,6 +304,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Opd.Name(childComplexity), true
 
+	case "OPD.long_name":
+		if e.complexity.Opd.LongName == nil {
+			break
+		}
+
+		return e.complexity.Opd.LongName(childComplexity), true
+
 	case "OPD.address":
 		if e.complexity.Opd.Address == nil {
 			break
@@ -269,75 +318,33 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Opd.Address(childComplexity), true
 
-	case "Organizer.id":
-		if e.complexity.Organizer.Id == nil {
+	case "Organisasi.id":
+		if e.complexity.Organisasi.Id == nil {
 			break
 		}
 
-		return e.complexity.Organizer.Id(childComplexity), true
+		return e.complexity.Organisasi.Id(childComplexity), true
 
-	case "Organizer.name":
-		if e.complexity.Organizer.Name == nil {
+	case "Organisasi.name":
+		if e.complexity.Organisasi.Name == nil {
 			break
 		}
 
-		return e.complexity.Organizer.Name(childComplexity), true
+		return e.complexity.Organisasi.Name(childComplexity), true
 
-	case "Organizer.longname":
-		if e.complexity.Organizer.Longname == nil {
+	case "Organisasi.long_name":
+		if e.complexity.Organisasi.LongName == nil {
 			break
 		}
 
-		return e.complexity.Organizer.Longname(childComplexity), true
+		return e.complexity.Organisasi.LongName(childComplexity), true
 
-	case "Organizer.address":
-		if e.complexity.Organizer.Address == nil {
+	case "Organisasi.address":
+		if e.complexity.Organisasi.Address == nil {
 			break
 		}
 
-		return e.complexity.Organizer.Address(childComplexity), true
-
-	case "Participant.id":
-		if e.complexity.Participant.Id == nil {
-			break
-		}
-
-		return e.complexity.Participant.Id(childComplexity), true
-
-	case "Participant.name":
-		if e.complexity.Participant.Name == nil {
-			break
-		}
-
-		return e.complexity.Participant.Name(childComplexity), true
-
-	case "Participant.nip":
-		if e.complexity.Participant.Nip == nil {
-			break
-		}
-
-		return e.complexity.Participant.Nip(childComplexity), true
-
-	case "Participant.current_job":
-		if e.complexity.Participant.CurrentJob == nil {
-			break
-		}
-
-		return e.complexity.Participant.CurrentJob(childComplexity), true
-
-	case "Participant.current_grade":
-		if e.complexity.Participant.CurrentGrade == nil {
-			break
-		}
-
-		return e.complexity.Participant.CurrentGrade(childComplexity), true
-
-	case "Participant.current_places":
-		if e.complexity.Participant.CurrentPlaces == nil {
-			break
-		}
-
-		return e.complexity.Participant.CurrentPlaces(childComplexity), true
+		return e.complexity.Organisasi.Address(childComplexity), true
 
 	case "Query.traininglist":
 		if e.complexity.Query.Traininglist == nil {
@@ -462,6 +469,205 @@ type executionContext struct {
 	*executableSchema
 }
 
+var aSNImplementors = []string{"ASN"}
+
+// nolint: gocyclo, errcheck, gas, goconst
+func (ec *executionContext) _ASN(ctx context.Context, sel ast.SelectionSet, obj *models.ASN) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, aSNImplementors)
+
+	var wg sync.WaitGroup
+	out := graphql.NewOrderedMap(len(fields))
+	invalid := false
+	for i, field := range fields {
+		out.Keys[i] = field.Alias
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ASN")
+		case "id":
+			out.Values[i] = ec._ASN_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		case "name":
+			out.Values[i] = ec._ASN_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		case "nip":
+			out.Values[i] = ec._ASN_nip(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		case "current_job":
+			out.Values[i] = ec._ASN_current_job(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		case "current_grade":
+			out.Values[i] = ec._ASN_current_grade(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		case "current_places":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._ASN_current_places(ctx, field, obj)
+				if out.Values[i] == graphql.Null {
+					invalid = true
+				}
+				wg.Done()
+			}(i, field)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	wg.Wait()
+	if invalid {
+		return graphql.Null
+	}
+	return out
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _ASN_id(ctx context.Context, field graphql.CollectedField, obj *models.ASN) graphql.Marshaler {
+	rctx := &graphql.ResolverContext{
+		Object: "ASN",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	rctx.Result = res
+	return graphql.MarshalInt(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _ASN_name(ctx context.Context, field graphql.CollectedField, obj *models.ASN) graphql.Marshaler {
+	rctx := &graphql.ResolverContext{
+		Object: "ASN",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	return graphql.MarshalString(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _ASN_nip(ctx context.Context, field graphql.CollectedField, obj *models.ASN) graphql.Marshaler {
+	rctx := &graphql.ResolverContext{
+		Object: "ASN",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nip, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	return graphql.MarshalString(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _ASN_current_job(ctx context.Context, field graphql.CollectedField, obj *models.ASN) graphql.Marshaler {
+	rctx := &graphql.ResolverContext{
+		Object: "ASN",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CurrentJob, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	return graphql.MarshalString(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _ASN_current_grade(ctx context.Context, field graphql.CollectedField, obj *models.ASN) graphql.Marshaler {
+	rctx := &graphql.ResolverContext{
+		Object: "ASN",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CurrentGrade, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	return graphql.MarshalString(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _ASN_current_places(ctx context.Context, field graphql.CollectedField, obj *models.ASN) graphql.Marshaler {
+	rctx := &graphql.ResolverContext{
+		Object: "ASN",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.ASN().CurrentPlaces(rctx, obj)
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.OPD)
+	rctx.Result = res
+
+	return ec._OPD(ctx, field.Selections, &res)
+}
+
 var addressImplementors = []string{"Address"}
 
 // nolint: gocyclo, errcheck, gas, goconst
@@ -486,8 +692,8 @@ func (ec *executionContext) _Address(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
-		case "roadname":
-			out.Values[i] = ec._Address_roadname(ctx, field, obj)
+		case "road":
+			out.Values[i] = ec._Address_road(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
@@ -535,9 +741,9 @@ func (ec *executionContext) _Address_id(ctx context.Context, field graphql.Colle
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	rctx.Result = res
-	return graphql.MarshalID(res)
+	return graphql.MarshalInt(res)
 }
 
 // nolint: vetshadow
@@ -564,7 +770,7 @@ func (ec *executionContext) _Address_name(ctx context.Context, field graphql.Col
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Address_roadname(ctx context.Context, field graphql.CollectedField, obj *models.Address) graphql.Marshaler {
+func (ec *executionContext) _Address_road(ctx context.Context, field graphql.CollectedField, obj *models.Address) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
 		Object: "Address",
 		Args:   nil,
@@ -573,7 +779,7 @@ func (ec *executionContext) _Address_roadname(ctx context.Context, field graphql
 	ctx = graphql.WithResolverContext(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Roadname, nil
+		return obj.Road, nil
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -744,6 +950,11 @@ func (ec *executionContext) _OPD(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
+		case "long_name":
+			out.Values[i] = ec._OPD_long_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
 		case "address":
 			wg.Add(1)
 			go func(i int, field graphql.CollectedField) {
@@ -782,9 +993,9 @@ func (ec *executionContext) _OPD_id(ctx context.Context, field graphql.Collected
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	rctx.Result = res
-	return graphql.MarshalID(res)
+	return graphql.MarshalInt(res)
 }
 
 // nolint: vetshadow
@@ -798,6 +1009,29 @@ func (ec *executionContext) _OPD_name(ctx context.Context, field graphql.Collect
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Name, nil
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	rctx.Result = res
+	return graphql.MarshalString(res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _OPD_long_name(ctx context.Context, field graphql.CollectedField, obj *models.OPD) graphql.Marshaler {
+	rctx := &graphql.ResolverContext{
+		Object: "OPD",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LongName, nil
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -834,11 +1068,11 @@ func (ec *executionContext) _OPD_address(ctx context.Context, field graphql.Coll
 	return ec._Address(ctx, field.Selections, &res)
 }
 
-var organizerImplementors = []string{"Organizer"}
+var organisasiImplementors = []string{"Organisasi"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _Organizer(ctx context.Context, sel ast.SelectionSet, obj *models.Organizer) graphql.Marshaler {
-	fields := graphql.CollectFields(ctx, sel, organizerImplementors)
+func (ec *executionContext) _Organisasi(ctx context.Context, sel ast.SelectionSet, obj *models.Organisasi) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, organisasiImplementors)
 
 	var wg sync.WaitGroup
 	out := graphql.NewOrderedMap(len(fields))
@@ -848,26 +1082,26 @@ func (ec *executionContext) _Organizer(ctx context.Context, sel ast.SelectionSet
 
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Organizer")
+			out.Values[i] = graphql.MarshalString("Organisasi")
 		case "id":
-			out.Values[i] = ec._Organizer_id(ctx, field, obj)
+			out.Values[i] = ec._Organisasi_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "name":
-			out.Values[i] = ec._Organizer_name(ctx, field, obj)
+			out.Values[i] = ec._Organisasi_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
-		case "longname":
-			out.Values[i] = ec._Organizer_longname(ctx, field, obj)
+		case "long_name":
+			out.Values[i] = ec._Organisasi_long_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "address":
 			wg.Add(1)
 			go func(i int, field graphql.CollectedField) {
-				out.Values[i] = ec._Organizer_address(ctx, field, obj)
+				out.Values[i] = ec._Organisasi_address(ctx, field, obj)
 				if out.Values[i] == graphql.Null {
 					invalid = true
 				}
@@ -885,9 +1119,9 @@ func (ec *executionContext) _Organizer(ctx context.Context, sel ast.SelectionSet
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Organizer_id(ctx context.Context, field graphql.CollectedField, obj *models.Organizer) graphql.Marshaler {
+func (ec *executionContext) _Organisasi_id(ctx context.Context, field graphql.CollectedField, obj *models.Organisasi) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "Organizer",
+		Object: "Organisasi",
 		Args:   nil,
 		Field:  field,
 	}
@@ -902,15 +1136,15 @@ func (ec *executionContext) _Organizer_id(ctx context.Context, field graphql.Col
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	rctx.Result = res
-	return graphql.MarshalID(res)
+	return graphql.MarshalInt(res)
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Organizer_name(ctx context.Context, field graphql.CollectedField, obj *models.Organizer) graphql.Marshaler {
+func (ec *executionContext) _Organisasi_name(ctx context.Context, field graphql.CollectedField, obj *models.Organisasi) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "Organizer",
+		Object: "Organisasi",
 		Args:   nil,
 		Field:  field,
 	}
@@ -931,16 +1165,16 @@ func (ec *executionContext) _Organizer_name(ctx context.Context, field graphql.C
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Organizer_longname(ctx context.Context, field graphql.CollectedField, obj *models.Organizer) graphql.Marshaler {
+func (ec *executionContext) _Organisasi_long_name(ctx context.Context, field graphql.CollectedField, obj *models.Organisasi) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "Organizer",
+		Object: "Organisasi",
 		Args:   nil,
 		Field:  field,
 	}
 	ctx = graphql.WithResolverContext(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Longname, nil
+		return obj.LongName, nil
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -954,16 +1188,16 @@ func (ec *executionContext) _Organizer_longname(ctx context.Context, field graph
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Organizer_address(ctx context.Context, field graphql.CollectedField, obj *models.Organizer) graphql.Marshaler {
+func (ec *executionContext) _Organisasi_address(ctx context.Context, field graphql.CollectedField, obj *models.Organisasi) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
-		Object: "Organizer",
+		Object: "Organisasi",
 		Args:   nil,
 		Field:  field,
 	}
 	ctx = graphql.WithResolverContext(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Organizer().Address(rctx, obj)
+		return ec.resolvers.Organisasi().Address(rctx, obj)
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -975,205 +1209,6 @@ func (ec *executionContext) _Organizer_address(ctx context.Context, field graphq
 	rctx.Result = res
 
 	return ec._Address(ctx, field.Selections, &res)
-}
-
-var participantImplementors = []string{"Participant"}
-
-// nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _Participant(ctx context.Context, sel ast.SelectionSet, obj *models.Participant) graphql.Marshaler {
-	fields := graphql.CollectFields(ctx, sel, participantImplementors)
-
-	var wg sync.WaitGroup
-	out := graphql.NewOrderedMap(len(fields))
-	invalid := false
-	for i, field := range fields {
-		out.Keys[i] = field.Alias
-
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Participant")
-		case "id":
-			out.Values[i] = ec._Participant_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalid = true
-			}
-		case "name":
-			out.Values[i] = ec._Participant_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalid = true
-			}
-		case "nip":
-			out.Values[i] = ec._Participant_nip(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalid = true
-			}
-		case "current_job":
-			out.Values[i] = ec._Participant_current_job(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalid = true
-			}
-		case "current_grade":
-			out.Values[i] = ec._Participant_current_grade(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalid = true
-			}
-		case "current_places":
-			wg.Add(1)
-			go func(i int, field graphql.CollectedField) {
-				out.Values[i] = ec._Participant_current_places(ctx, field, obj)
-				if out.Values[i] == graphql.Null {
-					invalid = true
-				}
-				wg.Done()
-			}(i, field)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	wg.Wait()
-	if invalid {
-		return graphql.Null
-	}
-	return out
-}
-
-// nolint: vetshadow
-func (ec *executionContext) _Participant_id(ctx context.Context, field graphql.CollectedField, obj *models.Participant) graphql.Marshaler {
-	rctx := &graphql.ResolverContext{
-		Object: "Participant",
-		Args:   nil,
-		Field:  field,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	return graphql.MarshalID(res)
-}
-
-// nolint: vetshadow
-func (ec *executionContext) _Participant_name(ctx context.Context, field graphql.CollectedField, obj *models.Participant) graphql.Marshaler {
-	rctx := &graphql.ResolverContext{
-		Object: "Participant",
-		Args:   nil,
-		Field:  field,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	return graphql.MarshalString(res)
-}
-
-// nolint: vetshadow
-func (ec *executionContext) _Participant_nip(ctx context.Context, field graphql.CollectedField, obj *models.Participant) graphql.Marshaler {
-	rctx := &graphql.ResolverContext{
-		Object: "Participant",
-		Args:   nil,
-		Field:  field,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Nip, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	return graphql.MarshalString(res)
-}
-
-// nolint: vetshadow
-func (ec *executionContext) _Participant_current_job(ctx context.Context, field graphql.CollectedField, obj *models.Participant) graphql.Marshaler {
-	rctx := &graphql.ResolverContext{
-		Object: "Participant",
-		Args:   nil,
-		Field:  field,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CurrentJob, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	return graphql.MarshalString(res)
-}
-
-// nolint: vetshadow
-func (ec *executionContext) _Participant_current_grade(ctx context.Context, field graphql.CollectedField, obj *models.Participant) graphql.Marshaler {
-	rctx := &graphql.ResolverContext{
-		Object: "Participant",
-		Args:   nil,
-		Field:  field,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CurrentGrade, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	return graphql.MarshalString(res)
-}
-
-// nolint: vetshadow
-func (ec *executionContext) _Participant_current_places(ctx context.Context, field graphql.CollectedField, obj *models.Participant) graphql.Marshaler {
-	rctx := &graphql.ResolverContext{
-		Object: "Participant",
-		Args:   nil,
-		Field:  field,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Participant().CurrentPlaces(rctx, obj)
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(models.OPD)
-	rctx.Result = res
-
-	return ec._OPD(ctx, field.Selections, &res)
 }
 
 var queryImplementors = []string{"Query"}
@@ -1394,9 +1429,9 @@ func (ec *executionContext) _Schedule_id(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	rctx.Result = res
-	return graphql.MarshalID(res)
+	return graphql.MarshalInt(res)
 }
 
 // nolint: vetshadow
@@ -1440,9 +1475,9 @@ func (ec *executionContext) _Schedule_start(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(time.Time)
+	res := resTmp.(string)
 	rctx.Result = res
-	return graphql.MarshalTime(res)
+	return graphql.MarshalString(res)
 }
 
 // nolint: vetshadow
@@ -1463,9 +1498,9 @@ func (ec *executionContext) _Schedule_finish(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(time.Time)
+	res := resTmp.(string)
 	rctx.Result = res
-	return graphql.MarshalTime(res)
+	return graphql.MarshalString(res)
 }
 
 var trainingImplementors = []string{"Training"}
@@ -1554,9 +1589,9 @@ func (ec *executionContext) _Training_id(ctx context.Context, field graphql.Coll
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	rctx.Result = res
-	return graphql.MarshalID(res)
+	return graphql.MarshalInt(res)
 }
 
 // nolint: vetshadow
@@ -1647,10 +1682,10 @@ func (ec *executionContext) _Training_organizer(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.Organizer)
+	res := resTmp.(models.Organisasi)
 	rctx.Result = res
 
-	return ec._Organizer(ctx, field.Selections, &res)
+	return ec._Organisasi(ctx, field.Selections, &res)
 }
 
 // nolint: vetshadow
@@ -1671,7 +1706,7 @@ func (ec *executionContext) _Training_participants(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]models.Participant)
+	res := resTmp.([]models.ASN)
 	rctx.Result = res
 
 	arr1 := make(graphql.Array, len(res))
@@ -1695,7 +1730,7 @@ func (ec *executionContext) _Training_participants(ctx context.Context, field gr
 			}
 			arr1[idx1] = func() graphql.Marshaler {
 
-				return ec._Participant(ctx, field.Selections, &res[idx1])
+				return ec._ASN(ctx, field.Selections, &res[idx1])
 			}()
 		}
 		if isLen1 {
@@ -3018,104 +3053,8 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 	return ec.___Type(ctx, field.Selections, res)
 }
 
-func UnmarshalAddressInput(v interface{}) (AddressInput, error) {
-	var it AddressInput
-	var asMap = v.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "name":
-			var err error
-			it.Name, err = graphql.UnmarshalString(v)
-			if err != nil {
-				return it, err
-			}
-		case "roadname":
-			var err error
-			it.Roadname, err = graphql.UnmarshalString(v)
-			if err != nil {
-				return it, err
-			}
-		case "number":
-			var err error
-			it.Number, err = graphql.UnmarshalString(v)
-			if err != nil {
-				return it, err
-			}
-		case "city":
-			var err error
-			it.City, err = graphql.UnmarshalString(v)
-			if err != nil {
-				return it, err
-			}
-		case "province":
-			var err error
-			it.Province, err = graphql.UnmarshalString(v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func UnmarshalOPDInput(v interface{}) (OPDInput, error) {
-	var it OPDInput
-	var asMap = v.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "name":
-			var err error
-			it.Name, err = graphql.UnmarshalString(v)
-			if err != nil {
-				return it, err
-			}
-		case "address":
-			var err error
-			it.Address, err = UnmarshalAddressInput(v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func UnmarshalOrganizerInput(v interface{}) (OrganizerInput, error) {
-	var it OrganizerInput
-	var asMap = v.(map[string]interface{})
-
-	for k, v := range asMap {
-		switch k {
-		case "name":
-			var err error
-			it.Name, err = graphql.UnmarshalString(v)
-			if err != nil {
-				return it, err
-			}
-		case "longname":
-			var err error
-			it.Longname, err = graphql.UnmarshalString(v)
-			if err != nil {
-				return it, err
-			}
-		case "address":
-			var err error
-			it.Address, err = UnmarshalAddressInput(v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func UnmarshalParticipantInput(v interface{}) (ParticipantInput, error) {
-	var it ParticipantInput
+func UnmarshalASNInput(v interface{}) (ASNInput, error) {
+	var it ASNInput
 	var asMap = v.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3156,6 +3095,108 @@ func UnmarshalParticipantInput(v interface{}) (ParticipantInput, error) {
 	return it, nil
 }
 
+func UnmarshalAddressInput(v interface{}) (AddressInput, error) {
+	var it AddressInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+			it.Name, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "road":
+			var err error
+			it.Road, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "number":
+			var err error
+			it.Number, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "city":
+			var err error
+			it.City, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "province":
+			var err error
+			it.Province, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func UnmarshalOPDInput(v interface{}) (OPDInput, error) {
+	var it OPDInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+			it.Name, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "long_name":
+			var err error
+			it.LongName, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "address":
+			var err error
+			it.Address, err = UnmarshalAddressInput(v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func UnmarshalOrganisasiInput(v interface{}) (OrganisasiInput, error) {
+	var it OrganisasiInput
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+			it.Name, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "long_name":
+			var err error
+			it.LongName, err = graphql.UnmarshalString(v)
+			if err != nil {
+				return it, err
+			}
+		case "address":
+			var err error
+			it.Address, err = UnmarshalAddressInput(v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func UnmarshalScheduleInput(v interface{}) (ScheduleInput, error) {
 	var it ScheduleInput
 	var asMap = v.(map[string]interface{})
@@ -3170,13 +3211,13 @@ func UnmarshalScheduleInput(v interface{}) (ScheduleInput, error) {
 			}
 		case "start":
 			var err error
-			it.Start, err = graphql.UnmarshalTime(v)
+			it.Start, err = graphql.UnmarshalString(v)
 			if err != nil {
 				return it, err
 			}
 		case "finish":
 			var err error
-			it.Finish, err = graphql.UnmarshalTime(v)
+			it.Finish, err = graphql.UnmarshalString(v)
 			if err != nil {
 				return it, err
 			}
@@ -3212,7 +3253,7 @@ func UnmarshalTrainingInput(v interface{}) (TrainingInput, error) {
 			}
 		case "organizer":
 			var err error
-			it.Organizer, err = UnmarshalOrganizerInput(v)
+			it.Organizer, err = UnmarshalOrganisasiInput(v)
 			if err != nil {
 				return it, err
 			}
@@ -3226,9 +3267,9 @@ func UnmarshalTrainingInput(v interface{}) (TrainingInput, error) {
 					rawIf1 = []interface{}{v}
 				}
 			}
-			it.Participants = make([]ParticipantInput, len(rawIf1))
+			it.Participants = make([]ASNInput, len(rawIf1))
 			for idx1 := range rawIf1 {
-				it.Participants[idx1], err = UnmarshalParticipantInput(rawIf1[idx1])
+				it.Participants[idx1], err = UnmarshalASNInput(rawIf1[idx1])
 			}
 			if err != nil {
 				return it, err
@@ -3267,54 +3308,53 @@ var parsedSchema = gqlparser.MustLoadSchema(
 #
 #https://gqlgen.com/getting-started
 
-scalar Time
 
 type Training {
-	id: ID!
+	id: Int!
 	name: String!
 	description: String!
 	heldAt: Schedule!
-	organizer: Organizer!
-	participants: [Participant!]!
+	organizer: Organisasi!
+	participants: [ASN!]!
 }
 
 input TrainingInput {
   name: String!
   description: String!
   heldAt: ScheduleInput!
-  organizer: OrganizerInput!
-  participants: [ParticipantInput!]!
+  organizer: OrganisasiInput!
+  participants: [ASNInput!]!
 }
 
 
 type Schedule {
-	id: ID!
+	id: Int!
 	description: String!
-	start: Time!
-	finish: Time!
+	start: String!
+	finish: String!
 }
 
 input ScheduleInput {
 	description: String!
-	start: Time!
-	finish: Time!
+	start: String!
+	finish: String!
 }
 
-type Organizer {
-  	id: ID!
+type Organisasi {
+  	id: Int!
   	name: String!
-  	longname: String!
+  	long_name: String!
   	address: Address!
 }
 
-input OrganizerInput {
+input OrganisasiInput {
 	name: String!
-	longname: String!
+	long_name: String!
 	address: AddressInput!
 }
 
-type Participant {
-	id: ID!
+type ASN {
+	id: Int!
 	name: String!
 	nip: String!
 	current_job: String!
@@ -3322,7 +3362,7 @@ type Participant {
 	current_places: OPD!
 }
 
-input ParticipantInput {
+input ASNInput {
   name: String!
   nip: String!
   current_job: String!
@@ -3331,20 +3371,22 @@ input ParticipantInput {
 }
 
 type OPD {
-	id: ID!
-	name: String!
-	address: Address!
+  id: Int!
+  name: String!
+  long_name: String!
+  address: Address!
 }
 
 input OPDInput {
   name: String!
+  long_name: String!
   address: AddressInput!
 }
 
 type Address {
-	id: ID!
+	id: Int!
 	name: String!
-	roadname: String!
+	road: String!
 	number: String!
 	city: String!
 	province: String!
@@ -3352,13 +3394,11 @@ type Address {
 
 input AddressInput {
 	name: String!
-	roadname: String!
+	road: String!
 	number: String!
 	city: String!
 	province: String!
 }
-
-
 
 
 # Query
@@ -3367,16 +3407,8 @@ type Query {
 }
 
 
-
 type Mutation {
-#	createAddress()
-#	createLocation()
-#	createOrganizer()
-#	createCategory()
-#	createOPDItem()
-	createTraining(input: TrainingInput!): Training!
-#	createASN()
-#	createParticipant()
+	 createTraining(input: TrainingInput!): Training!
 }
 `},
 )

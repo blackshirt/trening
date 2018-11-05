@@ -7,44 +7,37 @@ type Training {
 	id: Int!
 	name: String!
 	description: String!
-	heldAt: Schedule!
+	start: String!
+	finish: String!
 	organizer: Organisasi!
+	location: Organisasi!
 	participants: [ASN!]!
 }
 
 input TrainingInput {
   name: String!
   description: String!
-  heldAt: ScheduleInput!
   organizer: OrganisasiInput!
   participants: [ASNInput!]!
-}
-
-
-type Schedule {
-	id: Int!
-	description: String!
-	start: String!
-	finish: String!
-}
-
-input ScheduleInput {
-	description: String!
-	start: String!
-	finish: String!
 }
 
 type Organisasi {
   	id: Int!
   	name: String!
   	long_name: String!
-  	address: Address!
+  	road: String!
+	 number: String!
+	 city: String!
+	 province: String!
 }
 
 input OrganisasiInput {
 	name: String!
 	long_name: String!
-	address: AddressInput!
+	road: String!
+	number: String!
+	city: String!
+	province: String!
 }
 
 type ASN {
@@ -68,30 +61,19 @@ type OPD {
   id: Int!
   name: String!
   long_name: String!
-  address: Address!
+  road: String!
+	 number: String!
+	 city: String!
+	 province: String!
 }
 
 input OPDInput {
   name: String!
   long_name: String!
-  address: AddressInput!
-}
-
-type Address {
-	id: Int!
-	name: String!
-	road: String!
-	number: String!
-	city: String!
-	province: String!
-}
-
-input AddressInput {
-	name: String!
-	road: String!
-	number: String!
-	city: String!
-	province: String!
+  road: String!
+	 number: String!
+	 city: String!
+	 province: String!
 }
 
 

@@ -20,19 +20,14 @@ models:
   Training:
     model: github.com/blackshirt/trening/models.Training
     fields:
-      heldAt:
-        resolver: true
       organizer:
+        resolver: true
+      location:
         resolver: true
       participants:
         resolver: true
   Organisasi:
     model: github.com/blackshirt/trening/models.Organisasi
-    fields:
-      address:
-        resolver: true	
-  Schedule:
-    model: github.com/blackshirt/trening/models.Schedule
   ASN:
     model: github.com/blackshirt/trening/models.ASN
     fields:
@@ -40,8 +35,3 @@ models:
         resolver: true
   OPD:
     model: github.com/blackshirt/trening/models.OPD
-    fields:
-      address:
-        resolver: true
-  Address:
-    model: github.com/blackshirt/trening/models.Address

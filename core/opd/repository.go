@@ -30,10 +30,10 @@ func (m mysqlOPDRepo) getOne(ctx context.Context, query string, args ...interfac
 		&o.ID,
 		&o.Name,
 		&o.LongName,
-		&o.Road,
-		&o.Number,
-		&o.City,
-		&o.Province,
+		&o.Address.Road,
+		&o.Address.Number,
+		&o.Address.City,
+		&o.Address.Province,
 	)
 	if err != nil {
 		return nil, err

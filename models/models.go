@@ -4,24 +4,34 @@ type Training struct {
 	ID           int        `json:"id"`
 	Name         string     `json:"name"`
 	Description  string     `json:"description"`
-	HeldAt       Schedule   `json:"heldAt"`
-	Organizer    Organisasi `json:"organizer"`
-	Participants []ASN      `json:"participants"`
-}
-
-type Schedule struct {
-	ID          int    `json:"id"`
-	Description string `json:"description"`
 	Start       string `json:"start"`
 	Finish      string `json:"finish"`
+	Organizer    Organisasi `json:"organizer"`
+	Location    Organisasi `json:"location"`
+	Participants []ASN      `json:"participants"`
 }
 
 type Organisasi struct {
 	ID       int     `json:"id"`
 	Name     string  `json:"name"`
 	LongName string  `json:"long_name"`
-	Address  Address `json:"address"`
+ Road     string `json:"road"`
+	Number   string `json:"number"`
+	City     string `json:"city"`
+	Province string `json:"province"`
 }
+
+
+type OPD struct {
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	LongName string `json:"long_name"`
+	Road     string `json:"road"`
+	Number   string `json:"number"`
+	City     string `json:"city"`
+	Province string `json:"province"`
+}
+
 
 type ASN struct {
 	ID            int    `json:"id"`
@@ -30,20 +40,4 @@ type ASN struct {
 	CurrentJob    string `json:"current_job"`
 	CurrentGrade  string `json:"current_grade"`
 	CurrentPlaces OPD    `json:"current_places"`
-}
-
-type Address struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	Road     string `json:"road"`
-	Number   string `json:"number"`
-	City     string `json:"city"`
-	Province string `json:"province"`
-}
-
-type OPD struct {
-	ID       int     `json:"id"`
-	Name     string  `json:"name"`
-	LongName string  `json:"long_name"`
-	Address  Address `json:"address"`
 }

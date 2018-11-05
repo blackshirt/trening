@@ -15,10 +15,10 @@ type Training {
 }
 
 input TrainingInput {
-  name: String!
-  description: String!
-  organizer: OrganisasiInput!
-  participants: [ASNInput!]!
+  	name: String!
+  	description: String!
+  	organizer: OrganisasiInput!
+  	participants: [ASNInput!]!
 }
 
 type Organisasi {
@@ -26,9 +26,9 @@ type Organisasi {
   	name: String!
   	long_name: String!
   	road: String!
-	 number: String!
-	 city: String!
-	 province: String!
+	number: String!
+	city: String!
+	province: String!
 }
 
 input OrganisasiInput {
@@ -50,30 +50,30 @@ type ASN {
 }
 
 input ASNInput {
-  name: String!
-  nip: String!
-  current_job: String!
-  current_grade: String!
-  current_places: OPDInput!
+  	name: String!
+  	nip: String!
+  	current_job: String!
+  	current_grade: String!
+  	current_places: OPDInput!
 }
 
 type OPD {
-  id: Int!
-  name: String!
-  long_name: String!
-  road: String!
-	 number: String!
-	 city: String!
-	 province: String!
+  	id: Int!
+  	name: String!
+  	long_name: String!
+  	road: String!
+	number: String!
+	city: String!
+	province: String!
 }
 
 input OPDInput {
-  name: String!
-  long_name: String!
-  road: String!
-	 number: String!
-	 city: String!
-	 province: String!
+  	name: String!
+  	long_name: String!
+  	road: String!
+	number: String!
+	city: String!
+	province: String!
 }
 
 

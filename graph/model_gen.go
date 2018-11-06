@@ -10,36 +10,27 @@ type ASNInput struct {
 	CurrentPlaces OPDInput `json:"current_places"`
 }
 
-type AddressInput struct {
+type OPDInput struct {
 	Name     string `json:"name"`
+	LongName string `json:"long_name"`
 	Road     string `json:"road"`
 	Number   string `json:"number"`
 	City     string `json:"city"`
 	Province string `json:"province"`
 }
 
-type OPDInput struct {
-	Name     string       `json:"name"`
-	LongName string       `json:"long_name"`
-	Address  AddressInput `json:"address"`
-}
-
 type OrganisasiInput struct {
-	Name     string       `json:"name"`
-	LongName string       `json:"long_name"`
-	Address  AddressInput `json:"address"`
-}
-
-type ScheduleInput struct {
-	Description string `json:"description"`
-	Start       string `json:"start"`
-	Finish      string `json:"finish"`
+	Name     string `json:"name"`
+	LongName string `json:"long_name"`
+	Road     string `json:"road"`
+	Number   string `json:"number"`
+	City     string `json:"city"`
+	Province string `json:"province"`
 }
 
 type TrainingInput struct {
 	Name         string          `json:"name"`
 	Description  string          `json:"description"`
-	HeldAt       ScheduleInput   `json:"heldAt"`
 	Organizer    OrganisasiInput `json:"organizer"`
 	Participants []ASNInput      `json:"participants"`
 }

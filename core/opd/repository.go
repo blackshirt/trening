@@ -8,7 +8,8 @@ import (
 )
 
 type OPDRepository interface {
-	GetByID(ctx context.Context, id int) (models.OPD, error)
+	GetByID(ctx context.Context, id int) (*models.OPD, error)
+	ListOPD(ctx context.Context) ([]models.OPD, error)
 }
 
 type opdRepo struct {
@@ -19,14 +20,14 @@ func NewOPDRepo(conn *sql.DB) OPDRepository {
 	return &opdRepo{db: conn}
 }
 
-func (m opdRepo) getOne(ctx context.Context, query string, args ...interface{}) (models.OPD, error) {
+func (m *opdRepo) getOne(ctx context.Context, query string, args ...interface{}) (*models.OPD, error) {
 	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
 	row := stmt.QueryRowContext(ctx, args...)
 	opd := &models.OPD{}
-	err := row.Scan(
+	err = row.Scan(
 		&opd.ID,
 		&opd.Name,
 		&opd.LongName,
@@ -42,36 +43,35 @@ func (m opdRepo) getOne(ctx context.Context, query string, args ...interface{}) 
 	return opd, nil
 }
 
-func (m opdRepo) GetByID(ctx context.Context, id int) (models.OPD, error) {
+func (m *opdRepo) GetByID(ctx context.Context, id int) (*models.OPD, error) {
 	query := `SELECT * FROM opd WHERE id=?`
 	return m.getOne(ctx, query, id)
 }
 
-
-func (m ocfunc (m opdRepo) listOPD(ctx context.Context, query string, args ...interface{}) (models.OPD, error) {
-  rows, err := m.db.QueryContext(ctx, query, args...)
+func (m *opdRepo) listOPD(ctx context.Context, query string, args ...interface{}) ([]models.OPD, error) {
+	rows, err := m.db.QueryContext(ctx, query, args...)
 
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	opds := []models.OPD{}
+	opds := make([]models.OPD, 0)
 	for rows.Next() {
-		opd := &models.OPD{}
+		opd := models.OPD{}
 		if err = rows.Scan(
-     &opd.ID,
-     &opd.Name,
-     &opd.LongName,
-     &opd.Road,
-     &opd.Number,
-     &opd.City,
-     &opd.Province,
-   ); err == nil {
-			 opds = append(opds, opd)
+			&opd.ID,
+			&opd.Name,
+			&opd.LongName,
+			&opd.Road,
+			&opd.Number,
+			&opd.City,
+			&opd.Province,
+		); err == nil {
+			opds = append(opds, opd)
 		}
 	}
-	
+
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
@@ -79,12 +79,7 @@ func (m ocfunc (m opdRepo) listOPD(ctx context.Context, query string, args ...in
 	return opds, nil
 }
 
-
-func (m opdRepo) ListOPD(ctx context.Context, limit int) (models.OPD, error) {
-  query := `SELECT * FROM opd LIMIT ?`
-  return m.listOPD(ctx, query, limit)
+func (m *opdRepo) ListOPD(ctx context.Context) ([]models.OPD, error) {
+	query := `SELECT * FROM opd`
+	return m.listOPD(ctx, query)
 }
-
-
-
-

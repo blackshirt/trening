@@ -88,4 +88,4 @@ type Query {
 
 #type Mutation {
 #	 createTraining(input: #TrainingInput!): Training!
-}
+#}

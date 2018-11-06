@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `trainix_category` (
   `name` VARCHAR(20) NOT NULL UNIQUE,
   `description` VARCHAR(200) NOT NULL,
   
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`id`)
 ) ENGINE = INNODB;
 
 
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS `trainix_type` (
   `name` VARCHAR(20) NOT NULL UNIQUE,
   `description` VARCHAR(200) NOT NULL,
   
-  PRIMARY KEY (`id`),  
+  PRIMARY KEY (`id`)
 ) ENGINE = INNODB;
 
 
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS `trainix_master` (
   	`type` SMALLINT UNSIGNED NOT NULL DEFAULT 0,
   
   	PRIMARY KEY (`id`),
-  	KEY (`name`)
+  	KEY (`name`)trainixtrainix_type,
   	FOREIGN KEY (`category`) REFERENCES `trainix_category`(`id`),
   	FOREIGN KEY (`type`) REFERENCES `trainix_type`(`id`)
 ) ENGINE = INNODB;
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS `trainix_history` (
 	`finish` DATE NOT NULL,
 	
  	PRIMARY KEY (`id`),
-  	FOREIGN KEY (`trx_id`) REFERENCES `trainix_master`(`id`),
+  	FOREIGN KEY (`trx_id`) REFERENCES `trainix_master`(`id`)
 ) ENGINE = INNODB;
 
 

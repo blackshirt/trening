@@ -9,7 +9,7 @@ import (
 )
 
 type ASNUsecase interface {
-	Get(ctx context.Context, id int) (models.ASN, error)
+	GetByID(ctx context.Context, id int) (models.ASN, error)
 }
 
 type asnUcase struct {
@@ -18,24 +18,24 @@ type asnUcase struct {
 	ctxTimeout time.Duration
 }
 
-func NewASNUcase(a ASNRepository, o opd.OPDRepository, timeout time.Duration) ASNUsecase {
+func NewASNUcase(ar ASNRepository, or opd.OPDRepository, timeout time.Duration) ASNUsecase {
 	return &asnUcase{
-		asnRepo:    a,
-		opdRepo:    o,
+		asnRepo:    ar,
+		opdRepo:    or,
 		ctxTimeout: timeout,
 	}
 }
 
-func (a asnUcase) GetByID(c context.Context, id int) (models.ASN, error) {
-	ctx, cancel := context.WithTimeout(c, a.ctxTimeout)
+func (au asnUcase) GetByID(c context.Context, id int) (models.ASN, error) {
+	ctx, cancel := context.WithTimeout(c, au.ctxTimeout)
 	defer cancel()
 
-	asn, err := a.asnRepo.GetByID(ctx, id)
+	asn, err := au.asnRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	opd, err := a.opdRepo.GetByID(ctx, asn.CurrentPlaces.ID)
+	opd, err := au.opdRepo.GetByID(ctx, asn.CurrentPlaces.ID)
 	if err != nil {
 		return nil, err
 	}

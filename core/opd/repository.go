@@ -11,38 +11,80 @@ type OPDRepository interface {
 	GetByID(ctx context.Context, id int) (models.OPD, error)
 }
 
-type mysqlOPDRepo struct {
+type opdRepo struct {
 	db *sql.DB
 }
 
-func NewMysqlOPDRepo(db *sql.DB) OPDRepository {
-	return &mysqlOPDRepo{db: db}
+func NewOPDRepo(conn *sql.DB) OPDRepository {
+	return &opdRepo{db: conn}
 }
 
-func (m mysqlOPDRepo) getOne(ctx context.Context, query string, args ...interface{}) (models.OPD, error) {
+func (m opdRepo) getOne(ctx context.Context, query string, args ...interface{}) (models.OPD, error) {
 	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
 	row := stmt.QueryRowContext(ctx, args...)
-	o := &models.OPD{}
+	opd := &models.OPD{}
 	err := row.Scan(
-		&o.ID,
-		&o.Name,
-		&o.LongName,
-		&o.Address.Road,
-		&o.Address.Number,
-		&o.Address.City,
-		&o.Address.Province,
+		&opd.ID,
+		&opd.Name,
+		&opd.LongName,
+		&opd.Road,
+		&opd.Number,
+		&opd.City,
+		&opd.Province,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	return o, nil
+	return opd, nil
 }
 
-func (m mysqlOPDRepo) GetByID(ctx context.Context, id int) (models.OPD, error) {
+func (m opdRepo) GetByID(ctx context.Context, id int) (models.OPD, error) {
 	query := `SELECT * FROM opd WHERE id=?`
 	return m.getOne(ctx, query, id)
 }
+
+
+func (m ocfunc (m opdRepo) listOPD(ctx context.Context, query string, args ...interface{}) (models.OPD, error) {
+  rows, err := m.db.QueryContext(ctx, query, args...)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	opds := []models.OPD{}
+	for rows.Next() {
+		opd := &models.OPD{}
+		if err = rows.Scan(
+     &opd.ID,
+     &opd.Name,
+     &opd.LongName,
+     &opd.Road,
+     &opd.Number,
+     &opd.City,
+     &opd.Province,
+   ); err == nil {
+			 opds = append(opds, opd)
+		}
+	}
+	
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return opds, nil
+}
+
+
+func (m opdRepo) ListOPD(ctx context.Context, limit int) (models.OPD, error) {
+  query := `SELECT * FROM opd LIMIT ?`
+  return m.listOPD(ctx, query, limit)
+}
+
+
+
+

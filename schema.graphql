@@ -79,10 +79,13 @@ input OPDInput {
 
 # Query
 type Query {
-	traininglist: [Training!]!
+# 	traininglist: [Training!]!
+  asnList: [ASN!]!
+  opdList: [OPD!]!
+  orgList: [Organisasi!]!
 }
 
 
-type Mutation {
-	 createTraining(input: TrainingInput!): Training!
+#type Mutation {
+#	 createTraining(input: #TrainingInput!): Training!
 }

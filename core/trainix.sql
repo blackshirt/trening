@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS `organisasi` (
 
 CREATE TABLE IF NOT EXISTS `asn` (
 	`id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
-	`nip` CHAR(18) NOT NULL UNIQUE, # nip exactly 18 char
 	`name` VARCHAR(50) NOT NULL,
+	`nip` CHAR(18) NOT NULL UNIQUE, # nip exactly 18 char
 	`current_job` VARCHAR(100) NOT NULL,
 	`current_grade` VARCHAR(50) NOT NULL,
 	`current_places` SMALLINT UNSIGNED NOT NULL,

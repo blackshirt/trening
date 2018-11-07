@@ -9,6 +9,7 @@ import (
 
 type OrgRepository interface {
 	GetByID(ctx context.Context, id int) (models.Organisasi, error)
+	OrgList(ctx context.Context) ([]models.Organisasi, error)
 }
 
 type orgRepo struct {
@@ -47,7 +48,8 @@ func (m orgRepo) GetByID(ctx context.Context, id int) (models.Organisasi, error)
 	return m.getOne(ctx, query, id)
 }
 
-func (m ocfunc (m opdRepo) listOrg(ctx context.Context, query string, args ...interface{}) (models.Organisasi, error) {
+
+func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{}) (models.Organisasi, error) {
   rows, err := m.db.QueryContext(ctx, query, args...)
 
 	if err != nil {
@@ -79,9 +81,9 @@ func (m ocfunc (m opdRepo) listOrg(ctx context.Context, query string, args ...in
 }
 
 
-func (m opdRepo) ListOrg(ctx context.Context, limit int) (models.Organisasi, error) {
-  query := `SELECT * FROM organisasi LIMIT ?`
-  return m.listOPD(ctx, query, limit)
+func (m orgRepo) OrgList(ctx context.Context) ([]models.Organisasi, error) {
+  query := `SELECT * FROM organisasi`
+  return m.listOrg(ctx, query)
 }
 
 

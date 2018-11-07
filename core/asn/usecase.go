@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/blackshirt/trening/core/opd"
+	"github.com/blackshirt/trening/core/asn"
 	"github.com/blackshirt/trening/models"
 )
 
@@ -14,14 +14,14 @@ type ASNUsecase interface {
 
 type asnUcase struct {
 	asnRepo    ASNRepository
-	opdRepo    opd.OPDRepository
+	asnRepo    asn.OPDRepository
 	ctxTimeout time.Duration
 }
 
-func NewASNUcase(ar ASNRepository, or opd.OPDRepository, timeout time.Duration) ASNUsecase {
+func NewASNUcase(ar ASNRepository, or asn.OPDRepository, timeout time.Duration) ASNUsecase {
 	return &asnUcase{
 		asnRepo:    ar,
-		opdRepo:    or,
+		asnRepo:    or,
 		ctxTimeout: timeout,
 	}
 }
@@ -35,12 +35,15 @@ func (au asnUcase) GetByID(c context.Context, id int) (models.ASN, error) {
 		return nil, err
 	}
 
-	opd, err := au.opdRepo.GetByID(ctx, asn.CurrentPlaces.ID)
+	asn, err := au.asnRepo.GetByID(ctx, asn.CurrentPlaces.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	asn.CurrentPlaces = *opd
+	asn.CurrentPlaces = *asn
 
 	return asn, nil
 }
+
+
+

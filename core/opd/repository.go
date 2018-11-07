@@ -9,7 +9,7 @@ import (
 
 type OPDRepository interface {
 	GetByID(ctx context.Context, id int) (*models.OPD, error)
-	ListOPD(ctx context.Context) ([]models.OPD, error)
+	OPDList(ctx context.Context) ([]models.OPD, error)
 }
 
 type opdRepo struct {
@@ -79,7 +79,7 @@ func (m *opdRepo) listOPD(ctx context.Context, query string, args ...interface{}
 	return opds, nil
 }
 
-func (m *opdRepo) ListOPD(ctx context.Context) ([]models.OPD, error) {
+func (m *opdRepo) OPDList(ctx context.Context) ([]models.OPD, error) {
 	query := `SELECT * FROM opd`
 	return m.listOPD(ctx, query)
 }

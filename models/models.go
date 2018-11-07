@@ -1,17 +1,17 @@
 package models
 
 type Training struct {
-	ID           int        `json:"id"`
-	Name         string     `json:"name"`
-	Description  string     `json:"description"`
-	Start        string     `json:"start"`
-	Finish       string     `json:"finish"`
-	Organizer    Organisasi `json:"organizer"`
-	Location     Organisasi `json:"location"`
-	Participants []ASN      `json:"participants"`
+	ID           int    `json:"id"`
+	Name         string `json:"name"`
+	Description  string `json:"description"`
+	Start        string `json:"start"`
+	Finish       string `json:"finish"`
+	Organizer    Orgz   `json:"organizer"`
+	Location     Orgz   `json:"location"`
+	Participants []ASN  `json:"participants"`
 }
 
-type Organisasi struct {
+type Orgz struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	LongName string `json:"long_name"`

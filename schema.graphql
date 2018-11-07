@@ -2,6 +2,10 @@
 #
 #https://gqlgen.com/getting-started
 
+input Pagination {
+	offset: Int!
+	limit: Int!
+}
 
 type Training {
 	id: Int!
@@ -9,19 +13,19 @@ type Training {
 	description: String!
 	start: String!
 	finish: String!
-	organizer: Organisasi!
-	location: Organisasi!
+	organizer: Orgz!
+	location: Orgz!
 	participants: [ASN!]!
 }
 
 input TrainingInput {
   	name: String!
   	description: String!
-  	organizer: OrganisasiInput!
+  	organizer: OrgzInput!
   	participants: [ASNInput!]!
 }
 
-type Organisasi {
+type Orgz {
   	id: Int!
   	name: String!
   	long_name: String!
@@ -31,7 +35,7 @@ type Organisasi {
 	province: String!
 }
 
-input OrganisasiInput {
+input OrgzInput {
 	name: String!
 	long_name: String!
 	road: String!
@@ -82,7 +86,7 @@ type Query {
 # 	traininglist: [Training!]!
   asnList: [ASN!]!
   opdList: [OPD!]!
-  orgList: [Organisasi!]!
+  orgList: [Orgz!]!
 }
 
 

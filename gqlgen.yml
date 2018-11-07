@@ -10,10 +10,10 @@ exec:
 model:
   filename: graph/model_gen.go
   package: graph
-resolver:
-  filename: graph/resolver.go
-  package: graph
-  type: Resolver
+#resolver:
+#  filename: graph/resolver.go
+#  package: graph
+#  type: Resolver
 
 
 models:
@@ -27,7 +27,7 @@ models:
       participants:
         resolver: true
   Organisasi:
-    model: github.com/blackshirt/trening/models.Organisasi
+    model: github.com/blackshirt/trening/models.Orgz
   ASN:
     model: github.com/blackshirt/trening/models.ASN
     fields:

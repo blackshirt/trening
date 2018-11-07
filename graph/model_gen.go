@@ -19,7 +19,8 @@ type OPDInput struct {
 	Province string `json:"province"`
 }
 
-type OrganisasiInput struct {
+type Orgz struct {
+	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	LongName string `json:"long_name"`
 	Road     string `json:"road"`
@@ -28,9 +29,23 @@ type OrganisasiInput struct {
 	Province string `json:"province"`
 }
 
+type OrgzInput struct {
+	Name     string `json:"name"`
+	LongName string `json:"long_name"`
+	Road     string `json:"road"`
+	Number   string `json:"number"`
+	City     string `json:"city"`
+	Province string `json:"province"`
+}
+
+type Pagination struct {
+	Offset int `json:"offset"`
+	Limit  int `json:"limit"`
+}
+
 type TrainingInput struct {
-	Name         string          `json:"name"`
-	Description  string          `json:"description"`
-	Organizer    OrganisasiInput `json:"organizer"`
-	Participants []ASNInput      `json:"participants"`
+	Name         string     `json:"name"`
+	Description  string     `json:"description"`
+	Organizer    OrgzInput  `json:"organizer"`
+	Participants []ASNInput `json:"participants"`
 }

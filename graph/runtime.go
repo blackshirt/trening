@@ -59,7 +59,7 @@ type ComplexityRoot struct {
 		Province func(childComplexity int) int
 	}
 
-	Organisasi struct {
+	Orgz struct {
 		Id       func(childComplexity int) int
 		Name     func(childComplexity int) int
 		LongName func(childComplexity int) int
@@ -93,11 +93,11 @@ type ASNResolver interface {
 type QueryResolver interface {
 	AsnList(ctx context.Context) ([]models.ASN, error)
 	OpdList(ctx context.Context) ([]models.OPD, error)
-	OrgList(ctx context.Context) ([]models.Organisasi, error)
+	OrgList(ctx context.Context) ([]Orgz, error)
 }
 type TrainingResolver interface {
-	Organizer(ctx context.Context, obj *models.Training) (models.Organisasi, error)
-	Location(ctx context.Context, obj *models.Training) (models.Organisasi, error)
+	Organizer(ctx context.Context, obj *models.Training) (Orgz, error)
+	Location(ctx context.Context, obj *models.Training) (Orgz, error)
 	Participants(ctx context.Context, obj *models.Training) ([]models.ASN, error)
 }
 
@@ -250,54 +250,54 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Opd.Province(childComplexity), true
 
-	case "Organisasi.id":
-		if e.complexity.Organisasi.Id == nil {
+	case "Orgz.id":
+		if e.complexity.Orgz.Id == nil {
 			break
 		}
 
-		return e.complexity.Organisasi.Id(childComplexity), true
+		return e.complexity.Orgz.Id(childComplexity), true
 
-	case "Organisasi.name":
-		if e.complexity.Organisasi.Name == nil {
+	case "Orgz.name":
+		if e.complexity.Orgz.Name == nil {
 			break
 		}
 
-		return e.complexity.Organisasi.Name(childComplexity), true
+		return e.complexity.Orgz.Name(childComplexity), true
 
-	case "Organisasi.long_name":
-		if e.complexity.Organisasi.LongName == nil {
+	case "Orgz.long_name":
+		if e.complexity.Orgz.LongName == nil {
 			break
 		}
 
-		return e.complexity.Organisasi.LongName(childComplexity), true
+		return e.complexity.Orgz.LongName(childComplexity), true
 
-	case "Organisasi.road":
-		if e.complexity.Organisasi.Road == nil {
+	case "Orgz.road":
+		if e.complexity.Orgz.Road == nil {
 			break
 		}
 
-		return e.complexity.Organisasi.Road(childComplexity), true
+		return e.complexity.Orgz.Road(childComplexity), true
 
-	case "Organisasi.number":
-		if e.complexity.Organisasi.Number == nil {
+	case "Orgz.number":
+		if e.complexity.Orgz.Number == nil {
 			break
 		}
 
-		return e.complexity.Organisasi.Number(childComplexity), true
+		return e.complexity.Orgz.Number(childComplexity), true
 
-	case "Organisasi.city":
-		if e.complexity.Organisasi.City == nil {
+	case "Orgz.city":
+		if e.complexity.Orgz.City == nil {
 			break
 		}
 
-		return e.complexity.Organisasi.City(childComplexity), true
+		return e.complexity.Orgz.City(childComplexity), true
 
-	case "Organisasi.province":
-		if e.complexity.Organisasi.Province == nil {
+	case "Orgz.province":
+		if e.complexity.Orgz.Province == nil {
 			break
 		}
 
-		return e.complexity.Organisasi.Province(childComplexity), true
+		return e.complexity.Orgz.Province(childComplexity), true
 
 	case "Query.asnList":
 		if e.complexity.Query.AsnList == nil {
@@ -881,11 +881,11 @@ func (ec *executionContext) _OPD_province(ctx context.Context, field graphql.Col
 	return graphql.MarshalString(res)
 }
 
-var organisasiImplementors = []string{"Organisasi"}
+var orgzImplementors = []string{"Orgz"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _Organisasi(ctx context.Context, sel ast.SelectionSet, obj *models.Organisasi) graphql.Marshaler {
-	fields := graphql.CollectFields(ctx, sel, organisasiImplementors)
+func (ec *executionContext) _Orgz(ctx context.Context, sel ast.SelectionSet, obj *Orgz) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, orgzImplementors)
 
 	out := graphql.NewOrderedMap(len(fields))
 	invalid := false
@@ -894,39 +894,39 @@ func (ec *executionContext) _Organisasi(ctx context.Context, sel ast.SelectionSe
 
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Organisasi")
+			out.Values[i] = graphql.MarshalString("Orgz")
 		case "id":
-			out.Values[i] = ec._Organisasi_id(ctx, field, obj)
+			out.Values[i] = ec._Orgz_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "name":
-			out.Values[i] = ec._Organisasi_name(ctx, field, obj)
+			out.Values[i] = ec._Orgz_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "long_name":
-			out.Values[i] = ec._Organisasi_long_name(ctx, field, obj)
+			out.Values[i] = ec._Orgz_long_name(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "road":
-			out.Values[i] = ec._Organisasi_road(ctx, field, obj)
+			out.Values[i] = ec._Orgz_road(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "number":
-			out.Values[i] = ec._Organisasi_number(ctx, field, obj)
+			out.Values[i] = ec._Orgz_number(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "city":
-			out.Values[i] = ec._Organisasi_city(ctx, field, obj)
+			out.Values[i] = ec._Orgz_city(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
 		case "province":
-			out.Values[i] = ec._Organisasi_province(ctx, field, obj)
+			out.Values[i] = ec._Orgz_province(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
@@ -942,11 +942,11 @@ func (ec *executionContext) _Organisasi(ctx context.Context, sel ast.SelectionSe
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Organisasi_id(ctx context.Context, field graphql.CollectedField, obj *models.Organisasi) graphql.Marshaler {
+func (ec *executionContext) _Orgz_id(ctx context.Context, field graphql.CollectedField, obj *Orgz) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
-		Object: "Organisasi",
+		Object: "Orgz",
 		Args:   nil,
 		Field:  field,
 	}
@@ -969,11 +969,11 @@ func (ec *executionContext) _Organisasi_id(ctx context.Context, field graphql.Co
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Organisasi_name(ctx context.Context, field graphql.CollectedField, obj *models.Organisasi) graphql.Marshaler {
+func (ec *executionContext) _Orgz_name(ctx context.Context, field graphql.CollectedField, obj *Orgz) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
-		Object: "Organisasi",
+		Object: "Orgz",
 		Args:   nil,
 		Field:  field,
 	}
@@ -996,11 +996,11 @@ func (ec *executionContext) _Organisasi_name(ctx context.Context, field graphql.
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Organisasi_long_name(ctx context.Context, field graphql.CollectedField, obj *models.Organisasi) graphql.Marshaler {
+func (ec *executionContext) _Orgz_long_name(ctx context.Context, field graphql.CollectedField, obj *Orgz) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
-		Object: "Organisasi",
+		Object: "Orgz",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1023,11 +1023,11 @@ func (ec *executionContext) _Organisasi_long_name(ctx context.Context, field gra
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Organisasi_road(ctx context.Context, field graphql.CollectedField, obj *models.Organisasi) graphql.Marshaler {
+func (ec *executionContext) _Orgz_road(ctx context.Context, field graphql.CollectedField, obj *Orgz) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
-		Object: "Organisasi",
+		Object: "Orgz",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1050,11 +1050,11 @@ func (ec *executionContext) _Organisasi_road(ctx context.Context, field graphql.
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Organisasi_number(ctx context.Context, field graphql.CollectedField, obj *models.Organisasi) graphql.Marshaler {
+func (ec *executionContext) _Orgz_number(ctx context.Context, field graphql.CollectedField, obj *Orgz) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
-		Object: "Organisasi",
+		Object: "Orgz",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1077,11 +1077,11 @@ func (ec *executionContext) _Organisasi_number(ctx context.Context, field graphq
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Organisasi_city(ctx context.Context, field graphql.CollectedField, obj *models.Organisasi) graphql.Marshaler {
+func (ec *executionContext) _Orgz_city(ctx context.Context, field graphql.CollectedField, obj *Orgz) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
-		Object: "Organisasi",
+		Object: "Orgz",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1104,11 +1104,11 @@ func (ec *executionContext) _Organisasi_city(ctx context.Context, field graphql.
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Organisasi_province(ctx context.Context, field graphql.CollectedField, obj *models.Organisasi) graphql.Marshaler {
+func (ec *executionContext) _Orgz_province(ctx context.Context, field graphql.CollectedField, obj *Orgz) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
-		Object: "Organisasi",
+		Object: "Orgz",
 		Args:   nil,
 		Field:  field,
 	}
@@ -1332,7 +1332,7 @@ func (ec *executionContext) _Query_orgList(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]models.Organisasi)
+	res := resTmp.([]Orgz)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1357,7 +1357,7 @@ func (ec *executionContext) _Query_orgList(ctx context.Context, field graphql.Co
 			}
 			arr1[idx1] = func() graphql.Marshaler {
 
-				return ec._Organisasi(ctx, field.Selections, &res[idx1])
+				return ec._Orgz(ctx, field.Selections, &res[idx1])
 			}()
 		}
 		if isLen1 {
@@ -1669,11 +1669,11 @@ func (ec *executionContext) _Training_organizer(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.Organisasi)
+	res := resTmp.(Orgz)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
-	return ec._Organisasi(ctx, field.Selections, &res)
+	return ec._Orgz(ctx, field.Selections, &res)
 }
 
 // nolint: vetshadow
@@ -1697,11 +1697,11 @@ func (ec *executionContext) _Training_location(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.Organisasi)
+	res := resTmp.(Orgz)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
-	return ec._Organisasi(ctx, field.Selections, &res)
+	return ec._Orgz(ctx, field.Selections, &res)
 }
 
 // nolint: vetshadow
@@ -3291,8 +3291,8 @@ func UnmarshalOPDInput(v interface{}) (OPDInput, error) {
 	return it, nil
 }
 
-func UnmarshalOrganisasiInput(v interface{}) (OrganisasiInput, error) {
-	var it OrganisasiInput
+func UnmarshalOrgzInput(v interface{}) (OrgzInput, error) {
+	var it OrgzInput
 	var asMap = v.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3339,6 +3339,30 @@ func UnmarshalOrganisasiInput(v interface{}) (OrganisasiInput, error) {
 	return it, nil
 }
 
+func UnmarshalPagination(v interface{}) (Pagination, error) {
+	var it Pagination
+	var asMap = v.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "offset":
+			var err error
+			it.Offset, err = graphql.UnmarshalInt(v)
+			if err != nil {
+				return it, err
+			}
+		case "limit":
+			var err error
+			it.Limit, err = graphql.UnmarshalInt(v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func UnmarshalTrainingInput(v interface{}) (TrainingInput, error) {
 	var it TrainingInput
 	var asMap = v.(map[string]interface{})
@@ -3359,7 +3383,7 @@ func UnmarshalTrainingInput(v interface{}) (TrainingInput, error) {
 			}
 		case "organizer":
 			var err error
-			it.Organizer, err = UnmarshalOrganisasiInput(v)
+			it.Organizer, err = UnmarshalOrgzInput(v)
 			if err != nil {
 				return it, err
 			}
@@ -3414,6 +3438,10 @@ var parsedSchema = gqlparser.MustLoadSchema(
 #
 #https://gqlgen.com/getting-started
 
+input Pagination {
+	offset: Int!
+	limit: Int!
+}
 
 type Training {
 	id: Int!
@@ -3421,19 +3449,19 @@ type Training {
 	description: String!
 	start: String!
 	finish: String!
-	organizer: Organisasi!
-	location: Organisasi!
+	organizer: Orgz!
+	location: Orgz!
 	participants: [ASN!]!
 }
 
 input TrainingInput {
   	name: String!
   	description: String!
-  	organizer: OrganisasiInput!
+  	organizer: OrgzInput!
   	participants: [ASNInput!]!
 }
 
-type Organisasi {
+type Orgz {
   	id: Int!
   	name: String!
   	long_name: String!
@@ -3443,7 +3471,7 @@ type Organisasi {
 	province: String!
 }
 
-input OrganisasiInput {
+input OrgzInput {
 	name: String!
 	long_name: String!
 	road: String!
@@ -3494,7 +3522,7 @@ type Query {
 # 	traininglist: [Training!]!
   asnList: [ASN!]!
   opdList: [OPD!]!
-  orgList: [Organisasi!]!
+  orgList: [Orgz!]!
 }
 
 

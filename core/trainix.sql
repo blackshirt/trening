@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS `opd` (
 ) ENGINE = INNODB;
 
 
-CREATE TABLE IF NOT EXISTS `organisasi` (
+CREATE TABLE IF NOT EXISTS `orgz` (
 	`id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(100) UNIQUE,
 	`long_name` VARCHAR(200) UNIQUE,
@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS `trainix_asn` (
 	PRIMARY KEY (`id`),
 	FOREIGN KEY (`trx_id`) REFERENCES `trainix_history`(`id`),
 	FOREIGN KEY (`asn`) REFERENCES `asn`(`id`),
-	FOREIGN KEY (`location`) REFERENCES `organisasi`(`id`),
-	FOREIGN KEY (`organizer`) REFERENCES `organisasi`(`id`)
+	FOREIGN KEY (`location`) REFERENCES `orgz`(`id`),
+	FOREIGN KEY (`organizer`) REFERENCES `orgz`(`id`)
 ) ENGINE = INNODB;
 

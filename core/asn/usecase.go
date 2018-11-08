@@ -26,7 +26,7 @@ func NewASNUcase(ar ASNRepository, or opd.OPDRepository, timeout time.Duration) 
 	}
 }
 
-func (au asnUcase) GetByID(c context.Context, id int) (models.ASN, error) {
+func (au *asnUcase) GetByID(c context.Context, id int) (models.ASN, error) {
 	ctx, cancel := context.WithTimeout(c, au.ctxTimeout)
 	defer cancel()
 
@@ -35,12 +35,12 @@ func (au asnUcase) GetByID(c context.Context, id int) (models.ASN, error) {
 		return nil, err
 	}
 
-	asn, err := au.asnRepo.GetByID(ctx, asn.CurrentPlaces.ID)
+	opd, err := au.opdRepo.GetByID(ctx, asn.CurrentPlaces.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	asn.CurrentPlaces = *asn
+	asn.CurrentPlaces = opd
 
 	return asn, nil
 }

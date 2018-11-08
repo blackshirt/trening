@@ -8,7 +8,7 @@ import (
 )
 
 type OrgRepository interface {
-	GetByID(ctx context.Context, id int) (models.Orgz, error)
+	GetByID(ctx context.Context, id int) (*models.Orgz, error)
 	OrgList(ctx context.Context) ([]models.Orgz, error)
 }
 
@@ -20,15 +20,15 @@ func NewOrgRepo(conn *sql.DB) OrgRepository {
 	return &orgRepo{db: conn}
 }
 
-func (m orgRepo) getOne(ctx context.Context, query string, args ...interface{}) (models.Orgz, error) {
+func (m *orgRepo) getOne(ctx context.Context, query string, args ...interface{}) (*models.Orgz, error) {
 	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
 	defer stmt.Close()
 	row := stmt.QueryRowContext(ctx, args...)
-	org := &models.Orgz{}
-	err := row.Scan(
+	org := new(models.Orgz)
+	err = row.Scan(
 		&org.ID,
 		&org.Name,
 		&org.LongName,
@@ -44,12 +44,12 @@ func (m orgRepo) getOne(ctx context.Context, query string, args ...interface{}) 
 	return org, nil
 }
 
-func (m orgRepo) GetByID(ctx context.Context, id int) (models.Orgz, error) {
+func (m *orgRepo) GetByID(ctx context.Context, id int) (*models.Orgz, error) {
 	query := `SELECT * FROM orgz WHERE id=?`
 	return m.getOne(ctx, query, id)
 }
 
-func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{}) (models.Orgz, error) {
+func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{}) ([]models.Orgz, error) {
 	rows, err := m.db.QueryContext(ctx, query, args...)
 
 	if err != nil {
@@ -59,7 +59,7 @@ func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{})
 
 	orgs := []models.Orgz{}
 	for rows.Next() {
-		org := &models.Orgz{}
+		org := new(models.Orgz)
 		if err = rows.Scan(
 			&org.ID,
 			&org.Name,
@@ -69,7 +69,7 @@ func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{})
 			&org.City,
 			&org.Province,
 		); err == nil {
-			orgs = append(orgs, org)
+			orgs = append(orgs, *org)
 		}
 	}
 

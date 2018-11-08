@@ -15,11 +15,11 @@ type GraphQLService struct {
 	orgRepo orgz.OrgRepository
 }
 
-func NewGraphQLService() *GraphQLService {
+func NewGraphQLService(asn asn.ASNRepository, opd opd.OPDRepository, org orgz.OrgRepository) *GraphQLService {
 	return &GraphQLService{
-		asnRepo: "",
-		opdRepo: "",
-		orgRepo: "",
+		asnRepo: asn,
+		opdRepo: opd,
+		orgRepo: org,
 	}
 }
 
@@ -54,14 +54,14 @@ func (s *GraphQLService) Training() TrainingResolver {
 }
 
 func (a *asnResolver) CurrentPlaces(ctx context.Context, obj *models.ASN) (models.OPD, error) {
-	opd, err := a.service.opdRepo.GetByID(ctx, obj.ID)
+	opd, err := a.service.opdRepo.GetByID(ctx, obj.CurrentPlaces.ID)
 	if err != nil {
 		return nil, err
 	}
 	return opd, nil
 }
 
-func (q *queryResolver) AsnList(ctx context.Context) ([]models.ASN, error) {
+func (q *queryResolver) AsnList(ctx context.Context, pagination *Pagination) ([]models.ASN, error) {
 	res, err := q.service.asnRepo.ASNList(ctx)
 	if err != nil {
 		return nil, err
@@ -69,7 +69,7 @@ func (q *queryResolver) AsnList(ctx context.Context) ([]models.ASN, error) {
 	return res, nil
 }
 
-func (q *queryResolver) OpdList(ctx context.Context) ([]models.OPD, error) {
+func (q *queryResolver) OpdList(ctx context.Context, pagination *Pagination) ([]models.OPD, error) {
 	res, err := q.service.opdRepo.OPDList(ctx)
 	if err != nil {
 		return nil, err
@@ -77,7 +77,7 @@ func (q *queryResolver) OpdList(ctx context.Context) ([]models.OPD, error) {
 	return res, nil
 }
 
-func (q *queryResolver) OrgList(ctx context.Context) ([]models.Orgz, error) {
+func (q *queryResolver) OrgList(ctx context.Context, pagination *Pagination) ([]models.Orgz, error) {
 	res, err := q.service.orgRepo.OrgList(ctx)
 	if err != nil {
 		return nil, err

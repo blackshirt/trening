@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS `trainix_master` (
   	`type` SMALLINT UNSIGNED NOT NULL DEFAULT 0,
   
   	PRIMARY KEY (`id`),
-  	KEY (`name`)trainixtrainix_type,
+  	KEY (`name`),trainix_asn
   	FOREIGN KEY (`category`) REFERENCES `trainix_category`(`id`),
   	FOREIGN KEY (`type`) REFERENCES `trainix_type`(`id`)
 ) ENGINE = INNODB;

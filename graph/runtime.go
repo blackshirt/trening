@@ -70,9 +70,9 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AsnList func(childComplexity int) int
-		OpdList func(childComplexity int) int
-		OrgList func(childComplexity int) int
+		AsnList func(childComplexity int, pagination *Pagination) int
+		OpdList func(childComplexity int, pagination *Pagination) int
+		OrgList func(childComplexity int, pagination *Pagination) int
 	}
 
 	Training struct {
@@ -91,14 +91,74 @@ type ASNResolver interface {
 	CurrentPlaces(ctx context.Context, obj *models.ASN) (models.OPD, error)
 }
 type QueryResolver interface {
-	AsnList(ctx context.Context) ([]models.ASN, error)
-	OpdList(ctx context.Context) ([]models.OPD, error)
-	OrgList(ctx context.Context) ([]Orgz, error)
+	AsnList(ctx context.Context, pagination *Pagination) ([]models.ASN, error)
+	OpdList(ctx context.Context, pagination *Pagination) ([]models.OPD, error)
+	OrgList(ctx context.Context, pagination *Pagination) ([]models.Orgz, error)
 }
 type TrainingResolver interface {
-	Organizer(ctx context.Context, obj *models.Training) (Orgz, error)
-	Location(ctx context.Context, obj *models.Training) (Orgz, error)
+	Organizer(ctx context.Context, obj *models.Training) (models.Orgz, error)
+	Location(ctx context.Context, obj *models.Training) (models.Orgz, error)
 	Participants(ctx context.Context, obj *models.Training) ([]models.ASN, error)
+}
+
+func field_Query_asnList_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 *Pagination
+	if tmp, ok := rawArgs["pagination"]; ok {
+		var err error
+		var ptr1 Pagination
+		if tmp != nil {
+			ptr1, err = UnmarshalPagination(tmp)
+			arg0 = &ptr1
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pagination"] = arg0
+	return args, nil
+
+}
+
+func field_Query_opdList_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 *Pagination
+	if tmp, ok := rawArgs["pagination"]; ok {
+		var err error
+		var ptr1 Pagination
+		if tmp != nil {
+			ptr1, err = UnmarshalPagination(tmp)
+			arg0 = &ptr1
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pagination"] = arg0
+	return args, nil
+
+}
+
+func field_Query_orgList_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 *Pagination
+	if tmp, ok := rawArgs["pagination"]; ok {
+		var err error
+		var ptr1 Pagination
+		if tmp != nil {
+			ptr1, err = UnmarshalPagination(tmp)
+			arg0 = &ptr1
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pagination"] = arg0
+	return args, nil
+
 }
 
 func field_Query___type_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
@@ -304,21 +364,36 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		return e.complexity.Query.AsnList(childComplexity), true
+		args, err := field_Query_asnList_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.AsnList(childComplexity, args["pagination"].(*Pagination)), true
 
 	case "Query.opdList":
 		if e.complexity.Query.OpdList == nil {
 			break
 		}
 
-		return e.complexity.Query.OpdList(childComplexity), true
+		args, err := field_Query_opdList_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.OpdList(childComplexity, args["pagination"].(*Pagination)), true
 
 	case "Query.orgList":
 		if e.complexity.Query.OrgList == nil {
 			break
 		}
 
-		return e.complexity.Query.OrgList(childComplexity), true
+		args, err := field_Query_orgList_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.OrgList(childComplexity, args["pagination"].(*Pagination)), true
 
 	case "Training.id":
 		if e.complexity.Training.Id == nil {
@@ -884,7 +959,7 @@ func (ec *executionContext) _OPD_province(ctx context.Context, field graphql.Col
 var orgzImplementors = []string{"Orgz"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _Orgz(ctx context.Context, sel ast.SelectionSet, obj *Orgz) graphql.Marshaler {
+func (ec *executionContext) _Orgz(ctx context.Context, sel ast.SelectionSet, obj *models.Orgz) graphql.Marshaler {
 	fields := graphql.CollectFields(ctx, sel, orgzImplementors)
 
 	out := graphql.NewOrderedMap(len(fields))
@@ -942,7 +1017,7 @@ func (ec *executionContext) _Orgz(ctx context.Context, sel ast.SelectionSet, obj
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Orgz_id(ctx context.Context, field graphql.CollectedField, obj *Orgz) graphql.Marshaler {
+func (ec *executionContext) _Orgz_id(ctx context.Context, field graphql.CollectedField, obj *models.Orgz) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -969,7 +1044,7 @@ func (ec *executionContext) _Orgz_id(ctx context.Context, field graphql.Collecte
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Orgz_name(ctx context.Context, field graphql.CollectedField, obj *Orgz) graphql.Marshaler {
+func (ec *executionContext) _Orgz_name(ctx context.Context, field graphql.CollectedField, obj *models.Orgz) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -996,7 +1071,7 @@ func (ec *executionContext) _Orgz_name(ctx context.Context, field graphql.Collec
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Orgz_long_name(ctx context.Context, field graphql.CollectedField, obj *Orgz) graphql.Marshaler {
+func (ec *executionContext) _Orgz_long_name(ctx context.Context, field graphql.CollectedField, obj *models.Orgz) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -1023,7 +1098,7 @@ func (ec *executionContext) _Orgz_long_name(ctx context.Context, field graphql.C
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Orgz_road(ctx context.Context, field graphql.CollectedField, obj *Orgz) graphql.Marshaler {
+func (ec *executionContext) _Orgz_road(ctx context.Context, field graphql.CollectedField, obj *models.Orgz) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -1050,7 +1125,7 @@ func (ec *executionContext) _Orgz_road(ctx context.Context, field graphql.Collec
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Orgz_number(ctx context.Context, field graphql.CollectedField, obj *Orgz) graphql.Marshaler {
+func (ec *executionContext) _Orgz_number(ctx context.Context, field graphql.CollectedField, obj *models.Orgz) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -1077,7 +1152,7 @@ func (ec *executionContext) _Orgz_number(ctx context.Context, field graphql.Coll
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Orgz_city(ctx context.Context, field graphql.CollectedField, obj *Orgz) graphql.Marshaler {
+func (ec *executionContext) _Orgz_city(ctx context.Context, field graphql.CollectedField, obj *models.Orgz) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -1104,7 +1179,7 @@ func (ec *executionContext) _Orgz_city(ctx context.Context, field graphql.Collec
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Orgz_province(ctx context.Context, field graphql.CollectedField, obj *Orgz) graphql.Marshaler {
+func (ec *executionContext) _Orgz_province(ctx context.Context, field graphql.CollectedField, obj *models.Orgz) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -1195,16 +1270,22 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 func (ec *executionContext) _Query_asnList(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Query_asnList_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
 	rctx := &graphql.ResolverContext{
 		Object: "Query",
-		Args:   nil,
+		Args:   args,
 		Field:  field,
 	}
 	ctx = graphql.WithResolverContext(ctx, rctx)
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AsnList(rctx)
+		return ec.resolvers.Query().AsnList(rctx, args["pagination"].(*Pagination))
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -1255,16 +1336,22 @@ func (ec *executionContext) _Query_asnList(ctx context.Context, field graphql.Co
 func (ec *executionContext) _Query_opdList(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Query_opdList_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
 	rctx := &graphql.ResolverContext{
 		Object: "Query",
-		Args:   nil,
+		Args:   args,
 		Field:  field,
 	}
 	ctx = graphql.WithResolverContext(ctx, rctx)
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().OpdList(rctx)
+		return ec.resolvers.Query().OpdList(rctx, args["pagination"].(*Pagination))
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -1315,16 +1402,22 @@ func (ec *executionContext) _Query_opdList(ctx context.Context, field graphql.Co
 func (ec *executionContext) _Query_orgList(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Query_orgList_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
 	rctx := &graphql.ResolverContext{
 		Object: "Query",
-		Args:   nil,
+		Args:   args,
 		Field:  field,
 	}
 	ctx = graphql.WithResolverContext(ctx, rctx)
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().OrgList(rctx)
+		return ec.resolvers.Query().OrgList(rctx, args["pagination"].(*Pagination))
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -1332,7 +1425,7 @@ func (ec *executionContext) _Query_orgList(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]Orgz)
+	res := resTmp.([]models.Orgz)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1669,7 +1762,7 @@ func (ec *executionContext) _Training_organizer(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(Orgz)
+	res := resTmp.(models.Orgz)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1697,7 +1790,7 @@ func (ec *executionContext) _Training_location(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(Orgz)
+	res := resTmp.(models.Orgz)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -3520,9 +3613,9 @@ input OPDInput {
 # Query
 type Query {
 # 	traininglist: [Training!]!
-  asnList: [ASN!]!
-  opdList: [OPD!]!
-  orgList: [Orgz!]!
+  asnList(pagination: Pagination): [ASN!]!
+  opdList(pagination: Pagination): [OPD!]!
+  orgList(pagination: Pagination): [Orgz!]!
 }
 
 

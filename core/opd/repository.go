@@ -20,23 +20,19 @@ func NewOPDRepo(conn *sql.DB) OPDRepository {
 	return &opdRepo{db: conn}
 }
 
-func (m *opdRepo) getOne(ctx context.Context, query string, args ...interface{}) (*models.OPD, error) {
-	stmt, err := m.db.PrepareContext(ctx, query)
-	if err != nil {
-		return nil, err
-	}
-	row := stmt.QueryRowContext(ctx, args...)
-	opd := &models.OPD{}
-	err = row.Scan(
-		&opd.ID,
-		&opd.Name,
-		&opd.LongName,
-		&opd.Road,
-		&opd.Number,
-		&opd.City,
-		&opd.Province,
-	)
-	if err != nil {
+func (m *opdRepo) getOne(ctx context.Context, query string, id int) (*models.OPD, error) {
+	row := m.db.QueryRowContext(ctx, query, id)
+
+	opd := new(models.OPD)
+	if err := row.Scan(
+		opd.ID,
+		opd.Name,
+		opd.LongName,
+		opd.Road,
+		opd.Number,
+		opd.City,
+		opd.Province,
+	); err != nil {
 		return nil, err
 	}
 

@@ -26,7 +26,7 @@ models:
         resolver: true
       participants:
         resolver: true
-  Organisasi:
+  Orgz:
     model: github.com/blackshirt/trening/models.Orgz
   ASN:
     model: github.com/blackshirt/trening/models.ASN

@@ -7,6 +7,9 @@ import (
 	os "os"
 
 	handler "github.com/99designs/gqlgen/handler"
+	"github.com/blackshirt/trening/core/asn"
+	"github.com/blackshirt/trening/core/opd"
+	"github.com/blackshirt/trening/core/orgz"
 	graph "github.com/blackshirt/trening/graph"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -18,18 +21,22 @@ func main() {
 	if port == "" {
 		port = defaultPort
 	}
-	db, err := sql.Open("mysql", "root:123@/trainix")
+	conn, err := sql.Open("mysql", "root:123@/trainix")
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = db.Ping()
+	err = conn.Ping()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
+	defer conn.Close()
+	opdRepo := opd.NewOPDRepo{db: conn}
+	orgRepo := orgz.NewOrgRepo{db: conn}
+	asnRepo := asn.NewASNRepo{db: conn}
+	gqlService := graph.NewGrapQLService{asnRepo, opdRepo, orgRepo}
 
 	http.Handle("/", handler.Playground("GraphQL playground", "/query"))
-	http.Handle("/query", handler.GraphQL(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}})))
+	http.Handle("/query", handler.GraphQL(graph.NewExecutableSchema(graph.Config{Resolvers: gqlService})))
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))

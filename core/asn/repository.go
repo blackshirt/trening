@@ -8,7 +8,7 @@ import (
 )
 
 type ASNRepository interface {
-	GetByID(ctx context.Context, id int) (models.ASN, error)
+	GetByID(ctx context.Context, id int) (*models.ASN, error)
 	ASNList(ctx context.Context) ([]models.ASN, error)
 }
 
@@ -20,16 +20,14 @@ func NewASNRepo(conn *sql.DB) ASNRepository {
 	return &asnRepo{db: conn}
 }
 
-
-
-func (m asnRepo) getOne(ctx context.Context, query string, args ...interface{}) (models.ASN, error) {
+func (m *asnRepo) getOne(ctx context.Context, query string, args ...interface{}) (*models.ASN, error) {
 	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
 	row := stmt.QueryRowContext(ctx, args...)
 	asn := &models.ASN{}
-	err := row.Scan(
+	err = row.Scan(
 		&asn.ID,
 		&asn.Name,
 		&asn.Nip,
@@ -43,12 +41,10 @@ func (m asnRepo) getOne(ctx context.Context, query string, args ...interface{}) 
 	return asn, nil
 }
 
-func (m asnRepo) GetByID(ctx context.Context, id int) (models.ASN, error) {
+func (m *asnRepo) GetByID(ctx context.Context, id int) (*models.ASN, error) {
 	query := `SELECT * FROM asn WHERE id = ?`
 	return m.getOne(ctx, query, id)
 }
-
-
 
 func (m *asnRepo) listASN(ctx context.Context, query string, args ...interface{}) ([]models.ASN, error) {
 	rows, err := m.db.QueryContext(ctx, query, args...)
@@ -67,7 +63,7 @@ func (m *asnRepo) listASN(ctx context.Context, query string, args ...interface{}
 			&asn.Nip,
 			&asn.CurrentJob,
 			&asn.CurrentGrade,
-			&asn.Places,
+			&asn.CurrentPlaces,
 		); err == nil {
 			asns = append(asns, asn)
 		}
@@ -80,12 +76,7 @@ func (m *asnRepo) listASN(ctx context.Context, query string, args ...interface{}
 	return asns, nil
 }
 
-
 func (m *asnRepo) ASNList(ctx context.Context) ([]models.ASN, error) {
 	query := `SELECT * FROM asn`
 	return m.listASN(ctx, query)
 }
-
-
-
-

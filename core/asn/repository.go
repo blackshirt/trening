@@ -3,12 +3,13 @@ package asn
 import (
 	"context"
 	"database/sql"
+	"log"
 
 	"github.com/blackshirt/trening/models"
 )
 
 type ASNRepository interface {
-	GetByID(ctx context.Context, id int) (*models.ASN, error)
+	GetByID(ctx context.Context, id int) (models.ASN, error)
 	ASNList(ctx context.Context) ([]models.ASN, error)
 }
 
@@ -20,13 +21,13 @@ func NewASNRepo(conn *sql.DB) ASNRepository {
 	return &asnRepo{db: conn}
 }
 
-func (m *asnRepo) getOne(ctx context.Context, query string, args ...interface{}) (*models.ASN, error) {
+func (m *asnRepo) getOne(ctx context.Context, query string, args ...interface{}) (models.ASN, error) {
 	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 	row := stmt.QueryRowContext(ctx, args...)
-	asn := &models.ASN{}
+	asn := models.ASN{}
 	err = row.Scan(
 		&asn.ID,
 		&asn.Name,
@@ -36,25 +37,29 @@ func (m *asnRepo) getOne(ctx context.Context, query string, args ...interface{})
 		&asn.CurrentPlaces,
 	)
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 	return asn, nil
 }
 
-func (m *asnRepo) GetByID(ctx context.Context, id int) (*models.ASN, error) {
+func (m *asnRepo) GetByID(ctx context.Context, id int) (models.ASN, error) {
 	query := `SELECT * FROM asn WHERE id = ?`
 	return m.getOne(ctx, query, id)
 }
 
 func (m *asnRepo) listASN(ctx context.Context, query string, args ...interface{}) ([]models.ASN, error) {
-	rows, err := m.db.QueryContext(ctx, query, args...)
+	stmt, err := m.db.PrepareContext(ctx, query)
 
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
+	}
+	rows, err := stmt.QueryContext(ctx, args...)
+	if err != nil {
+		log.Fatal(err)
 	}
 	defer rows.Close()
 
-	asns := make([]models.ASN, 0)
+	asns := []models.ASN{}
 	for rows.Next() {
 		asn := models.ASN{}
 		if err = rows.Scan(
@@ -63,14 +68,15 @@ func (m *asnRepo) listASN(ctx context.Context, query string, args ...interface{}
 			&asn.Nip,
 			&asn.CurrentJob,
 			&asn.CurrentGrade,
-			&asn.CurrentPlaces,
-		); err == nil {
-			asns = append(asns, asn)
+			&asn.CurrentPlaces.ID,
+		); err != nil {
+			log.Fatal(err)
 		}
+		asns = append(asns, asn)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 
 	return asns, nil

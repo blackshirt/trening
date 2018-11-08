@@ -2,6 +2,7 @@ package asn
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/blackshirt/trening/core/opd"
@@ -32,12 +33,12 @@ func (au *asnUcase) GetByID(c context.Context, id int) (models.ASN, error) {
 
 	asn, err := au.asnRepo.GetByID(ctx, id)
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 
 	opd, err := au.opdRepo.GetByID(ctx, asn.CurrentPlaces.ID)
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 
 	asn.CurrentPlaces = opd

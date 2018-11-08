@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"log"
 
 	"github.com/blackshirt/trening/core/asn"
 	"github.com/blackshirt/trening/core/opd"
@@ -56,7 +57,7 @@ func (s *GraphQLService) Training() TrainingResolver {
 func (a *asnResolver) CurrentPlaces(ctx context.Context, obj *models.ASN) (models.OPD, error) {
 	opd, err := a.service.opdRepo.GetByID(ctx, obj.CurrentPlaces.ID)
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 	return opd, nil
 }
@@ -64,7 +65,7 @@ func (a *asnResolver) CurrentPlaces(ctx context.Context, obj *models.ASN) (model
 func (q *queryResolver) AsnList(ctx context.Context, pagination *Pagination) ([]models.ASN, error) {
 	res, err := q.service.asnRepo.ASNList(ctx)
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 	return res, nil
 }
@@ -72,7 +73,7 @@ func (q *queryResolver) AsnList(ctx context.Context, pagination *Pagination) ([]
 func (q *queryResolver) OpdList(ctx context.Context, pagination *Pagination) ([]models.OPD, error) {
 	res, err := q.service.opdRepo.OPDList(ctx)
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 	return res, nil
 }
@@ -80,7 +81,7 @@ func (q *queryResolver) OpdList(ctx context.Context, pagination *Pagination) ([]
 func (q *queryResolver) OrgList(ctx context.Context, pagination *Pagination) ([]models.Orgz, error) {
 	res, err := q.service.orgRepo.OrgList(ctx)
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 	return res, nil
 }
@@ -88,7 +89,7 @@ func (q *queryResolver) OrgList(ctx context.Context, pagination *Pagination) ([]
 func (t *trainingResolver) Organizer(ctx context.Context, obj *models.Training) (models.Orgz, error) {
 	orgz, err := t.service.orgRepo.GetByID(ctx, obj.Organizer.ID)
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 	return orgz, nil
 }
@@ -96,7 +97,7 @@ func (t *trainingResolver) Organizer(ctx context.Context, obj *models.Training) 
 func (t *trainingResolver) Location(ctx context.Context, obj *models.Training) (models.Orgz, error) {
 	orgz, err := t.service.orgRepo.GetByID(ctx, obj.Location.ID)
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 	return orgz, nil
 

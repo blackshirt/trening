@@ -3,12 +3,13 @@ package opd
 import (
 	"context"
 	"database/sql"
+	"log"
 
 	"github.com/blackshirt/trening/models"
 )
 
 type OPDRepository interface {
-	GetByID(ctx context.Context, id int) (*models.OPD, error)
+	GetByID(ctx context.Context, id int) (models.OPD, error)
 	OPDList(ctx context.Context) ([]models.OPD, error)
 }
 
@@ -20,26 +21,30 @@ func NewOPDRepo(conn *sql.DB) OPDRepository {
 	return &opdRepo{db: conn}
 }
 
-func (m *opdRepo) getOne(ctx context.Context, query string, id int) (*models.OPD, error) {
-	row := m.db.QueryRowContext(ctx, query, id)
-
-	opd := new(models.OPD)
+func (m *opdRepo) getOne(ctx context.Context, query string, args ...interface{}) (models.OPD, error) {
+	stmt, err := m.db.PrepareContext(ctx, query)
+	if err != nil {
+		log.Fatal(err)
+	}
+	row := stmt.QueryRowContext(ctx, args...)
+	defer stmt.Close()
+	opd := models.OPD{}
 	if err := row.Scan(
-		opd.ID,
-		opd.Name,
-		opd.LongName,
-		opd.Road,
-		opd.Number,
-		opd.City,
-		opd.Province,
+		&opd.ID,
+		&opd.Name,
+		&opd.LongName,
+		&opd.Road,
+		&opd.Number,
+		&opd.City,
+		&opd.Province,
 	); err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 
 	return opd, nil
 }
 
-func (m *opdRepo) GetByID(ctx context.Context, id int) (*models.OPD, error) {
+func (m *opdRepo) GetByID(ctx context.Context, id int) (models.OPD, error) {
 	query := `SELECT * FROM opd WHERE id=?`
 	return m.getOne(ctx, query, id)
 }

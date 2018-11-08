@@ -30,10 +30,10 @@ func main() {
 		log.Fatal(err)
 	}
 	defer conn.Close()
-	opdRepo := opd.NewOPDRepo{db: conn}
-	orgRepo := orgz.NewOrgRepo{db: conn}
-	asnRepo := asn.NewASNRepo{db: conn}
-	gqlService := graph.NewGrapQLService{asnRepo, opdRepo, orgRepo}
+	opdRepo := opd.NewOPDRepo(conn)
+	orgRepo := orgz.NewOrgRepo(conn)
+	asnRepo := asn.NewASNRepo(conn)
+	gqlService := graph.NewGraphQLService(asnRepo, opdRepo, orgRepo)
 
 	http.Handle("/", handler.Playground("GraphQL playground", "/query"))
 	http.Handle("/query", handler.GraphQL(graph.NewExecutableSchema(graph.Config{Resolvers: gqlService})))

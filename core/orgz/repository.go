@@ -3,12 +3,13 @@ package orgz
 import (
 	"context"
 	"database/sql"
+	"log"
 
 	"github.com/blackshirt/trening/models"
 )
 
 type OrgRepository interface {
-	GetByID(ctx context.Context, id int) (*models.Orgz, error)
+	GetByID(ctx context.Context, id int) (models.Orgz, error)
 	OrgList(ctx context.Context) ([]models.Orgz, error)
 }
 
@@ -20,14 +21,14 @@ func NewOrgRepo(conn *sql.DB) OrgRepository {
 	return &orgRepo{db: conn}
 }
 
-func (m *orgRepo) getOne(ctx context.Context, query string, args ...interface{}) (*models.Orgz, error) {
+func (m *orgRepo) getOne(ctx context.Context, query string, args ...interface{}) (models.Orgz, error) {
 	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 	defer stmt.Close()
 	row := stmt.QueryRowContext(ctx, args...)
-	org := new(models.Orgz)
+	org := models.Orgz{}
 	err = row.Scan(
 		&org.ID,
 		&org.Name,
@@ -38,13 +39,13 @@ func (m *orgRepo) getOne(ctx context.Context, query string, args ...interface{})
 		&org.Province,
 	)
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 
 	return org, nil
 }
 
-func (m *orgRepo) GetByID(ctx context.Context, id int) (*models.Orgz, error) {
+func (m *orgRepo) GetByID(ctx context.Context, id int) (models.Orgz, error) {
 	query := `SELECT * FROM orgz WHERE id=?`
 	return m.getOne(ctx, query, id)
 }
@@ -53,7 +54,7 @@ func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{})
 	rows, err := m.db.QueryContext(ctx, query, args...)
 
 	if err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 	defer rows.Close()
 
@@ -74,7 +75,7 @@ func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{})
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, err
+		log.Fatal(err)
 	}
 
 	return orgs, nil

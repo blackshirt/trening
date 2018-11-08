@@ -2,30 +2,24 @@
 
 package graph
 
-type ASNInput struct {
-	Name          string   `json:"name"`
-	Nip           string   `json:"nip"`
-	CurrentJob    string   `json:"current_job"`
-	CurrentGrade  string   `json:"current_grade"`
-	CurrentPlaces OPDInput `json:"current_places"`
-}
+import (
+	models "github.com/blackshirt/trening/models"
+)
 
-type OPDInput struct {
-	Name     string `json:"name"`
-	LongName string `json:"long_name"`
-	Road     string `json:"road"`
-	Number   string `json:"number"`
-	City     string `json:"city"`
-	Province string `json:"province"`
+type ASNInput struct {
+	Name          string          `json:"name"`
+	Nip           string          `json:"nip"`
+	CurrentJob    string          `json:"current_job"`
+	CurrentGrade  string          `json:"current_grade"`
+	CurrentPlaces models.OPDInput `json:"current_places"`
 }
 
 type OrgzInput struct {
-	Name     string `json:"name"`
-	LongName string `json:"long_name"`
-	Road     string `json:"road"`
-	Number   string `json:"number"`
-	City     string `json:"city"`
-	Province string `json:"province"`
+	Name       string `json:"name"`
+	LongName   string `json:"long_name"`
+	RoadNumber string `json:"road_number"`
+	City       string `json:"city"`
+	Province   string `json:"province"`
 }
 
 type Pagination struct {

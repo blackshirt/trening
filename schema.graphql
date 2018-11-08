@@ -86,6 +86,7 @@ type Query {
 }
 
 
-#type Mutation {
-#	 createTraining(input: #TrainingInput!): Training!
-#}
+type Mutation {
+#	createTraining(input: #TrainingInput!): Training!
+	createOPD(input: OPDInput!): OPD!
+}

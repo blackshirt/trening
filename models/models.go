@@ -29,6 +29,14 @@ type OPD struct {
 	Province   string `json:"province"`
 }
 
+type OPDInput struct {
+	Name       string `json:"name"`
+	LongName   string `json:"long_name"`
+	RoadNumber string `json:"road_number"`
+	City       string `json:"city"`
+	Province   string `json:"province"`
+}
+
 type ASN struct {
 	ID            int    `json:"id"`
 	Name          string `json:"name"`

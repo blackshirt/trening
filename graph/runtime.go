@@ -32,6 +32,7 @@ type Config struct {
 
 type ResolverRoot interface {
 	ASN() ASNResolver
+	Mutation() MutationResolver
 	Query() QueryResolver
 	Training() TrainingResolver
 }
@@ -49,24 +50,26 @@ type ComplexityRoot struct {
 		CurrentPlaces func(childComplexity int) int
 	}
 
+	Mutation struct {
+		CreateOpd func(childComplexity int, input models.OPDInput) int
+	}
+
 	Opd struct {
-		Id       func(childComplexity int) int
-		Name     func(childComplexity int) int
-		LongName func(childComplexity int) int
-		Road     func(childComplexity int) int
-		Number   func(childComplexity int) int
-		City     func(childComplexity int) int
-		Province func(childComplexity int) int
+		Id         func(childComplexity int) int
+		Name       func(childComplexity int) int
+		LongName   func(childComplexity int) int
+		RoadNumber func(childComplexity int) int
+		City       func(childComplexity int) int
+		Province   func(childComplexity int) int
 	}
 
 	Orgz struct {
-		Id       func(childComplexity int) int
-		Name     func(childComplexity int) int
-		LongName func(childComplexity int) int
-		Road     func(childComplexity int) int
-		Number   func(childComplexity int) int
-		City     func(childComplexity int) int
-		Province func(childComplexity int) int
+		Id         func(childComplexity int) int
+		Name       func(childComplexity int) int
+		LongName   func(childComplexity int) int
+		RoadNumber func(childComplexity int) int
+		City       func(childComplexity int) int
+		Province   func(childComplexity int) int
 	}
 
 	Query struct {
@@ -90,6 +93,9 @@ type ComplexityRoot struct {
 type ASNResolver interface {
 	CurrentPlaces(ctx context.Context, obj *models.ASN) (models.OPD, error)
 }
+type MutationResolver interface {
+	CreateOPD(ctx context.Context, input models.OPDInput) (models.OPD, error)
+}
 type QueryResolver interface {
 	AsnList(ctx context.Context, pagination *Pagination) ([]models.ASN, error)
 	OpdList(ctx context.Context, pagination *Pagination) ([]models.OPD, error)
@@ -99,6 +105,21 @@ type TrainingResolver interface {
 	Organizer(ctx context.Context, obj *models.Training) (models.Orgz, error)
 	Location(ctx context.Context, obj *models.Training) (models.Orgz, error)
 	Participants(ctx context.Context, obj *models.Training) ([]models.ASN, error)
+}
+
+func field_Mutation_createOPD_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 models.OPDInput
+	if tmp, ok := rawArgs["input"]; ok {
+		var err error
+		arg0, err = UnmarshalOPDInput(tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+
 }
 
 func field_Query_asnList_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
@@ -261,6 +282,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Asn.CurrentPlaces(childComplexity), true
 
+	case "Mutation.createOPD":
+		if e.complexity.Mutation.CreateOpd == nil {
+			break
+		}
+
+		args, err := field_Mutation_createOPD_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateOpd(childComplexity, args["input"].(models.OPDInput)), true
+
 	case "OPD.id":
 		if e.complexity.Opd.Id == nil {
 			break
@@ -282,19 +315,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Opd.LongName(childComplexity), true
 
-	case "OPD.road":
-		if e.complexity.Opd.Road == nil {
+	case "OPD.road_number":
+		if e.complexity.Opd.RoadNumber == nil {
 			break
 		}
 
-		return e.complexity.Opd.Road(childComplexity), true
-
-	case "OPD.number":
-		if e.complexity.Opd.Number == nil {
-			break
-		}
-
-		return e.complexity.Opd.Number(childComplexity), true
+		return e.complexity.Opd.RoadNumber(childComplexity), true
 
 	case "OPD.city":
 		if e.complexity.Opd.City == nil {
@@ -331,19 +357,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Orgz.LongName(childComplexity), true
 
-	case "Orgz.road":
-		if e.complexity.Orgz.Road == nil {
+	case "Orgz.road_number":
+		if e.complexity.Orgz.RoadNumber == nil {
 			break
 		}
 
-		return e.complexity.Orgz.Road(childComplexity), true
-
-	case "Orgz.number":
-		if e.complexity.Orgz.Number == nil {
-			break
-		}
-
-		return e.complexity.Orgz.Number(childComplexity), true
+		return e.complexity.Orgz.RoadNumber(childComplexity), true
 
 	case "Orgz.city":
 		if e.complexity.Orgz.City == nil {
@@ -472,7 +491,20 @@ func (e *executableSchema) Query(ctx context.Context, op *ast.OperationDefinitio
 }
 
 func (e *executableSchema) Mutation(ctx context.Context, op *ast.OperationDefinition) *graphql.Response {
-	return graphql.ErrorResponse(ctx, "mutations are not supported")
+	ec := executionContext{graphql.GetRequestContext(ctx), e}
+
+	buf := ec.RequestMiddleware(ctx, func(ctx context.Context) []byte {
+		data := ec._Mutation(ctx, op.SelectionSet)
+		var buf bytes.Buffer
+		data.MarshalGQL(&buf)
+		return buf.Bytes()
+	})
+
+	return &graphql.Response{
+		Data:       buf,
+		Errors:     ec.Errors,
+		Extensions: ec.Extensions,
+	}
 }
 
 func (e *executableSchema) Subscription(ctx context.Context, op *ast.OperationDefinition) func() *graphql.Response {
@@ -707,6 +739,74 @@ func (ec *executionContext) _ASN_current_places(ctx context.Context, field graph
 	return ec._OPD(ctx, field.Selections, &res)
 }
 
+var mutationImplementors = []string{"Mutation"}
+
+// nolint: gocyclo, errcheck, gas, goconst
+func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
+	fields := graphql.CollectFields(ctx, sel, mutationImplementors)
+
+	ctx = graphql.WithResolverContext(ctx, &graphql.ResolverContext{
+		Object: "Mutation",
+	})
+
+	out := graphql.NewOrderedMap(len(fields))
+	invalid := false
+	for i, field := range fields {
+		out.Keys[i] = field.Alias
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Mutation")
+		case "createOPD":
+			out.Values[i] = ec._Mutation_createOPD(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+
+	if invalid {
+		return graphql.Null
+	}
+	return out
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Mutation_createOPD(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer ec.Tracer.EndFieldExecution(ctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Mutation_createOPD_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx := &graphql.ResolverContext{
+		Object: "Mutation",
+		Args:   args,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateOPD(rctx, args["input"].(models.OPDInput))
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(models.OPD)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	return ec._OPD(ctx, field.Selections, &res)
+}
+
 var oPDImplementors = []string{"OPD"}
 
 // nolint: gocyclo, errcheck, gas, goconst
@@ -736,13 +836,8 @@ func (ec *executionContext) _OPD(ctx context.Context, sel ast.SelectionSet, obj 
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
-		case "road":
-			out.Values[i] = ec._OPD_road(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalid = true
-			}
-		case "number":
-			out.Values[i] = ec._OPD_number(ctx, field, obj)
+		case "road_number":
+			out.Values[i] = ec._OPD_road_number(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
@@ -849,7 +944,7 @@ func (ec *executionContext) _OPD_long_name(ctx context.Context, field graphql.Co
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _OPD_road(ctx context.Context, field graphql.CollectedField, obj *models.OPD) graphql.Marshaler {
+func (ec *executionContext) _OPD_road_number(ctx context.Context, field graphql.CollectedField, obj *models.OPD) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -861,34 +956,7 @@ func (ec *executionContext) _OPD_road(ctx context.Context, field graphql.Collect
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Road, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return graphql.MarshalString(res)
-}
-
-// nolint: vetshadow
-func (ec *executionContext) _OPD_number(ctx context.Context, field graphql.CollectedField, obj *models.OPD) graphql.Marshaler {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer ec.Tracer.EndFieldExecution(ctx)
-	rctx := &graphql.ResolverContext{
-		Object: "OPD",
-		Args:   nil,
-		Field:  field,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Number, nil
+		return obj.RoadNumber, nil
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -985,13 +1053,8 @@ func (ec *executionContext) _Orgz(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
-		case "road":
-			out.Values[i] = ec._Orgz_road(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalid = true
-			}
-		case "number":
-			out.Values[i] = ec._Orgz_number(ctx, field, obj)
+		case "road_number":
+			out.Values[i] = ec._Orgz_road_number(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
@@ -1098,7 +1161,7 @@ func (ec *executionContext) _Orgz_long_name(ctx context.Context, field graphql.C
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Orgz_road(ctx context.Context, field graphql.CollectedField, obj *models.Orgz) graphql.Marshaler {
+func (ec *executionContext) _Orgz_road_number(ctx context.Context, field graphql.CollectedField, obj *models.Orgz) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -1110,34 +1173,7 @@ func (ec *executionContext) _Orgz_road(ctx context.Context, field graphql.Collec
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Road, nil
-	})
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	rctx.Result = res
-	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return graphql.MarshalString(res)
-}
-
-// nolint: vetshadow
-func (ec *executionContext) _Orgz_number(ctx context.Context, field graphql.CollectedField, obj *models.Orgz) graphql.Marshaler {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer ec.Tracer.EndFieldExecution(ctx)
-	rctx := &graphql.ResolverContext{
-		Object: "Orgz",
-		Args:   nil,
-		Field:  field,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Number, nil
+		return obj.RoadNumber, nil
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -3336,8 +3372,8 @@ func UnmarshalASNInput(v interface{}) (ASNInput, error) {
 	return it, nil
 }
 
-func UnmarshalOPDInput(v interface{}) (OPDInput, error) {
-	var it OPDInput
+func UnmarshalOPDInput(v interface{}) (models.OPDInput, error) {
+	var it models.OPDInput
 	var asMap = v.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3354,15 +3390,9 @@ func UnmarshalOPDInput(v interface{}) (OPDInput, error) {
 			if err != nil {
 				return it, err
 			}
-		case "road":
+		case "road_number":
 			var err error
-			it.Road, err = graphql.UnmarshalString(v)
-			if err != nil {
-				return it, err
-			}
-		case "number":
-			var err error
-			it.Number, err = graphql.UnmarshalString(v)
+			it.RoadNumber, err = graphql.UnmarshalString(v)
 			if err != nil {
 				return it, err
 			}
@@ -3402,15 +3432,9 @@ func UnmarshalOrgzInput(v interface{}) (OrgzInput, error) {
 			if err != nil {
 				return it, err
 			}
-		case "road":
+		case "road_number":
 			var err error
-			it.Road, err = graphql.UnmarshalString(v)
-			if err != nil {
-				return it, err
-			}
-		case "number":
-			var err error
-			it.Number, err = graphql.UnmarshalString(v)
+			it.RoadNumber, err = graphql.UnmarshalString(v)
 			if err != nil {
 				return it, err
 			}
@@ -3558,8 +3582,7 @@ type Orgz {
   	id: Int!
   	name: String!
   	long_name: String!
-  	road: String!
-	number: String!
+  	road_number: String!
 	city: String!
 	province: String!
 }
@@ -3567,8 +3590,7 @@ type Orgz {
 input OrgzInput {
 	name: String!
 	long_name: String!
-	road: String!
-	number: String!
+	road_number: String!
 	city: String!
 	province: String!
 }
@@ -3594,8 +3616,7 @@ type OPD {
   	id: Int!
   	name: String!
   	long_name: String!
-  	road: String!
-	number: String!
+  	road_number: String!
 	city: String!
 	province: String!
 }
@@ -3603,8 +3624,7 @@ type OPD {
 input OPDInput {
   	name: String!
   	long_name: String!
-  	road: String!
-	number: String!
+  	road_number: String!
 	city: String!
 	province: String!
 }
@@ -3619,8 +3639,9 @@ type Query {
 }
 
 
-#type Mutation {
-#	 createTraining(input: #TrainingInput!): Training!
-#}
+type Mutation {
+#	createTraining(input: #TrainingInput!): Training!
+	createOPD(input: OPDInput!): OPD!
+}
 `},
 )

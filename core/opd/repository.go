@@ -11,6 +11,7 @@ import (
 type OPDRepository interface {
 	GetByID(ctx context.Context, id int) (models.OPD, error)
 	OPDList(ctx context.Context) ([]models.OPD, error)
+	Insert(ctx context.Context, input models.OPDInput) (models.OPD, error)
 }
 
 type opdRepo struct {
@@ -81,4 +82,22 @@ func (m *opdRepo) listOPD(ctx context.Context, query string, args ...interface{}
 func (m *opdRepo) OPDList(ctx context.Context) ([]models.OPD, error) {
 	query := `SELECT * FROM opd`
 	return m.listOPD(ctx, query)
+}
+
+func (m *opdRepo) Insert(ctx context.Context, input models.OPDInput) (models.OPD, error) {
+	query := `INSERT IGNORE INTO opd(name, long_name, road_number, city, province) VALUES(?,?,?,?,?)`
+	opd := models.OPD{
+		Name:       input.Name,
+		LongName:   input.LongName,
+		RoadNumber: input.RoadNumber,
+		City:       input.City,
+		Province:   input.Province,
+	}
+	_, err := m.db.ExecContext(ctx, query, input.Name, input.LongName, input.RoadNumber, input.City, input.Province)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return opd, nil
+
 }

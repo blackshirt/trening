@@ -33,8 +33,7 @@ func (m *orgRepo) getOne(ctx context.Context, query string, args ...interface{})
 		&org.ID,
 		&org.Name,
 		&org.LongName,
-		&org.Road,
-		&org.Number,
+		&org.RoadNumber,
 		&org.City,
 		&org.Province,
 	)
@@ -65,8 +64,7 @@ func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{})
 			&org.ID,
 			&org.Name,
 			&org.LongName,
-			&org.Road,
-			&org.Number,
+			&org.RoadNumber,
 			&org.City,
 			&org.Province,
 		); err == nil {

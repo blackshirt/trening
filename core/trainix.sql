@@ -2,8 +2,7 @@ CREATE TABLE IF NOT EXISTS `opd` (
 	`id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(50) UNIQUE,
 	`long_name` VARCHAR(200) UNIQUE,
-	`road` VARCHAR(50) NOT NULL,
-	`number` VARCHAR(20) NOT NULL,
+	`road_number` VARCHAR(50) NOT NULL,
 	`city` VARCHAR(50) NOT NULL,
 	`province` VARCHAR(50) NOT NULL,
 
@@ -15,8 +14,7 @@ CREATE TABLE IF NOT EXISTS `orgz` (
 	`id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
 	`name` VARCHAR(100) UNIQUE,
 	`long_name` VARCHAR(200) UNIQUE,
-	`road` VARCHAR(50) NOT NULL,
-	`number` VARCHAR(20) NOT NULL,
+	`road_number` VARCHAR(50) NOT NULL,
 	`city` VARCHAR(50) NOT NULL,
 	`province` VARCHAR(50) NOT NULL,
 
@@ -65,7 +63,7 @@ CREATE TABLE IF NOT EXISTS `trainix_master` (
   	`type` SMALLINT UNSIGNED NOT NULL DEFAULT 0,
   
   	PRIMARY KEY (`id`),
-  	KEY (`name`),trainix_asn
+  	KEY (`name`),
   	FOREIGN KEY (`category`) REFERENCES `trainix_category`(`id`),
   	FOREIGN KEY (`type`) REFERENCES `trainix_type`(`id`)
 ) ENGINE = INNODB;

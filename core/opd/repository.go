@@ -33,8 +33,7 @@ func (m *opdRepo) getOne(ctx context.Context, query string, args ...interface{})
 		&opd.ID,
 		&opd.Name,
 		&opd.LongName,
-		&opd.Road,
-		&opd.Number,
+		&opd.RoadNumber,
 		&opd.City,
 		&opd.Province,
 	); err != nil {
@@ -64,8 +63,7 @@ func (m *opdRepo) listOPD(ctx context.Context, query string, args ...interface{}
 			&opd.ID,
 			&opd.Name,
 			&opd.LongName,
-			&opd.Road,
-			&opd.Number,
+			&opd.RoadNumber,
 			&opd.City,
 			&opd.Province,
 		); err == nil {

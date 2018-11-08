@@ -12,23 +12,21 @@ type Training struct {
 }
 
 type Orgz struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	LongName string `json:"long_name"`
-	Road     string `json:"road"`
-	Number   string `json:"number"`
-	City     string `json:"city"`
-	Province string `json:"province"`
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	LongName   string `json:"long_name"`
+	RoadNumber string `json:"road_number"`
+	City       string `json:"city"`
+	Province   string `json:"province"`
 }
 
 type OPD struct {
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	LongName string `json:"long_name"`
-	Road     string `json:"road"`
-	Number   string `json:"number"`
-	City     string `json:"city"`
-	Province string `json:"province"`
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	LongName   string `json:"long_name"`
+	RoadNumber string `json:"road_number"`
+	City       string `json:"city"`
+	Province   string `json:"province"`
 }
 
 type ASN struct {

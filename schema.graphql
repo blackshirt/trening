@@ -29,8 +29,7 @@ type Orgz {
   	id: Int!
   	name: String!
   	long_name: String!
-  	road: String!
-	number: String!
+  	road_number: String!
 	city: String!
 	province: String!
 }
@@ -38,8 +37,7 @@ type Orgz {
 input OrgzInput {
 	name: String!
 	long_name: String!
-	road: String!
-	number: String!
+	road_number: String!
 	city: String!
 	province: String!
 }
@@ -65,8 +63,7 @@ type OPD {
   	id: Int!
   	name: String!
   	long_name: String!
-  	road: String!
-	number: String!
+  	road_number: String!
 	city: String!
 	province: String!
 }
@@ -74,8 +71,7 @@ type OPD {
 input OPDInput {
   	name: String!
   	long_name: String!
-  	road: String!
-	number: String!
+  	road_number: String!
 	city: String!
 	province: String!
 }

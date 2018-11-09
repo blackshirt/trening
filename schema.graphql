@@ -88,5 +88,11 @@ type Query {
 
 type Mutation {
 #	createTraining(input: #TrainingInput!): Training!
-	createOPD(input: OPDInput!): OPD!
+	createOPD(input: OPDInput!): Int!
+	createOrg(input: OrgInput!): Int!
 }
+
+
+
+
+

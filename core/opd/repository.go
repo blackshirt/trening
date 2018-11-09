@@ -6,13 +6,12 @@ import (
 	"log"
 
 	"github.com/blackshirt/trening/models"
-	"github.com/vektah/gqlparser/gqlerror"
 )
 
 type OPDRepository interface {
 	GetByID(ctx context.Context, id int) (models.OPD, error)
 	OPDList(ctx context.Context) ([]models.OPD, error)
-	Insert(ctx context.Context, input models.OPDInput) (models.OPD, error)
+	Insert(ctx context.Context, input models.OPDInput) (int, error)
 }
 
 type opdRepo struct {
@@ -45,19 +44,22 @@ func (m *opdRepo) getOne(ctx context.Context, query string, args ...interface{})
 	return opd, nil
 }
 
+
 func (m *opdRepo) GetByID(ctx context.Context, id int) (models.OPD, error) {
 	query := `SELECT * FROM opd WHERE id=?`
 	return m.getOne(ctx, query, id)
 }
 
-func (m *opdRepo) exists(ctx context.Context, name string) int {
+
+func (m *opdRepo) exists(ctx context.Context, name string) (bool, error) {
 	query := `SELECT EXISTS(SELECT 1 FROM opd WHERE name=?`
-	_, err := m.getOne(ctx, query, name)
+	err := m.db.QueryRowContext(ctx, query, name)
 	if err != nil {
-		return false
+		return false, err
 	}
-	return true
+	return true, nil
 }
+
 
 func (m *opdRepo) listOPD(ctx context.Context, query string, args ...interface{}) ([]models.OPD, error) {
 	rows, err := m.db.QueryContext(ctx, query, args...)
@@ -89,20 +91,22 @@ func (m *opdRepo) listOPD(ctx context.Context, query string, args ...interface{}
 	return opds, nil
 }
 
+
 func (m *opdRepo) OPDList(ctx context.Context) ([]models.OPD, error) {
 	query := `SELECT * FROM opd`
 	return m.listOPD(ctx, query)
 }
 
-func (m *opdRepo) Insert(ctx context.Context, input models.OPDInput) (models.OPD, error) {
-	query := `INSERT INTO opd(name, long_name, road_number, city, province) VALUES(?,?,?,?,?)`
-	opd := models.OPD{}
-	exist := m.exists(ctx, input.Name)
-	if exist {
-		log.Fatal(err.Error())
 
+func (m *opdRepo) Insert(ctx context.Context, input models.OPDInput) (int, error) {
+ exist, err := m.exists(ctx, input.Name)
+ if !exist {
+   query := `INSERT INTO opd(name, long_name, road_number, city, province) VALUES(?,?,?,?,?)`
+	  res, err := m.db.ExecContext(ctx, query, input.Name, input.LongName, input.RoadNumber, input.City, input.Province)
+	  if err != nil {
+	    return nil, err
+	  }
+	  return int(res.LastInsertId()), nil
 	}
-	_, err := m.db.ExecContext(ctx, query, input.Name, input.LongName, input.RoadNumber, input.City, input.Province)
-	return opd, gqlerror.Errorf("Already exist")
-
+	return nil, err
 }

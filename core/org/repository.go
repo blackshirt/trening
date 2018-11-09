@@ -11,6 +11,7 @@ import (
 type OrgRepository interface {
 	GetByID(ctx context.Context, id int) (models.Org, error)
 	OrgList(ctx context.Context) ([]models.Org, error)
+	Insert(ctx context.Context, input models.OrgInput) (int, error)
 }
 
 type orgRepo struct {
@@ -40,9 +41,9 @@ func (m *orgRepo) getOne(ctx context.Context, query string, args ...interface{})
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	return org, nil
 }
+
 
 func (m *orgRepo) GetByID(ctx context.Context, id int) (models.Org, error) {
 	query := `SELECT * FROM org WHERE id=?`
@@ -79,7 +80,33 @@ func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{})
 	return orgs, nil
 }
 
+
 func (m orgRepo) OrgList(ctx context.Context) ([]models.Org, error) {
 	query := `SELECT * FROM org`
 	return m.listOrg(ctx, query)
 }
+
+func (m *orgRepo) exists(ctx context.Context, name string) (bool, error) {
+	query := `SELECT EXISTS(SELECT 1 FROM org WHERE name=?`
+	err := m.db.QueryRowContext(ctx, query, name)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+
+func (m *orgRepo) Insert(ctx context.Context, input models.OrgInput) (int, error) {
+ exist, err := m.exists(ctx, input.Name)
+ if !exist {
+   query := `INSERT INTO org(name, long_name, road_number, city, province) VALUES(?,?,?,?,?)`
+	  res, err := m.db.ExecContext(ctx, query, input.Name, input.LongName, input.RoadNumber, input.City, input.Province)
+	  if err != nil {
+	    return nil, err
+	  }
+	  return int(res.LastInsertId()), nil
+	}
+	return nil, err
+}
+
+

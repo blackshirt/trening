@@ -34,7 +34,6 @@ func (s *GraphQLService) ASN() ASNResolver {
 	}
 }
 
-
 type trainingResolver struct {
 	service *GraphQLService
 }
@@ -52,8 +51,6 @@ func (a *asnResolver) CurrentPlaces(ctx context.Context, obj *models.ASN) (model
 	}
 	return opd, nil
 }
-
-
 
 func (t *trainingResolver) Organizer(ctx context.Context, obj *models.Training) (models.Org, error) {
 	org, err := t.service.orgRepo.GetByID(ctx, obj.Organizer.ID)
@@ -75,4 +72,3 @@ func (t *trainingResolver) Location(ctx context.Context, obj *models.Training) (
 func (t *trainingResolver) Participants(ctx context.Context, obj *models.Training) ([]models.ASN, error) {
 	panic("not implemented")
 }
-

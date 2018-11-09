@@ -1,10 +1,11 @@
 package graph
 
 import (
-  "log"
-  "github.com/blackshirt/trening/models"
-)
+	"context"
+	"log"
 
+	"github.com/blackshirt/trening/models"
+)
 
 type queryResolver struct {
 	service *GraphQLService
@@ -15,7 +16,6 @@ func (s *GraphQLService) Query() QueryResolver {
 		service: s,
 	}
 }
-
 
 func (q *queryResolver) AsnList(ctx context.Context, pagination *Pagination) ([]models.ASN, error) {
 	res, err := q.service.asnRepo.ASNList(ctx)

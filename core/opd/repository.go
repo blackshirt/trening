@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/blackshirt/trening/models"
+	"github.com/vektah/gqlparser/gqlerror"
 )
 
 type OPDRepository interface {
@@ -49,6 +50,15 @@ func (m *opdRepo) GetByID(ctx context.Context, id int) (models.OPD, error) {
 	return m.getOne(ctx, query, id)
 }
 
+func (m *opdRepo) exists(ctx context.Context, name string) int {
+	query := `SELECT EXISTS(SELECT 1 FROM opd WHERE name=?`
+	_, err := m.getOne(ctx, query, name)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
 func (m *opdRepo) listOPD(ctx context.Context, query string, args ...interface{}) ([]models.OPD, error) {
 	rows, err := m.db.QueryContext(ctx, query, args...)
 
@@ -85,19 +95,14 @@ func (m *opdRepo) OPDList(ctx context.Context) ([]models.OPD, error) {
 }
 
 func (m *opdRepo) Insert(ctx context.Context, input models.OPDInput) (models.OPD, error) {
-	query := `INSERT IGNORE INTO opd(name, long_name, road_number, city, province) VALUES(?,?,?,?,?)`
-	opd := models.OPD{
-		Name:       input.Name,
-		LongName:   input.LongName,
-		RoadNumber: input.RoadNumber,
-		City:       input.City,
-		Province:   input.Province,
+	query := `INSERT INTO opd(name, long_name, road_number, city, province) VALUES(?,?,?,?,?)`
+	opd := models.OPD{}
+	exist := m.exists(ctx, input.Name)
+	if exist {
+		log.Fatal(err.Error())
+
 	}
 	_, err := m.db.ExecContext(ctx, query, input.Name, input.LongName, input.RoadNumber, input.City, input.Province)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return opd, nil
+	return opd, gqlerror.Errorf("Already exist")
 
 }

@@ -6,12 +6,12 @@ type Training struct {
 	Description  string `json:"description"`
 	Start        string `json:"start"`
 	Finish       string `json:"finish"`
-	Organizer    Orgz   `json:"organizer"`
-	Location     Orgz   `json:"location"`
+	Organizer    Org   `json:"organizer"`
+	Location     Org   `json:"location"`
 	Participants []ASN  `json:"participants"`
 }
 
-type Orgz struct {
+type Org struct {
 	ID         int    `json:"id"`
 	Name       string `json:"name"`
 	LongName   string `json:"long_name"`
@@ -29,13 +29,6 @@ type OPD struct {
 	Province   string `json:"province"`
 }
 
-type OPDInput struct {
-	Name       string `json:"name"`
-	LongName   string `json:"long_name"`
-	RoadNumber string `json:"road_number"`
-	City       string `json:"city"`
-	Province   string `json:"province"`
-}
 
 type ASN struct {
 	ID            int    `json:"id"`

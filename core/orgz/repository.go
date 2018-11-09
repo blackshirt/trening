@@ -1,4 +1,4 @@
-package orgz
+package org
 
 import (
 	"context"
@@ -9,8 +9,8 @@ import (
 )
 
 type OrgRepository interface {
-	GetByID(ctx context.Context, id int) (models.Orgz, error)
-	OrgList(ctx context.Context) ([]models.Orgz, error)
+	GetByID(ctx context.Context, id int) (models.Org, error)
+	OrgList(ctx context.Context) ([]models.Org, error)
 }
 
 type orgRepo struct {
@@ -21,14 +21,14 @@ func NewOrgRepo(conn *sql.DB) OrgRepository {
 	return &orgRepo{db: conn}
 }
 
-func (m *orgRepo) getOne(ctx context.Context, query string, args ...interface{}) (models.Orgz, error) {
+func (m *orgRepo) getOne(ctx context.Context, query string, args ...interface{}) (models.Org, error) {
 	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer stmt.Close()
 	row := stmt.QueryRowContext(ctx, args...)
-	org := models.Orgz{}
+	org := models.Org{}
 	err = row.Scan(
 		&org.ID,
 		&org.Name,
@@ -44,12 +44,12 @@ func (m *orgRepo) getOne(ctx context.Context, query string, args ...interface{})
 	return org, nil
 }
 
-func (m *orgRepo) GetByID(ctx context.Context, id int) (models.Orgz, error) {
-	query := `SELECT * FROM orgz WHERE id=?`
+func (m *orgRepo) GetByID(ctx context.Context, id int) (models.Org, error) {
+	query := `SELECT * FROM org WHERE id=?`
 	return m.getOne(ctx, query, id)
 }
 
-func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{}) ([]models.Orgz, error) {
+func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{}) ([]models.Org, error) {
 	rows, err := m.db.QueryContext(ctx, query, args...)
 
 	if err != nil {
@@ -57,9 +57,9 @@ func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{})
 	}
 	defer rows.Close()
 
-	orgs := []models.Orgz{}
+	orgs := []models.Org{}
 	for rows.Next() {
-		org := new(models.Orgz)
+		org := new(models.Org)
 		if err = rows.Scan(
 			&org.ID,
 			&org.Name,
@@ -79,7 +79,7 @@ func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{})
 	return orgs, nil
 }
 
-func (m orgRepo) OrgList(ctx context.Context) ([]models.Orgz, error) {
-	query := `SELECT * FROM orgz`
+func (m orgRepo) OrgList(ctx context.Context) ([]models.Org, error) {
+	query := `SELECT * FROM org`
 	return m.listOrg(ctx, query)
 }

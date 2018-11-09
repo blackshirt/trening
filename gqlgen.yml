@@ -26,8 +26,8 @@ models:
         resolver: true
       participants:
         resolver: true
-  Orgz:
-    model: github.com/blackshirt/trening/models.Orgz
+  Org:
+    model: github.com/blackshirt/trening/models.Org
   ASN:
     model: github.com/blackshirt/trening/models.ASN
     fields:
@@ -35,5 +35,3 @@ models:
         resolver: true
   OPD:
     model: github.com/blackshirt/trening/models.OPD
-  OPDInput:
-    model: github.com/blackshirt/trening/models.OPDInput

@@ -9,7 +9,7 @@ import (
 	handler "github.com/99designs/gqlgen/handler"
 	"github.com/blackshirt/trening/core/asn"
 	"github.com/blackshirt/trening/core/opd"
-	"github.com/blackshirt/trening/core/orgz"
+	"github.com/blackshirt/trening/core/org"
 	graph "github.com/blackshirt/trening/graph"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -31,7 +31,7 @@ func main() {
 	}
 	defer conn.Close()
 	opdRepo := opd.NewOPDRepo(conn)
-	orgRepo := orgz.NewOrgRepo(conn)
+	orgRepo := org.NewOrgRepo(conn)
 	asnRepo := asn.NewASNRepo(conn)
 	gqlService := graph.NewGraphQLService(asnRepo, opdRepo, orgRepo)
 

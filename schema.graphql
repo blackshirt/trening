@@ -13,19 +13,19 @@ type Training {
 	description: String!
 	start: String!
 	finish: String!
-	organizer: Orgz!
-	location: Orgz!
+	organizer: Org!
+	location: Org!
 	participants: [ASN!]!
 }
 
 input TrainingInput {
   	name: String!
   	description: String!
-  	organizer: OrgzInput!
+  	organizer: OrgInput!
   	participants: [ASNInput!]!
 }
 
-type Orgz {
+type Org {
   	id: Int!
   	name: String!
   	long_name: String!
@@ -34,7 +34,7 @@ type Orgz {
 	province: String!
 }
 
-input OrgzInput {
+input OrgInput {
 	name: String!
 	long_name: String!
 	road_number: String!
@@ -82,7 +82,7 @@ type Query {
 # 	traininglist: [Training!]!
   asnList(pagination: Pagination): [ASN!]!
   opdList(pagination: Pagination): [OPD!]!
-  orgList(pagination: Pagination): [Orgz!]!
+  orgList(pagination: Pagination): [Org!]!
 }
 
 

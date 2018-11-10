@@ -10,7 +10,7 @@ import (
 
 type OPDRepository interface {
 	GetByID(ctx context.Context, id int) (models.OPD, error)
-	OPDList(ctx context.Context, offset, limit int) ([]models.OPD, error)
+	OPDList(ctx context.Context, limit, offset int) ([]models.OPD, error)
 	Insert(ctx context.Context, input models.OPDInput) (bool, error)
 }
 
@@ -50,14 +50,19 @@ func (m *opdRepo) GetByID(ctx context.Context, id int) (models.OPD, error) {
 }
 
 func (m *opdRepo) exists(ctx context.Context, name string) bool {
-	query := `SELECT EXISTS(SELECT 1 FROM opd WHERE name=?`
-	res := m.db.QueryRowContext(ctx, query, name)
-
-	if res != nil {
+	query := `SELECT name FROM opd WHERE name=?`
+	var opdname string
+	err := m.db.QueryRowContext(ctx, query, name).Scan(&opdname)
+	switch {
+	case err == sql.ErrNoRows:
+		log.Printf("No opd with name: %s", name)
 		return false
+	case err != nil:
+		return false
+	default:
+		log.Printf("There is opd name in db. that is = %s", opdname)
+		return true
 	}
-
-	return true
 }
 
 func (m *opdRepo) listOPD(ctx context.Context, query string, args ...interface{}) ([]models.OPD, error) {
@@ -90,9 +95,9 @@ func (m *opdRepo) listOPD(ctx context.Context, query string, args ...interface{}
 	return opds, nil
 }
 
-func (m *opdRepo) OPDList(ctx context.Context, offset, limit int) ([]models.OPD, error) {
-	query := `SELECT * FROM opd OFFSET ? LIMIT ?`
-	return m.listOPD(ctx, query, offset, limit)
+func (m *opdRepo) OPDList(ctx context.Context, limit, offset int) ([]models.OPD, error) {
+	query := `SELECT * FROM opd LIMIT ? OFFSET ?`
+	return m.listOPD(ctx, query, limit, offset)
 }
 
 func (m *opdRepo) Insert(ctx context.Context, input models.OPDInput) (bool, error) {

@@ -25,8 +25,8 @@ type OPDInput struct {
 }
 
 type Pagination struct {
-	Offset int `json:"offset"`
 	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
 }
 
 type TrainingInput struct {

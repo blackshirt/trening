@@ -10,7 +10,7 @@ import (
 
 type OrgRepository interface {
 	GetByID(ctx context.Context, id int) (models.Org, error)
-	OrgList(ctx context.Context, offset, limit int) ([]models.Org, error)
+	OrgList(ctx context.Context, limit, offset int) ([]models.Org, error)
 	Insert(ctx context.Context, input models.OrgInput) (bool, error)
 }
 
@@ -79,20 +79,25 @@ func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{})
 	return orgs, nil
 }
 
-func (m orgRepo) OrgList(ctx context.Context, offset, limit int) ([]models.Org, error) {
-	query := `SELECT * FROM org OFFSET ? LIMIT ?`
-	return m.listOrg(ctx, query, offset, limit)
+func (m orgRepo) OrgList(ctx context.Context, limit, offset int) ([]models.Org, error) {
+	query := `SELECT * FROM org LIMIT ? OFFSET ? `
+	return m.listOrg(ctx, query, limit, offset)
 }
 
 func (m *orgRepo) exists(ctx context.Context, name string) bool {
-	query := `SELECT EXISTS(SELECT 1 FROM org WHERE name=?`
-	res := m.db.QueryRowContext(ctx, query, name)
-
-	if res != nil {
+	query := `SELECT name FROM org WHERE name=?`
+	var orgname string
+	err := m.db.QueryRowContext(ctx, query, name).Scan(&orgname)
+	switch {
+	case err == sql.ErrNoRows:
+		log.Printf("No org with name: %s", name)
 		return false
+	case err != nil:
+		return false
+	default:
+		log.Printf("There is org name in db. that is = %s", opdname)
+		return true
 	}
-
-	return true
 }
 
 func (m *orgRepo) Insert(ctx context.Context, input models.OrgInput) (bool, error) {

@@ -28,11 +28,11 @@ func (q *queryResolver) AsnList(ctx context.Context, pagination *models.Paginati
 func (q *queryResolver) OpdList(ctx context.Context, pagination *models.Pagination) ([]models.OPD, error) {
 	if pagination == nil {
 		pagination = &models.Pagination{
-			Offset: 0,
 			Limit:  100,
+			Offset: 0,
 		}
 	}
-	res, err := q.service.opdRepo.OPDList(ctx, pagination.Offset, pagination.Limit)
+	res, err := q.service.opdRepo.OPDList(ctx, pagination.Limit, pagination.Offset)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,11 +42,11 @@ func (q *queryResolver) OpdList(ctx context.Context, pagination *models.Paginati
 func (q *queryResolver) OrgList(ctx context.Context, pagination *models.Pagination) ([]models.Org, error) {
 	if pagination == nil {
 		pagination = &models.Pagination{
-			Offset: 0,
 			Limit:  100,
+			Offset: 0,
 		}
 	}
-	res, err := q.service.orgRepo.OrgList(ctx, pagination.Offset, pagination.Limit)
+	res, err := q.service.orgRepo.OrgList(ctx, pagination.Limit, pagination.Offset)
 	if err != nil {
 		log.Fatal(err)
 	}

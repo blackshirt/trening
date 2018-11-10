@@ -10,8 +10,8 @@ import (
 
 type OrgRepository interface {
 	GetByID(ctx context.Context, id int) (models.Org, error)
-	OrgList(ctx context.Context) ([]models.Org, error)
-	Insert(ctx context.Context, input models.OrgInput) (int, error)
+	OrgList(ctx context.Context, offset, limit int) ([]models.Org, error)
+	Insert(ctx context.Context, input models.OrgInput) (bool, error)
 }
 
 type orgRepo struct {
@@ -43,7 +43,6 @@ func (m *orgRepo) getOne(ctx context.Context, query string, args ...interface{})
 	}
 	return org, nil
 }
-
 
 func (m *orgRepo) GetByID(ctx context.Context, id int) (models.Org, error) {
 	query := `SELECT * FROM org WHERE id=?`
@@ -80,33 +79,30 @@ func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{})
 	return orgs, nil
 }
 
-
-func (m orgRepo) OrgList(ctx context.Context) ([]models.Org, error) {
-	query := `SELECT * FROM org`
-	return m.listOrg(ctx, query)
+func (m orgRepo) OrgList(ctx context.Context, offset, limit int) ([]models.Org, error) {
+	query := `SELECT * FROM org OFFSET ? LIMIT ?`
+	return m.listOrg(ctx, query, offset, limit)
 }
 
-func (m *orgRepo) exists(ctx context.Context, name string) (bool, error) {
+func (m *orgRepo) exists(ctx context.Context, name string) bool {
 	query := `SELECT EXISTS(SELECT 1 FROM org WHERE name=?`
-	err := m.db.QueryRowContext(ctx, query, name)
-	if err != nil {
-		return false, err
+	res := m.db.QueryRowContext(ctx, query, name)
+
+	if res != nil {
+		return false
+	}
+
+	return true
+}
+
+func (m *orgRepo) Insert(ctx context.Context, input models.OrgInput) (bool, error) {
+	exist := m.exists(ctx, input.Name)
+	if !exist {
+		query := `INSERT INTO org(name, long_name, road_number, city, province) VALUES(?,?,?,?,?)`
+		_, err := m.db.ExecContext(ctx, query, input.Name, input.LongName, input.RoadNumber, input.City, input.Province)
+		if err != nil {
+			return false, err
+		}
 	}
 	return true, nil
 }
-
-
-func (m *orgRepo) Insert(ctx context.Context, input models.OrgInput) (int, error) {
- exist, err := m.exists(ctx, input.Name)
- if !exist {
-   query := `INSERT INTO org(name, long_name, road_number, city, province) VALUES(?,?,?,?,?)`
-	  res, err := m.db.ExecContext(ctx, query, input.Name, input.LongName, input.RoadNumber, input.City, input.Province)
-	  if err != nil {
-	    return nil, err
-	  }
-	  return int(res.LastInsertId()), nil
-	}
-	return nil, err
-}
-
-

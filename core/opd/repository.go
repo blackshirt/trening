@@ -10,8 +10,8 @@ import (
 
 type OPDRepository interface {
 	GetByID(ctx context.Context, id int) (models.OPD, error)
-	OPDList(ctx context.Context) ([]models.OPD, error)
-	Insert(ctx context.Context, input models.OPDInput) (int, error)
+	OPDList(ctx context.Context, offset, limit int) ([]models.OPD, error)
+	Insert(ctx context.Context, input models.OPDInput) (bool, error)
 }
 
 type opdRepo struct {
@@ -44,22 +44,21 @@ func (m *opdRepo) getOne(ctx context.Context, query string, args ...interface{})
 	return opd, nil
 }
 
-
 func (m *opdRepo) GetByID(ctx context.Context, id int) (models.OPD, error) {
 	query := `SELECT * FROM opd WHERE id=?`
 	return m.getOne(ctx, query, id)
 }
 
-
-func (m *opdRepo) exists(ctx context.Context, name string) (bool, error) {
+func (m *opdRepo) exists(ctx context.Context, name string) bool {
 	query := `SELECT EXISTS(SELECT 1 FROM opd WHERE name=?`
-	err := m.db.QueryRowContext(ctx, query, name)
-	if err != nil {
-		return false, err
-	}
-	return true, nil
-}
+	res := m.db.QueryRowContext(ctx, query, name)
 
+	if res != nil {
+		return false
+	}
+
+	return true
+}
 
 func (m *opdRepo) listOPD(ctx context.Context, query string, args ...interface{}) ([]models.OPD, error) {
 	rows, err := m.db.QueryContext(ctx, query, args...)
@@ -91,22 +90,19 @@ func (m *opdRepo) listOPD(ctx context.Context, query string, args ...interface{}
 	return opds, nil
 }
 
-
-func (m *opdRepo) OPDList(ctx context.Context) ([]models.OPD, error) {
-	query := `SELECT * FROM opd`
-	return m.listOPD(ctx, query)
+func (m *opdRepo) OPDList(ctx context.Context, offset, limit int) ([]models.OPD, error) {
+	query := `SELECT * FROM opd OFFSET ? LIMIT ?`
+	return m.listOPD(ctx, query, offset, limit)
 }
 
-
-func (m *opdRepo) Insert(ctx context.Context, input models.OPDInput) (int, error) {
- exist, err := m.exists(ctx, input.Name)
- if !exist {
-   query := `INSERT INTO opd(name, long_name, road_number, city, province) VALUES(?,?,?,?,?)`
-	  res, err := m.db.ExecContext(ctx, query, input.Name, input.LongName, input.RoadNumber, input.City, input.Province)
-	  if err != nil {
-	    return nil, err
-	  }
-	  return int(res.LastInsertId()), nil
+func (m *opdRepo) Insert(ctx context.Context, input models.OPDInput) (bool, error) {
+	exist := m.exists(ctx, input.Name)
+	if !exist {
+		query := `INSERT INTO opd(name, long_name, road_number, city, province) VALUES(?,?,?,?,?)`
+		_, err := m.db.ExecContext(ctx, query, input.Name, input.LongName, input.RoadNumber, input.City, input.Province)
+		if err != nil {
+			return false, err
+		}
 	}
-	return nil, err
+	return true, nil
 }

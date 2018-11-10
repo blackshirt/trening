@@ -8,7 +8,7 @@ exec:
   filename: graph/runtime.go
   package: graph
 model:
-  filename: graph/model_gen.go
+  filename: graph/input.go
   package: graph
 #resolver:
 #  filename: graph/resolver.go
@@ -37,3 +37,11 @@ models:
     model: github.com/blackshirt/trening/models.OPD
   OPDInput:
     model: github.com/blackshirt/trening/models.OPDInput
+  OrgInput:
+    model: github.com/blackshirt/trening/models.OrgInput
+  ASNInput:
+    model: github.com/blackshirt/trening/models.ASNInput
+  TrainingInput:
+    model: github.com/blackshirt/trening/models.TrainingInput
+  Pagination:
+    model: github.com/blackshirt/trening/models.Pagination

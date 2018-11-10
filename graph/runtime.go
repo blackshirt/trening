@@ -52,6 +52,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		CreateOpd func(childComplexity int, input models.OPDInput) int
+		CreateOrg func(childComplexity int, input models.OrgInput) int
 	}
 
 	Opd struct {
@@ -73,9 +74,9 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AsnList func(childComplexity int, pagination *Pagination) int
-		OpdList func(childComplexity int, pagination *Pagination) int
-		OrgList func(childComplexity int, pagination *Pagination) int
+		AsnList func(childComplexity int, pagination *models.Pagination) int
+		OpdList func(childComplexity int, pagination *models.Pagination) int
+		OrgList func(childComplexity int, pagination *models.Pagination) int
 	}
 
 	Training struct {
@@ -94,12 +95,13 @@ type ASNResolver interface {
 	CurrentPlaces(ctx context.Context, obj *models.ASN) (models.OPD, error)
 }
 type MutationResolver interface {
-	CreateOPD(ctx context.Context, input models.OPDInput) (models.OPD, error)
+	CreateOPD(ctx context.Context, input models.OPDInput) (bool, error)
+	CreateOrg(ctx context.Context, input models.OrgInput) (bool, error)
 }
 type QueryResolver interface {
-	AsnList(ctx context.Context, pagination *Pagination) ([]models.ASN, error)
-	OpdList(ctx context.Context, pagination *Pagination) ([]models.OPD, error)
-	OrgList(ctx context.Context, pagination *Pagination) ([]models.Org, error)
+	AsnList(ctx context.Context, pagination *models.Pagination) ([]models.ASN, error)
+	OpdList(ctx context.Context, pagination *models.Pagination) ([]models.OPD, error)
+	OrgList(ctx context.Context, pagination *models.Pagination) ([]models.Org, error)
 }
 type TrainingResolver interface {
 	Organizer(ctx context.Context, obj *models.Training) (models.Org, error)
@@ -122,12 +124,27 @@ func field_Mutation_createOPD_args(rawArgs map[string]interface{}) (map[string]i
 
 }
 
+func field_Mutation_createOrg_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	args := map[string]interface{}{}
+	var arg0 models.OrgInput
+	if tmp, ok := rawArgs["input"]; ok {
+		var err error
+		arg0, err = UnmarshalOrgInput(tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+
+}
+
 func field_Query_asnList_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	args := map[string]interface{}{}
-	var arg0 *Pagination
+	var arg0 *models.Pagination
 	if tmp, ok := rawArgs["pagination"]; ok {
 		var err error
-		var ptr1 Pagination
+		var ptr1 models.Pagination
 		if tmp != nil {
 			ptr1, err = UnmarshalPagination(tmp)
 			arg0 = &ptr1
@@ -144,10 +161,10 @@ func field_Query_asnList_args(rawArgs map[string]interface{}) (map[string]interf
 
 func field_Query_opdList_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	args := map[string]interface{}{}
-	var arg0 *Pagination
+	var arg0 *models.Pagination
 	if tmp, ok := rawArgs["pagination"]; ok {
 		var err error
-		var ptr1 Pagination
+		var ptr1 models.Pagination
 		if tmp != nil {
 			ptr1, err = UnmarshalPagination(tmp)
 			arg0 = &ptr1
@@ -164,10 +181,10 @@ func field_Query_opdList_args(rawArgs map[string]interface{}) (map[string]interf
 
 func field_Query_orgList_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	args := map[string]interface{}{}
-	var arg0 *Pagination
+	var arg0 *models.Pagination
 	if tmp, ok := rawArgs["pagination"]; ok {
 		var err error
-		var ptr1 Pagination
+		var ptr1 models.Pagination
 		if tmp != nil {
 			ptr1, err = UnmarshalPagination(tmp)
 			arg0 = &ptr1
@@ -294,6 +311,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateOpd(childComplexity, args["input"].(models.OPDInput)), true
 
+	case "Mutation.createOrg":
+		if e.complexity.Mutation.CreateOrg == nil {
+			break
+		}
+
+		args, err := field_Mutation_createOrg_args(rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateOrg(childComplexity, args["input"].(models.OrgInput)), true
+
 	case "OPD.id":
 		if e.complexity.Opd.Id == nil {
 			break
@@ -388,7 +417,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.AsnList(childComplexity, args["pagination"].(*Pagination)), true
+		return e.complexity.Query.AsnList(childComplexity, args["pagination"].(*models.Pagination)), true
 
 	case "Query.opdList":
 		if e.complexity.Query.OpdList == nil {
@@ -400,7 +429,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.OpdList(childComplexity, args["pagination"].(*Pagination)), true
+		return e.complexity.Query.OpdList(childComplexity, args["pagination"].(*models.Pagination)), true
 
 	case "Query.orgList":
 		if e.complexity.Query.OrgList == nil {
@@ -412,7 +441,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.OrgList(childComplexity, args["pagination"].(*Pagination)), true
+		return e.complexity.Query.OrgList(childComplexity, args["pagination"].(*models.Pagination)), true
 
 	case "Training.id":
 		if e.complexity.Training.Id == nil {
@@ -762,6 +791,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalid = true
 			}
+		case "createOrg":
+			out.Values[i] = ec._Mutation_createOrg(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalid = true
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -800,11 +834,43 @@ func (ec *executionContext) _Mutation_createOPD(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.OPD)
+	res := resTmp.(bool)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalBoolean(res)
+}
 
-	return ec._OPD(ctx, field.Selections, &res)
+// nolint: vetshadow
+func (ec *executionContext) _Mutation_createOrg(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer ec.Tracer.EndFieldExecution(ctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := field_Mutation_createOrg_args(rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx := &graphql.ResolverContext{
+		Object: "Mutation",
+		Args:   args,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateOrg(rctx, args["input"].(models.OrgInput))
+	})
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return graphql.MarshalBoolean(res)
 }
 
 var oPDImplementors = []string{"OPD"}
@@ -1321,7 +1387,7 @@ func (ec *executionContext) _Query_asnList(ctx context.Context, field graphql.Co
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AsnList(rctx, args["pagination"].(*Pagination))
+		return ec.resolvers.Query().AsnList(rctx, args["pagination"].(*models.Pagination))
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -1387,7 +1453,7 @@ func (ec *executionContext) _Query_opdList(ctx context.Context, field graphql.Co
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().OpdList(rctx, args["pagination"].(*Pagination))
+		return ec.resolvers.Query().OpdList(rctx, args["pagination"].(*models.Pagination))
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -1453,7 +1519,7 @@ func (ec *executionContext) _Query_orgList(ctx context.Context, field graphql.Co
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().OrgList(rctx, args["pagination"].(*Pagination))
+		return ec.resolvers.Query().OrgList(rctx, args["pagination"].(*models.Pagination))
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -3330,8 +3396,8 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 	return ec.___Type(ctx, field.Selections, res)
 }
 
-func UnmarshalASNInput(v interface{}) (ASNInput, error) {
-	var it ASNInput
+func UnmarshalASNInput(v interface{}) (models.ASNInput, error) {
+	var it models.ASNInput
 	var asMap = v.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3414,8 +3480,8 @@ func UnmarshalOPDInput(v interface{}) (models.OPDInput, error) {
 	return it, nil
 }
 
-func UnmarshalOrgInput(v interface{}) (OrgInput, error) {
-	var it OrgInput
+func UnmarshalOrgInput(v interface{}) (models.OrgInput, error) {
+	var it models.OrgInput
 	var asMap = v.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3456,8 +3522,8 @@ func UnmarshalOrgInput(v interface{}) (OrgInput, error) {
 	return it, nil
 }
 
-func UnmarshalPagination(v interface{}) (Pagination, error) {
-	var it Pagination
+func UnmarshalPagination(v interface{}) (models.Pagination, error) {
+	var it models.Pagination
 	var asMap = v.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3480,8 +3546,8 @@ func UnmarshalPagination(v interface{}) (Pagination, error) {
 	return it, nil
 }
 
-func UnmarshalTrainingInput(v interface{}) (TrainingInput, error) {
-	var it TrainingInput
+func UnmarshalTrainingInput(v interface{}) (models.TrainingInput, error) {
+	var it models.TrainingInput
 	var asMap = v.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3514,7 +3580,7 @@ func UnmarshalTrainingInput(v interface{}) (TrainingInput, error) {
 					rawIf1 = []interface{}{v}
 				}
 			}
-			it.Participants = make([]ASNInput, len(rawIf1))
+			it.Participants = make([]models.ASNInput, len(rawIf1))
 			for idx1 := range rawIf1 {
 				it.Participants[idx1], err = UnmarshalASNInput(rawIf1[idx1])
 			}
@@ -3641,7 +3707,13 @@ type Query {
 
 type Mutation {
 #	createTraining(input: #TrainingInput!): Training!
-	createOPD(input: OPDInput!): OPD!
+	createOPD(input: OPDInput!): Boolean!
+	createOrg(input: OrgInput!): Boolean!
 }
+
+
+
+
+
 `},
 )

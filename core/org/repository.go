@@ -95,12 +95,12 @@ func (m *orgRepo) exists(ctx context.Context, name string) bool {
 	case err != nil:
 		return false
 	default:
-		log.Printf("There is org name in db. that is = %s", opdname)
+		log.Printf("There is org name in db. that is = %s", orgname)
 		return true
 	}
 }
 
-func (m *orgRepo) Insert(ctx context.Context, input models.OrgInput) (bool, error) {
+func (m *orgRepo) AltInsert(ctx context.Context, input models.OrgInput) (bool, error) {
 	exist := m.exists(ctx, input.Name)
 	if !exist {
 		query := `INSERT INTO org(name, long_name, road_number, city, province) VALUES(?,?,?,?,?)`
@@ -110,4 +110,14 @@ func (m *orgRepo) Insert(ctx context.Context, input models.OrgInput) (bool, erro
 		}
 	}
 	return true, nil
+}
+
+func (m *orgRepo) Insert(ctx context.Context, input models.OrgInput) (bool, error) {
+	query := `INSERT INTO org(name, long_name, road_number, city, province)
+			SELECT * FROM (SELECT ?,?,?,?,?) AS tmp W HERE NOT EXISTS (SELECT name FROM org WHERE name = ?) LIMIT 1`
+	_, err := m.db.ExecContext(ctx, query, input.Name, input.LongName, input.RoadNumber, input.City, input.Province, input.Name)
+	if err != nil {
+		return false, err
+	}
+	return false, nil
 }

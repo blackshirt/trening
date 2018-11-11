@@ -54,6 +54,7 @@ func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{})
 
 	if err != nil {
 		log.Fatal(err)
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -74,6 +75,7 @@ func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{})
 
 	if err = rows.Err(); err != nil {
 		log.Fatal(err)
+		return nil, err
 	}
 
 	return orgs, nil
@@ -100,7 +102,7 @@ func (m *orgRepo) exists(ctx context.Context, name string) bool {
 	}
 }
 
-func (m *orgRepo) AltInsert(ctx context.Context, input models.OrgInput) (bool, error) {
+func (m *orgRepo) Insert(ctx context.Context, input models.OrgInput) (bool, error) {
 	exist := m.exists(ctx, input.Name)
 	if !exist {
 		query := `INSERT INTO org(name, long_name, road_number, city, province) VALUES(?,?,?,?,?)`
@@ -110,14 +112,4 @@ func (m *orgRepo) AltInsert(ctx context.Context, input models.OrgInput) (bool, e
 		}
 	}
 	return true, nil
-}
-
-func (m *orgRepo) Insert(ctx context.Context, input models.OrgInput) (bool, error) {
-	query := `INSERT INTO org(name, long_name, road_number, city, province)
-			SELECT * FROM (SELECT ?,?,?,?,?) AS tmp W HERE NOT EXISTS (SELECT name FROM org WHERE name = ?) LIMIT 1`
-	_, err := m.db.ExecContext(ctx, query, input.Name, input.LongName, input.RoadNumber, input.City, input.Province, input.Name)
-	if err != nil {
-		return false, err
-	}
-	return false, nil
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"log"
+	"strings"
 
 	"github.com/blackshirt/trening/models"
 )
@@ -85,4 +86,46 @@ func (m *asnRepo) listASN(ctx context.Context, query string, args ...interface{}
 func (m *asnRepo) ASNList(ctx context.Context) ([]models.ASN, error) {
 	query := `SELECT * FROM asn`
 	return m.listASN(ctx, query)
+}
+
+func (m *asnRepo) query(ctx, query string, args ...interface{}) *sql.Rows {
+	res, err := m.db.Query(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	return res
+}
+
+func (m *asnRepo) ListAsnByRange(ctx context.Context, ids []int) ([]*models.ASN, []error) {
+	placeholders := make([]string, len(ids))
+	args := make([]interface{}, len(ids))
+	for i := 0; i < len(ids); i++ {
+		placeholders[i] = "?"
+		args[i] = i
+	}
+	query := "SELECT id, name, nip, current_job, current_grade, current_places FROM asn WHERE id IN (" +
+		strings.Join(placeholders, ",") + ")"
+	res := m.query(ctx, query, args...)
+
+	defer res.Close()
+
+	asns := make([]*models.ASN, len(ids))
+	i := 0
+	for res.Next() {
+		asns[i] = &models.ASN{}
+		err := res.Scan(
+			&asns[i].ID,
+			&asns[i].Name,
+			&asns[i].Nip,
+			&asns[i].CurrentJob,
+			&asns[i].CurrentGrade,
+			&asns[i].CurrentPlaces,
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+		i++
+	}
+
+	return asns, nil
 }

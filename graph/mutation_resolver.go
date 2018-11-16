@@ -15,20 +15,20 @@ func (s *GraphQLService) Mutation() MutationResolver {
 	return &mutationResolver{service: s}
 }
 
-func (m *mutationResolver) CreateOPD(ctx context.Context, input models.OPDInput) (bool, error) {
-	_, err := m.service.opdRepo.Insert(ctx, input)
+func (m *mutationResolver) CreateOPD(ctx context.Context, input models.OPDInput) (*models.OPD, error) {
+	res, err := m.service.opdRepo.Insert(ctx, input)
 	if err != nil {
 		log.Fatal(err)
-		return false, err
+		return nil, err
 	}
-	return true, nil
+	return res, nil
 }
 
-func (m *mutationResolver) CreateOrg(ctx context.Context, input models.OrgInput) (bool, error) {
-	_, err := m.service.orgRepo.Insert(ctx, input)
+func (m *mutationResolver) CreateOrg(ctx context.Context, input models.OrgInput) (*models.Org, error) {
+	res, err := m.service.orgRepo.Insert(ctx, input)
 	if err != nil {
 		log.Fatal(err)
-		return false, err
+		return nil, err
 	}
-	return true, nil
+	return res, nil
 }

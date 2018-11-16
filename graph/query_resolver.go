@@ -17,7 +17,7 @@ func (s *GraphQLService) Query() QueryResolver {
 	}
 }
 
-func (q *queryResolver) AsnList(ctx context.Context, pagination *models.Pagination) ([]models.ASN, error) {
+func (q *queryResolver) AsnList(ctx context.Context, pagination *models.Pagination) ([]*models.ASN, error) {
 	res, err := q.service.asnRepo.ASNList(ctx)
 	if err != nil {
 		log.Fatal(err)
@@ -25,7 +25,7 @@ func (q *queryResolver) AsnList(ctx context.Context, pagination *models.Paginati
 	return res, nil
 }
 
-func (q *queryResolver) OpdList(ctx context.Context, pagination *models.Pagination) ([]models.OPD, error) {
+func (q *queryResolver) OpdList(ctx context.Context, pagination *models.Pagination) ([]*models.OPD, error) {
 	if pagination == nil {
 		pagination = &models.Pagination{
 			Limit:  100,
@@ -39,7 +39,7 @@ func (q *queryResolver) OpdList(ctx context.Context, pagination *models.Paginati
 	return res, nil
 }
 
-func (q *queryResolver) OrgList(ctx context.Context, pagination *models.Pagination) ([]models.Org, error) {
+func (q *queryResolver) OrgList(ctx context.Context, pagination *models.Pagination) ([]*models.Org, error) {
 	if pagination == nil {
 		pagination = &models.Pagination{
 			Limit:  100,

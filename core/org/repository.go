@@ -9,9 +9,9 @@ import (
 )
 
 type OrgRepository interface {
-	GetByID(ctx context.Context, id int) (models.Org, error)
-	OrgList(ctx context.Context, limit, offset int) ([]models.Org, error)
-	Insert(ctx context.Context, input models.OrgInput) (bool, error)
+	GetByID(ctx context.Context, id int) (*models.Org, error)
+	OrgList(ctx context.Context, limit, offset int) ([]*models.Org, error)
+	Insert(ctx context.Context, input models.OrgInput) (*models.Org, error)
 }
 
 type orgRepo struct {
@@ -22,14 +22,14 @@ func NewOrgRepo(conn *sql.DB) OrgRepository {
 	return &orgRepo{db: conn}
 }
 
-func (m *orgRepo) getOne(ctx context.Context, query string, args ...interface{}) (models.Org, error) {
+func (m *orgRepo) getOne(ctx context.Context, query string, args ...interface{}) (*models.Org, error) {
 	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer stmt.Close()
 	row := stmt.QueryRowContext(ctx, args...)
-	org := models.Org{}
+	org := new(models.Org)
 	err = row.Scan(
 		&org.ID,
 		&org.Name,
@@ -44,12 +44,17 @@ func (m *orgRepo) getOne(ctx context.Context, query string, args ...interface{})
 	return org, nil
 }
 
-func (m *orgRepo) GetByID(ctx context.Context, id int) (models.Org, error) {
+func (m *orgRepo) GetByID(ctx context.Context, id int) (*models.Org, error) {
 	query := `SELECT * FROM org WHERE id=?`
 	return m.getOne(ctx, query, id)
 }
 
-func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{}) ([]models.Org, error) {
+func (m *orgRepo) GetByName(ctx context.Context, name string) (*models.Org, error) {
+	query := `SELECT * FROM org WHERE name=?`
+	return m.getOne(ctx, query, name)
+}
+
+func (m *orgRepo) listOrg(ctx context.Context, query string, args ...interface{}) ([]*models.Org, error) {
 	rows, err := m.db.QueryContext(ctx, query, args...)
 
 	if err != nil {
@@ -58,7 +63,7 @@ func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{})
 	}
 	defer rows.Close()
 
-	orgs := []models.Org{}
+	orgs := make([]*models.Org, 0)
 	for rows.Next() {
 		org := new(models.Org)
 		if err = rows.Scan(
@@ -69,7 +74,7 @@ func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{})
 			&org.City,
 			&org.Province,
 		); err == nil {
-			orgs = append(orgs, *org)
+			orgs = append(orgs, org)
 		}
 	}
 
@@ -81,7 +86,7 @@ func (m orgRepo) listOrg(ctx context.Context, query string, args ...interface{})
 	return orgs, nil
 }
 
-func (m orgRepo) OrgList(ctx context.Context, limit, offset int) ([]models.Org, error) {
+func (m orgRepo) OrgList(ctx context.Context, limit, offset int) ([]*models.Org, error) {
 	query := `SELECT * FROM org LIMIT ? OFFSET ? `
 	return m.listOrg(ctx, query, limit, offset)
 }
@@ -102,14 +107,18 @@ func (m *orgRepo) exists(ctx context.Context, name string) bool {
 	}
 }
 
-func (m *orgRepo) Insert(ctx context.Context, input models.OrgInput) (bool, error) {
+func (m *orgRepo) Insert(ctx context.Context, input models.OrgInput) (*models.Org, error) {
 	exist := m.exists(ctx, input.Name)
 	if !exist {
 		query := `INSERT INTO org(name, long_name, road_number, city, province) VALUES(?,?,?,?,?)`
 		_, err := m.db.ExecContext(ctx, query, input.Name, input.LongName, input.RoadNumber, input.City, input.Province)
 		if err != nil {
-			return false, err
+			return nil, err
 		}
 	}
-	return true, nil
+	row, err := m.GetByName(ctx, input.Name)
+	if err != nil {
+		return nil, err
+	}
+	return row, nil
 }

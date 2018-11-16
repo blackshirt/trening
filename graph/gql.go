@@ -44,7 +44,7 @@ func (s *GraphQLService) Training() TrainingResolver {
 	}
 }
 
-func (a *asnResolver) CurrentPlaces(ctx context.Context, obj *models.ASN) (models.OPD, error) {
+func (a *asnResolver) CurrentPlaces(ctx context.Context, obj *models.ASN) (*models.OPD, error) {
 	opd, err := a.service.opdRepo.GetByID(ctx, obj.CurrentPlaces.ID)
 	if err != nil {
 		log.Fatal(err)
@@ -52,7 +52,7 @@ func (a *asnResolver) CurrentPlaces(ctx context.Context, obj *models.ASN) (model
 	return opd, nil
 }
 
-func (t *trainingResolver) Organizer(ctx context.Context, obj *models.Training) (models.Org, error) {
+func (t *trainingResolver) Organizer(ctx context.Context, obj *models.Training) (*models.Org, error) {
 	org, err := t.service.orgRepo.GetByID(ctx, obj.Organizer.ID)
 	if err != nil {
 		log.Fatal(err)
@@ -60,7 +60,7 @@ func (t *trainingResolver) Organizer(ctx context.Context, obj *models.Training) 
 	return org, nil
 }
 
-func (t *trainingResolver) Location(ctx context.Context, obj *models.Training) (models.Org, error) {
+func (t *trainingResolver) Location(ctx context.Context, obj *models.Training) (*models.Org, error) {
 	org, err := t.service.orgRepo.GetByID(ctx, obj.Location.ID)
 	if err != nil {
 		log.Fatal(err)
@@ -69,6 +69,6 @@ func (t *trainingResolver) Location(ctx context.Context, obj *models.Training) (
 
 }
 
-func (t *trainingResolver) Participants(ctx context.Context, obj *models.Training) ([]models.ASN, error) {
+func (t *trainingResolver) Participants(ctx context.Context, obj *models.Training) ([]*models.ASN, error) {
 	panic("not implemented")
 }

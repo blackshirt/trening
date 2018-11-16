@@ -3,93 +3,92 @@
 #https://gqlgen.com/getting-started
 
 input Pagination {
-	offset: Int!
-	limit: Int!
+	offset: Int
+	limit: Int
 }
 
 type Training {
-	id: Int!
-	name: String!
-	description: String!
-	start: String!
-	finish: String!
-	organizer: Org!
-	location: Org!
-	participants: [ASN!]!
+	id: Int
+	name: String
+	description: String
+	start: String
+	finish: String
+	organizer: Org
+	location: Org
+	participants: [ASN]
 }
 
 input TrainingInput {
   	name: String!
-  	description: String!
-  	organizer: OrgInput!
-  	participants: [ASNInput!]!
+  	description: String
+  	organizer: OrgInput
 }
 
 type Org {
-  	id: Int!
-  	name: String!
-  	long_name: String!
-  	road_number: String!
-	city: String!
-	province: String!
+  	id: Int
+  	name: String
+  	long_name: String
+  	road_number: String
+	city: String
+	province: String
 }
 
 input OrgInput {
 	name: String!
 	long_name: String!
-	road_number: String!
+	road_number: String
 	city: String!
-	province: String!
+	province: String
 }
 
 type ASN {
-	id: Int!
-	name: String!
-	nip: String!
-	current_job: String!
-	current_grade: String!
-	current_places: OPD!
+	id: Int
+	name: String
+	nip: String
+	current_job: String
+	current_grade: String
+	current_places: OPD
 }
 
 input ASNInput {
   	name: String!
-  	nip: String!
-  	current_job: String!
-  	current_grade: String!
-  	current_places: OPDInput!
+  	nip: String
+  	current_job: String
+  	current_grade: String
+  	current_places: OPDInput
 }
 
 type OPD {
-  	id: Int!
-  	name: String!
-  	long_name: String!
-  	road_number: String!
-	city: String!
-	province: String!
+  	id: Int
+  	name: String
+  	long_name: String
+  	road_number: String
+	city: String
+	province: String
 }
 
 input OPDInput {
   	name: String!
   	long_name: String!
-  	road_number: String!
+  	road_number: String
 	city: String!
-	province: String!
+	province: String
 }
 
 
 # Query
 type Query {
 # 	traininglist: [Training!]!
-  asnList(pagination: Pagination): [ASN!]!
-  opdList(pagination: Pagination): [OPD!]!
-  orgList(pagination: Pagination): [Org!]!
+  asnList(pagination: Pagination): [ASN]
+  opdList(pagination: Pagination): [OPD]
+  orgList(pagination: Pagination): [Org]
 }
 
 
 type Mutation {
-#	createTraining(input: #TrainingInput!): Training!
-	createOPD(input: OPDInput!): Boolean!
-	createOrg(input: OrgInput!): Boolean!
+#	createTraining(input: #TrainingInput!): Training
+	createOPD(input: OPDInput!): OPD
+	createOrg(input: OrgInput!): Org
 }
 
 

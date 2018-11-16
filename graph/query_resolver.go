@@ -32,11 +32,13 @@ func (q *queryResolver) OpdList(ctx context.Context, pagination *models.Paginati
 			Offset: 0,
 		}
 	}
+
 	res, err := q.service.opdRepo.OPDList(ctx, pagination.Limit, pagination.Offset)
 	if err != nil {
 		log.Fatal(err)
 	}
 	return res, nil
+
 }
 
 func (q *queryResolver) OrgList(ctx context.Context, pagination *models.Pagination) ([]*models.Org, error) {

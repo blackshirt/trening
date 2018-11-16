@@ -7,6 +7,7 @@ import (
 	"github.com/blackshirt/trening/core/asn"
 	"github.com/blackshirt/trening/core/opd"
 	"github.com/blackshirt/trening/core/org"
+	"github.com/blackshirt/trening/loader"
 	"github.com/blackshirt/trening/models"
 )
 
@@ -45,11 +46,13 @@ func (s *GraphQLService) Training() TrainingResolver {
 }
 
 func (a *asnResolver) CurrentPlaces(ctx context.Context, obj *models.ASN) (*models.OPD, error) {
-	opd, err := a.service.opdRepo.GetByID(ctx, obj.CurrentPlaces.ID)
+	/*opd, err := a.service.opdRepo.GetByID(ctx, obj.CurrentPlaces.ID)
 	if err != nil {
 		log.Fatal(err)
 	}
 	return opd, nil
+	*/
+	return loader.CtxLoaders(ctx).OpdId.Load(obj.ID)
 }
 
 func (t *trainingResolver) Organizer(ctx context.Context, obj *models.Training) (*models.Org, error) {

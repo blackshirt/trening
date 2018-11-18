@@ -11,7 +11,6 @@ import (
 	"github.com/blackshirt/trening/core/opd"
 	"github.com/blackshirt/trening/core/org"
 	graph "github.com/blackshirt/trening/graph"
-	"github.com/blackshirt/trening/loader"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -37,7 +36,7 @@ func main() {
 	gqlService := graph.NewGraphQLService(asnRepo, opdRepo, orgRepo)
 
 	http.Handle("/", handler.Playground("GraphQL playground", "/query"))
-	http.Handle("/query", loader.LoaderMiddleware(conn, handler.GraphQL(graph.NewExecutableSchema(graph.Config{Resolvers: gqlService}))))
+	http.Handle("/query", handler.GraphQL(graph.NewExecutableSchema(graph.Config{Resolvers: gqlService})))
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))

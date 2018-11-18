@@ -9,9 +9,9 @@ import (
 )
 
 type OPDRepository interface {
-	GetByID(ctx context.Context, id int) (*models.OPD, error)
-	OPDList(ctx context.Context, limit, offset int) ([]*models.OPD, error)
-	Insert(ctx context.Context, input models.OPDInput) (*models.OPD, error)
+	GetByID(ctx context.Context, id int) (*models.Opd, error)
+	OpdList(ctx context.Context, limit, offset int) ([]*models.Opd, error)
+	Insert(ctx context.Context, input models.OPDInput) (*models.Opd, error)
 }
 
 type opdRepo struct {
@@ -22,14 +22,14 @@ func NewOPDRepo(conn *sql.DB) OPDRepository {
 	return &opdRepo{db: conn}
 }
 
-func (m *opdRepo) getOne(ctx context.Context, query string, args ...interface{}) (*models.OPD, error) {
+func (m *opdRepo) getOne(ctx context.Context, query string, args ...interface{}) (*models.Opd, error) {
 	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
 		log.Fatal(err)
 	}
 	row := stmt.QueryRowContext(ctx, args...)
 	defer stmt.Close()
-	opd := new(models.OPD)
+	opd := new(models.Opd)
 	if err := row.Scan(
 		&opd.ID,
 		&opd.Name,
@@ -44,12 +44,12 @@ func (m *opdRepo) getOne(ctx context.Context, query string, args ...interface{})
 	return opd, nil
 }
 
-func (m *opdRepo) GetByID(ctx context.Context, id int) (*models.OPD, error) {
+func (m *opdRepo) GetByID(ctx context.Context, id int) (*models.Opd, error) {
 	query := `SELECT * FROM opd WHERE id=?`
 	return m.getOne(ctx, query, id)
 }
 
-func (m *opdRepo) GetByName(ctx context.Context, name string) (*models.OPD, error) {
+func (m *opdRepo) GetByName(ctx context.Context, name string) (*models.Opd, error) {
 	query := `SELECT * FROM opd WHERE name=?`
 	return m.getOne(ctx, query, name)
 }
@@ -70,7 +70,7 @@ func (m *opdRepo) exists(ctx context.Context, name string) bool {
 	}
 }
 
-func (m *opdRepo) listOPD(ctx context.Context, query string, args ...interface{}) ([]*models.OPD, error) {
+func (m *opdRepo) listOPD(ctx context.Context, query string, args ...interface{}) ([]*models.Opd, error) {
 	rows, err := m.db.QueryContext(ctx, query, args...)
 
 	if err != nil {
@@ -78,9 +78,9 @@ func (m *opdRepo) listOPD(ctx context.Context, query string, args ...interface{}
 	}
 	defer rows.Close()
 
-	opds := make([]*models.OPD, 0)
+	opds := make([]*models.Opd, 0)
 	for rows.Next() {
-		opd := new(models.OPD)
+		opd := new(models.Opd)
 		if err = rows.Scan(
 			&opd.ID,
 			&opd.Name,
@@ -100,12 +100,12 @@ func (m *opdRepo) listOPD(ctx context.Context, query string, args ...interface{}
 	return opds, nil
 }
 
-func (m *opdRepo) OPDList(ctx context.Context, limit, offset int) ([]*models.OPD, error) {
+func (m *opdRepo) OpdList(ctx context.Context, limit, offset int) ([]*models.Opd, error) {
 	query := `SELECT * FROM opd LIMIT ? OFFSET ?`
 	return m.listOPD(ctx, query, limit, offset)
 }
 
-func (m *opdRepo) Insert(ctx context.Context, input models.OPDInput) (*models.OPD, error) {
+func (m *opdRepo) Insert(ctx context.Context, input models.OPDInput) (*models.Opd, error) {
 	exist := m.exists(ctx, input.Name)
 	if !exist {
 		query := `INSERT INTO opd(name, long_name, road_number, city, province) VALUES(?,?,?,?,?)`

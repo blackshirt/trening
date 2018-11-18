@@ -9,7 +9,7 @@ import (
 )
 
 type OrgRepository interface {
-	GetByID(ctx context.Context, id int) (*models.Org, error)
+	GetById(ctx context.Context, id int) (*models.Org, error)
 	OrgList(ctx context.Context, limit, offset int) ([]*models.Org, error)
 	Insert(ctx context.Context, input models.OrgInput) (*models.Org, error)
 }
@@ -44,7 +44,7 @@ func (m *orgRepo) getOne(ctx context.Context, query string, args ...interface{})
 	return org, nil
 }
 
-func (m *orgRepo) GetByID(ctx context.Context, id int) (*models.Org, error) {
+func (m *orgRepo) GetById(ctx context.Context, id int) (*models.Org, error) {
 	query := `SELECT * FROM org WHERE id=?`
 	return m.getOne(ctx, query, id)
 }

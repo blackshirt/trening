@@ -7,7 +7,6 @@ import (
 	"github.com/blackshirt/trening/core/asn"
 	"github.com/blackshirt/trening/core/opd"
 	"github.com/blackshirt/trening/core/org"
-	"github.com/blackshirt/trening/loader"
 	"github.com/blackshirt/trening/models"
 )
 
@@ -45,18 +44,17 @@ func (s *GraphQLService) Training() TrainingResolver {
 	}
 }
 
-func (a *asnResolver) CurrentPlaces(ctx context.Context, obj *models.ASN) (*models.OPD, error) {
-	/*opd, err := a.service.opdRepo.GetByID(ctx, obj.CurrentPlaces.ID)
+func (a *asnResolver) CurrentPlaces(ctx context.Context, obj *models.Asn) (*models.Opd, error) {
+	opd, err := a.service.opdRepo.GetById(ctx, obj.CurrentPlaces.ID)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	return opd, nil
-	*/
-	return loader.CtxLoaders(ctx).OpdId.Load(obj.ID)
 }
 
 func (t *trainingResolver) Organizer(ctx context.Context, obj *models.Training) (*models.Org, error) {
-	org, err := t.service.orgRepo.GetByID(ctx, obj.Organizer.ID)
+	org, err := t.service.orgRepo.GetById(ctx, obj.Organizer.ID)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -64,7 +62,7 @@ func (t *trainingResolver) Organizer(ctx context.Context, obj *models.Training) 
 }
 
 func (t *trainingResolver) Location(ctx context.Context, obj *models.Training) (*models.Org, error) {
-	org, err := t.service.orgRepo.GetByID(ctx, obj.Location.ID)
+	org, err := t.service.orgRepo.GetById(ctx, obj.Location.ID)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -72,6 +70,6 @@ func (t *trainingResolver) Location(ctx context.Context, obj *models.Training) (
 
 }
 
-func (t *trainingResolver) Participants(ctx context.Context, obj *models.Training) ([]*models.ASN, error) {
+func (t *trainingResolver) Participants(ctx context.Context, obj *models.Training) ([]*models.Asn, error) {
 	panic("not implemented")
 }

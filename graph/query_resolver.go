@@ -17,15 +17,15 @@ func (s *GraphQLService) Query() QueryResolver {
 	}
 }
 
-func (q *queryResolver) AsnList(ctx context.Context, pagination *models.Pagination) ([]*models.ASN, error) {
-	res, err := q.service.asnRepo.ASNList(ctx)
+func (q *queryResolver) AsnList(ctx context.Context, pagination *models.Pagination) ([]*models.Asn, error) {
+	res, err := q.service.asnRepo.AsnList(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
 	return res, nil
 }
 
-func (q *queryResolver) OpdList(ctx context.Context, pagination *models.Pagination) ([]*models.OPD, error) {
+func (q *queryResolver) OpdList(ctx context.Context, pagination *models.Pagination) ([]*models.Opd, error) {
 	if pagination == nil {
 		pagination = &models.Pagination{
 			Limit:  100,
@@ -33,7 +33,7 @@ func (q *queryResolver) OpdList(ctx context.Context, pagination *models.Paginati
 		}
 	}
 
-	res, err := q.service.opdRepo.OPDList(ctx, pagination.Limit, pagination.Offset)
+	res, err := q.service.opdRepo.OpdList(ctx, pagination.Limit, pagination.Offset)
 	if err != nil {
 		log.Fatal(err)
 	}

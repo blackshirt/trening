@@ -7,21 +7,47 @@ input Pagination {
 	limit: Int
 }
 
-type Training {
+type TrxCat {
 	id: Int
 	name: String
 	description: String
+}
+
+input trxCatInput {
+	name: String!
+	description: String
+}
+
+type TrxType {
+	id: Int
+	name: String
+	description: String
+}
+ input TrxTypeInput {
+	name: String!
+	description: String
+}
+
+type Trx {
+	id: Int
+	name: String
+	description: String
+	category: TrxCat
+	type: TrxType
+}
+
+type TrxHistory {
+	trxId: Int
 	start: String
 	finish: String
 	organizer: Org
 	location: Org
-	participants: [ASN]
+	participants: [Asn]
 }
 
-input TrainingInput {
+input TrxInput {
   	name: String!
   	description: String
-  	organizer: OrgInput
 }
 
 type Org {
@@ -41,24 +67,24 @@ input OrgInput {
 	province: String
 }
 
-type ASN {
+type Asn {
 	id: Int
 	name: String
 	nip: String
 	current_job: String
 	current_grade: String
-	current_places: OPD
+	current_places: Opd
 }
 
-input ASNInput {
+input AsnInput {
   	name: String!
   	nip: String
   	current_job: String
   	current_grade: String
-  	current_places: OPDInput
+  	current_places: OpdInput
 }
 
-type OPD {
+type Opd {
   	id: Int
   	name: String
   	long_name: String
@@ -67,7 +93,7 @@ type OPD {
 	province: String
 }
 
-input OPDInput {
+input OpdInput {
   	name: String!
   	long_name: String!
   	road_number: String
@@ -78,16 +104,14 @@ input OPDInput {
 
 # Query
 type Query {
-# 	traininglist: [Training!]!
-  asnList(pagination: Pagination): [ASN]
-  opdList(pagination: Pagination): [OPD]
+  asnList(pagination: Pagination): [Asn]
+  opdList(pagination: Pagination): [Opd]
   orgList(pagination: Pagination): [Org]
 }
 
 
 type Mutation {
-#	createTraining(input: #TrainingInput!): Training
-	createOPD(input: OPDInput!): OPD
+	createOpd(input: OpdInput!): Opd
 	createOrg(input: OrgInput!): Org
 }
 

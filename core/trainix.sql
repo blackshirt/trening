@@ -72,8 +72,8 @@ CREATE TABLE IF NOT EXISTS `trainix_master` (
 CREATE TABLE IF NOT EXISTS `trainix_history` (
   	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   	`trx_id` MEDIUMINT UNSIGNED NOT NULL,
-  	`start` DATE NOT NULL,
-	`finish` DATE NOT NULL,
+  	`start` DATE NOT NULL DEFAULT CURDATE(),
+	`finish` DATE NOT NULL DEFAULT CURDATE(),
 	
  	PRIMARY KEY (`id`),
   	FOREIGN KEY (`trx_id`) REFERENCES `trainix_master`(`id`)

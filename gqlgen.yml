@@ -17,31 +17,29 @@ model:
 
 
 models:
-  Training:
-    model: github.com/blackshirt/trening/models.Training
-    fields:
-      organizer:
-        resolver: true
-      location:
-        resolver: true
-      participants:
-        resolver: true
+  #Trx:
+  #  model: github.com/blackshirt/trening/models.Trx
+  #  fields:
+  #    organizer:
+  #      resolver: true
+  #    location:
+  #      resolver: true
+  #    participants:
+  #      resolver: true
   Org:
     model: github.com/blackshirt/trening/models.Org
-  ASN:
-    model: github.com/blackshirt/trening/models.ASN
+  Asn:
+    model: github.com/blackshirt/trening/models.Asn
     fields:
       current_places:
         resolver: true
-  OPD:
-    model: github.com/blackshirt/trening/models.OPD
-  OPDInput:
-    model: github.com/blackshirt/trening/models.OPDInput
+  Opd:
+    model: github.com/blackshirt/trening/models.Opd
+  OpdInput:
+    model: github.com/blackshirt/trening/models.OpdInput
   OrgInput:
     model: github.com/blackshirt/trening/models.OrgInput
-  ASNInput:
-    model: github.com/blackshirt/trening/models.ASNInput
-  TrainingInput:
-    model: github.com/blackshirt/trening/models.TrainingInput
+  AsnInput:
+    model: github.com/blackshirt/trening/models.AsnInput
   Pagination:
     model: github.com/blackshirt/trening/models.Pagination

@@ -9,8 +9,8 @@ import (
 )
 
 type ASNRepository interface {
-	GetByID(ctx context.Context, id int) (*models.ASN, error)
-	ASNList(ctx context.Context) ([]*models.ASN, error)
+	GetById(ctx context.Context, id int) (*models.Asn, error)
+	AsnList(ctx context.Context) ([]*models.Asn, error)
 }
 
 type asnRepo struct {
@@ -21,13 +21,13 @@ func NewASNRepo(conn *sql.DB) ASNRepository {
 	return &asnRepo{db: conn}
 }
 
-func (m *asnRepo) getOne(ctx context.Context, query string, args ...interface{}) (*models.ASN, error) {
+func (m *asnRepo) getOne(ctx context.Context, query string, args ...interface{}) (*models.Asn, error) {
 	stmt, err := m.db.PrepareContext(ctx, query)
 	if err != nil {
 		log.Fatal(err)
 	}
 	row := stmt.QueryRowContext(ctx, args...)
-	asn := new(models.ASN)
+	asn := new(models.Asn)
 	err = row.Scan(
 		&asn.ID,
 		&asn.Name,
@@ -43,12 +43,12 @@ func (m *asnRepo) getOne(ctx context.Context, query string, args ...interface{})
 	return asn, nil
 }
 
-func (m *asnRepo) GetByID(ctx context.Context, id int) (*models.ASN, error) {
+func (m *asnRepo) GetById(ctx context.Context, id int) (*models.Asn, error) {
 	query := `SELECT * FROM asn WHERE id = ?`
 	return m.getOne(ctx, query, id)
 }
 
-func (m *asnRepo) listASN(ctx context.Context, query string, args ...interface{}) ([]*models.ASN, error) {
+func (m *asnRepo) listAsn(ctx context.Context, query string, args ...interface{}) ([]*models.Asn, error) {
 	stmt, err := m.db.PrepareContext(ctx, query)
 
 	if err != nil {
@@ -60,9 +60,9 @@ func (m *asnRepo) listASN(ctx context.Context, query string, args ...interface{}
 	}
 	defer rows.Close()
 
-	asns := make([]*models.ASN, 0)
+	asns := make([]*models.Asn, 0)
 	for rows.Next() {
-		asn := new(models.ASN)
+		asn := new(models.Asn)
 		if err = rows.Scan(
 			&asn.ID,
 			&asn.Name,
@@ -83,7 +83,7 @@ func (m *asnRepo) listASN(ctx context.Context, query string, args ...interface{}
 	return asns, nil
 }
 
-func (m *asnRepo) ASNList(ctx context.Context) ([]*models.ASN, error) {
+func (m *asnRepo) AsnList(ctx context.Context) ([]*models.Asn, error) {
 	query := `SELECT * FROM asn`
-	return m.listASN(ctx, query)
+	return m.listAsn(ctx, query)
 }

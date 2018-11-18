@@ -10,10 +10,18 @@ type trxResolver struct {
 	service *RepoServices
 }
 
+type trxHistory struct {
+	service *RepoServices
+}
+
 func (gs *RepoServices) Trx() TrxResolver {
 	return &trxResolver{
 		service: gs,
 	}
+}
+
+func (gs *RepoServices) TrxHistory() TrxHistoryResolver {
+	return &trxHistory{service: gs}
 }
 
 func (tr *trxResolver) Category(ctx context.Context, obj *models.Trx) (*models.TrxCat, error) {
@@ -46,6 +54,24 @@ func (tr *trxResolver) TrxTypeList(ctx context.Context) ([]*models.TrxType, erro
 		return nil, err
 	}
 	return rows, nil
+}
+
+func (th *trxHistory) Organizer(ctx context.Context, obj *models.TrxHistory) (*models.Org, error) {
+	row, err := th.service.trxHistoryRepo.OrgById(obj.Organizer.ID)
+	if err != nil {
+		return nil, err
+	}
+	return row, nil
+}
+func (th *trxHistory) Location(ctx context.Context, obj *models.TrxHistory) (*models.Org, error) {
+	row, err := th.service.trxHistoryRepo.OrgById(obj.Location.ID)
+	if err != nil {
+		return nil, err
+	}
+	return row, nil
+}
+func (th *trxHistory) Participants(ctx context.Context, obj *models.TrxHistory) ([]*models.Asn, error) {
+	panic("not implemented")
 }
 
 /*

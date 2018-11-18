@@ -26,6 +26,11 @@ type OrgInput struct {
 	Province   *string `json:"province"`
 }
 
+type Pagination struct {
+	Limit  int `json:"limit"`
+	Offset int `json:"offset"`
+}
+
 type TrxCat struct {
 	ID          *int    `json:"id"`
 	Name        *string `json:"name"`

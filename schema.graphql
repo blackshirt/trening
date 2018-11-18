@@ -37,7 +37,8 @@ type Trx {
 }
 
 type TrxHistory {
-	trxId: Int
+	id: Int
+	trx: Trx
 	start: String
 	finish: String
 	organizer: Org
@@ -105,8 +106,8 @@ input OpdInput {
 # Query
 type Query {
   asnList(): [Asn]
-  opdList(pagination: Pagination!): [Opd]
-  orgList(pagination: Pagination!): [Org]
+  opdList(pagination: Pagination): [Opd]
+  orgList(pagination: Pagination): [Org]
   trxCatList(): [TrxCat]
   trxTypeList(): [TrxType]
 }

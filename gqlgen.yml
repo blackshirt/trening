@@ -48,5 +48,5 @@ models:
   #  model: github.com/blackshirt/trening/models.OrgInput
   #AsnInput:
   #  model: github.com/blackshirt/trening/models.AsnInput
-  Pagination:
-    model: github.com/blackshirt/trening/models.Pagination
+  #Pagination:
+  #  model: github.com/blackshirt/trening/models.Pagination

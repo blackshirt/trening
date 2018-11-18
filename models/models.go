@@ -27,11 +27,6 @@ type Asn struct {
 	CurrentPlaces Opd    `json:"current_places"`
 }
 
-type Pagination struct {
-	Limit  int `json:"limit"`
-	Offset int `json:"offset"`
-}
-
 type Trx struct {
 	ID          *int     `json:"id"`
 	Name        *string  `json:"name"`
@@ -41,7 +36,8 @@ type Trx struct {
 }
 
 type TrxHistory struct {
-	TrxID        *int    `json:"trxId"`
+	ID           *int    `json:"id"`
+	Trx          *Trx    `json:"trx"`
 	Start        *string `json:"start"`
 	Finish       *string `json:"finish"`
 	Organizer    *Org    `json:"organizer"`

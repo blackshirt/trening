@@ -76,8 +76,8 @@ type ComplexityRoot struct {
 
 	Query struct {
 		AsnList     func(childComplexity int) int
-		OpdList     func(childComplexity int, pagination models.Pagination) int
-		OrgList     func(childComplexity int, pagination models.Pagination) int
+		OpdList     func(childComplexity int, pagination *models.Pagination) int
+		OrgList     func(childComplexity int, pagination *models.Pagination) int
 		TrxCatList  func(childComplexity int) int
 		TrxTypeList func(childComplexity int) int
 	}
@@ -97,7 +97,8 @@ type ComplexityRoot struct {
 	}
 
 	TrxHistory struct {
-		TrxId        func(childComplexity int) int
+		Id           func(childComplexity int) int
+		Trx          func(childComplexity int) int
 		Start        func(childComplexity int) int
 		Finish       func(childComplexity int) int
 		Organizer    func(childComplexity int) int
@@ -121,8 +122,8 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	AsnList(ctx context.Context) ([]*models.Asn, error)
-	OpdList(ctx context.Context, pagination models.Pagination) ([]*models.Opd, error)
-	OrgList(ctx context.Context, pagination models.Pagination) ([]*models.Org, error)
+	OpdList(ctx context.Context, pagination *models.Pagination) ([]*models.Opd, error)
+	OrgList(ctx context.Context, pagination *models.Pagination) ([]*models.Org, error)
 	TrxCatList(ctx context.Context) ([]*models.TrxCat, error)
 	TrxTypeList(ctx context.Context) ([]*models.TrxType, error)
 }
@@ -168,10 +169,15 @@ func field_Mutation_createOrg_args(rawArgs map[string]interface{}) (map[string]i
 
 func field_Query_opdList_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	args := map[string]interface{}{}
-	var arg0 models.Pagination
+	var arg0 *models.Pagination
 	if tmp, ok := rawArgs["pagination"]; ok {
 		var err error
-		arg0, err = UnmarshalPagination(tmp)
+		var ptr1 models.Pagination
+		if tmp != nil {
+			ptr1, err = UnmarshalPagination(tmp)
+			arg0 = &ptr1
+		}
+
 		if err != nil {
 			return nil, err
 		}
@@ -183,10 +189,15 @@ func field_Query_opdList_args(rawArgs map[string]interface{}) (map[string]interf
 
 func field_Query_orgList_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	args := map[string]interface{}{}
-	var arg0 models.Pagination
+	var arg0 *models.Pagination
 	if tmp, ok := rawArgs["pagination"]; ok {
 		var err error
-		arg0, err = UnmarshalPagination(tmp)
+		var ptr1 models.Pagination
+		if tmp != nil {
+			ptr1, err = UnmarshalPagination(tmp)
+			arg0 = &ptr1
+		}
+
 		if err != nil {
 			return nil, err
 		}
@@ -421,7 +432,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.OpdList(childComplexity, args["pagination"].(models.Pagination)), true
+		return e.complexity.Query.OpdList(childComplexity, args["pagination"].(*models.Pagination)), true
 
 	case "Query.orgList":
 		if e.complexity.Query.OrgList == nil {
@@ -433,7 +444,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.OrgList(childComplexity, args["pagination"].(models.Pagination)), true
+		return e.complexity.Query.OrgList(childComplexity, args["pagination"].(*models.Pagination)), true
 
 	case "Query.trxCatList":
 		if e.complexity.Query.TrxCatList == nil {
@@ -505,12 +516,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TrxCat.Description(childComplexity), true
 
-	case "TrxHistory.trxId":
-		if e.complexity.TrxHistory.TrxId == nil {
+	case "TrxHistory.id":
+		if e.complexity.TrxHistory.Id == nil {
 			break
 		}
 
-		return e.complexity.TrxHistory.TrxId(childComplexity), true
+		return e.complexity.TrxHistory.Id(childComplexity), true
+
+	case "TrxHistory.trx":
+		if e.complexity.TrxHistory.Trx == nil {
+			break
+		}
+
+		return e.complexity.TrxHistory.Trx(childComplexity), true
 
 	case "TrxHistory.start":
 		if e.complexity.TrxHistory.Start == nil {
@@ -1414,7 +1432,7 @@ func (ec *executionContext) _Query_opdList(ctx context.Context, field graphql.Co
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().OpdList(rctx, args["pagination"].(models.Pagination))
+		return ec.resolvers.Query().OpdList(rctx, args["pagination"].(*models.Pagination))
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -1481,7 +1499,7 @@ func (ec *executionContext) _Query_orgList(ctx context.Context, field graphql.Co
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().OrgList(rctx, args["pagination"].(models.Pagination))
+		return ec.resolvers.Query().OrgList(rctx, args["pagination"].(*models.Pagination))
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -2031,8 +2049,10 @@ func (ec *executionContext) _TrxHistory(ctx context.Context, sel ast.SelectionSe
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TrxHistory")
-		case "trxId":
-			out.Values[i] = ec._TrxHistory_trxId(ctx, field, obj)
+		case "id":
+			out.Values[i] = ec._TrxHistory_id(ctx, field, obj)
+		case "trx":
+			out.Values[i] = ec._TrxHistory_trx(ctx, field, obj)
 		case "start":
 			out.Values[i] = ec._TrxHistory_start(ctx, field, obj)
 		case "finish":
@@ -2067,7 +2087,7 @@ func (ec *executionContext) _TrxHistory(ctx context.Context, sel ast.SelectionSe
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _TrxHistory_trxId(ctx context.Context, field graphql.CollectedField, obj *models.TrxHistory) graphql.Marshaler {
+func (ec *executionContext) _TrxHistory_id(ctx context.Context, field graphql.CollectedField, obj *models.TrxHistory) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -2079,7 +2099,7 @@ func (ec *executionContext) _TrxHistory_trxId(ctx context.Context, field graphql
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.TrxID, nil
+		return obj.ID, nil
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -2092,6 +2112,35 @@ func (ec *executionContext) _TrxHistory_trxId(ctx context.Context, field graphql
 		return graphql.Null
 	}
 	return graphql.MarshalInt(*res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _TrxHistory_trx(ctx context.Context, field graphql.CollectedField, obj *models.TrxHistory) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer ec.Tracer.EndFieldExecution(ctx)
+	rctx := &graphql.ResolverContext{
+		Object: "TrxHistory",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Trx, nil
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*models.Trx)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	if res == nil {
+		return graphql.Null
+	}
+
+	return ec._Trx(ctx, field.Selections, res)
 }
 
 // nolint: vetshadow
@@ -4161,7 +4210,8 @@ type Trx {
 }
 
 type TrxHistory {
-	trxId: Int
+	id: Int
+	trx: Trx
 	start: String
 	finish: String
 	organizer: Org
@@ -4229,8 +4279,8 @@ input OpdInput {
 # Query
 type Query {
   asnList(): [Asn]
-  opdList(pagination: Pagination!): [Opd]
-  orgList(pagination: Pagination!): [Org]
+  opdList(pagination: Pagination): [Opd]
+  orgList(pagination: Pagination): [Org]
   trxCatList(): [TrxCat]
   trxTypeList(): [TrxType]
 }

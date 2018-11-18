@@ -8,15 +8,15 @@ import (
 )
 
 type mutationResolver struct {
-	service *GraphQLService
+	service *RepoServices
 }
 
-func (s *GraphQLService) Mutation() MutationResolver {
+func (s *RepoServices) Mutation() MutationResolver {
 	return &mutationResolver{service: s}
 }
 
-func (m *mutationResolver) CreateOPD(ctx context.Context, input models.OPDInput) (*models.OPD, error) {
-	res, err := m.service.opdRepo.Insert(ctx, input)
+func (m *mutationResolver) CreateOpd(ctx context.Context, input models.OpdInput) (*models.Opd, error) {
+	res, err := m.service.opdRepo.OpdCreate(ctx, input)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
@@ -25,7 +25,7 @@ func (m *mutationResolver) CreateOPD(ctx context.Context, input models.OPDInput)
 }
 
 func (m *mutationResolver) CreateOrg(ctx context.Context, input models.OrgInput) (*models.Org, error) {
-	res, err := m.service.orgRepo.Insert(ctx, input)
+	res, err := m.service.orgRepo.OrgCreate(ctx, input)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err

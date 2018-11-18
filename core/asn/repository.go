@@ -8,8 +8,9 @@ import (
 	"github.com/blackshirt/trening/models"
 )
 
-type ASNRepository interface {
-	GetById(ctx context.Context, id int) (*models.Asn, error)
+type AsnRepo interface {
+	AsnById(ctx context.Context, id int) (*models.Asn, error)
+	AsnByNip(ctx context.Context, nip string) (*models.Asn, error)
 	AsnList(ctx context.Context) ([]*models.Asn, error)
 }
 
@@ -17,16 +18,18 @@ type asnRepo struct {
 	db *sql.DB
 }
 
-func NewASNRepo(conn *sql.DB) ASNRepository {
+func NewAsnRepo(conn *sql.DB) AsnRepo {
 	return &asnRepo{db: conn}
 }
 
-func (m *asnRepo) getOne(ctx context.Context, query string, args ...interface{}) (*models.Asn, error) {
-	stmt, err := m.db.PrepareContext(ctx, query)
+func (a *asnRepo) getOne(ctx context.Context, query string, args ...interface{}) (*models.Asn, error) {
+	stmt, err := a.db.PrepareContext(ctx, query)
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer stmt.Close()
 	row := stmt.QueryRowContext(ctx, args...)
+
 	asn := new(models.Asn)
 	err = row.Scan(
 		&asn.ID,
@@ -43,20 +46,27 @@ func (m *asnRepo) getOne(ctx context.Context, query string, args ...interface{})
 	return asn, nil
 }
 
-func (m *asnRepo) GetById(ctx context.Context, id int) (*models.Asn, error) {
+func (a *asnRepo) AsnById(ctx context.Context, id int) (*models.Asn, error) {
 	query := `SELECT * FROM asn WHERE id = ?`
-	return m.getOne(ctx, query, id)
+	return a.getOne(ctx, query, id)
 }
 
-func (m *asnRepo) listAsn(ctx context.Context, query string, args ...interface{}) ([]*models.Asn, error) {
-	stmt, err := m.db.PrepareContext(ctx, query)
+func (a *asnRepo) AsnByNip(ctx context.Context, nip string) (*models.Asn, error) {
+	query := `SELECT * FROM asn WHERE nip = ?`
+	return a.getOne(ctx, query, nip)
+}
+
+func (a *asnRepo) listAsn(ctx context.Context, query string, args ...interface{}) ([]*models.Asn, error) {
+	stmt, err := a.db.PrepareContext(ctx, query)
 
 	if err != nil {
 		log.Fatal(err)
+		return nil, err
 	}
 	rows, err := stmt.QueryContext(ctx, args...)
 	if err != nil {
 		log.Fatal(err)
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -69,7 +79,7 @@ func (m *asnRepo) listAsn(ctx context.Context, query string, args ...interface{}
 			&asn.Nip,
 			&asn.CurrentJob,
 			&asn.CurrentGrade,
-			&asn.CurrentPlaces.ID,
+			&asn.CurrentPlaces,
 		); err != nil {
 			log.Fatal(err)
 		}
@@ -83,7 +93,7 @@ func (m *asnRepo) listAsn(ctx context.Context, query string, args ...interface{}
 	return asns, nil
 }
 
-func (m *asnRepo) AsnList(ctx context.Context) ([]*models.Asn, error) {
+func (a *asnRepo) AsnList(ctx context.Context) ([]*models.Asn, error) {
 	query := `SELECT * FROM asn`
-	return m.listAsn(ctx, query)
+	return a.listAsn(ctx, query)
 }

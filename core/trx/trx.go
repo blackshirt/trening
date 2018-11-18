@@ -8,21 +8,22 @@ import (
 	"github.com/blackshirt/trening/models"
 )
 
-type TrxRepository interface {
-	TrxByID(ctx context.Context, id int) (*models.Training, error)
-	TrxList(ctx context.Context, limit, offset int) ([]*models.Training, error)
-	Insert(ctx context.Context, input models.Training) (*models.Training, error)
+type TrxRepo interface {
+	TrxById(ctx context.Context, id int) (*models.Trx, error)
+	TrxByName(ctx context.Context, name string) (*models.Trx, error)
+	TrxList(ctx context.Context, limit, offset int) ([]*models.Trx, error)
+	TrxCreate(ctx context.Context, input models.TrxInput) (*models.Trx, error)
 }
 
 type trxRepo struct {
 	db *sql.DB
 }
 
-func NewOPDRepo(conn *sql.DB) TrxRepository {
+func NewTrxRepo(conn *sql.DB) TrxRepo {
 	return &trxRepo{db: conn}
 }
 
-func (t *trxRepo) getOne(ctx context.Context, query string, args ...interface{}) (*models.Training, error) {
+func (t *trxRepo) getOne(ctx context.Context, query string, args ...interface{}) (*models.Trx, error) {
 	stmt, err := t.db.PrepareContext(ctx, query)
 	if err != nil {
 		log.Fatal(err)
@@ -31,16 +32,13 @@ func (t *trxRepo) getOne(ctx context.Context, query string, args ...interface{})
 	row := stmt.QueryRowContext(ctx, args...)
 	defer stmt.Close()
 
-	trx := new(models.Training)
+	trx := new(models.Trx)
 	if err := row.Scan(
 		&trx.ID,
 		&trx.Name,
 		&trx.Description,
-		&trx.Start,
-		&trx.Finish,
-		&trx.Organizer,
-		&trx.Location,
-		&trx.Participants,
+		&trx.Category,
+		&trx.Type,
 	); err != nil {
 		log.Fatal(err)
 	}
@@ -48,18 +46,18 @@ func (t *trxRepo) getOne(ctx context.Context, query string, args ...interface{})
 	return trx, nil
 }
 
-func (t *trxRepo) TrxByID(ctx context.Context, id int) (*models.Training, error) {
-	query := `SELECT * FROM trx WHERE id=?`
-	return m.getOne(ctx, query, id)
+func (t *trxRepo) TrxById(ctx context.Context, id int) (*models.Trx, error) {
+	query := `SELECT * FROM trx_master WHERE id=?`
+	return t.getOne(ctx, query, id)
 }
 
-func (t *trxRepo) GetByName(ctx context.Context, name string) (*models.Training, error) {
-	query := `SELECT * FROM trx WHERE name=?`
-	return m.getOne(ctx, query, name)
+func (t *trxRepo) TrxByName(ctx context.Context, name string) (*models.Trx, error) {
+	query := `SELECT * FROM trx_master WHERE name=?`
+	return t.getOne(ctx, query, name)
 }
 
 func (t *trxRepo) exists(ctx context.Context, name string) bool {
-	query := `SELECT name FROM trx WHERE name=?`
+	query := `SELECT name FROM trx_master WHERE name=?`
 	var trxname string
 	err := t.db.QueryRowContext(ctx, query, name).Scan(&trxname)
 	switch {
@@ -74,7 +72,7 @@ func (t *trxRepo) exists(ctx context.Context, name string) bool {
 	}
 }
 
-func (t *trxRepo) listTrx(ctx context.Context, query string, args ...interface{}) ([]*models.Training, error) {
+func (t *trxRepo) listTrx(ctx context.Context, query string, args ...interface{}) ([]*models.Trx, error) {
 	rows, err := t.db.QueryContext(ctx, query, args...)
 
 	if err != nil {
@@ -82,16 +80,15 @@ func (t *trxRepo) listTrx(ctx context.Context, query string, args ...interface{}
 	}
 	defer rows.Close()
 
-	trxs := make([]*models.Training, 0)
+	trxs := make([]*models.Trx, 0)
 	for rows.Next() {
-		trx := new(models.Training)
+		trx := new(models.Trx)
 		if err = rows.Scan(
 			&trx.ID,
 			&trx.Name,
-			&trx.LongName,
-			&trx.RoadNumber,
-			&trx.City,
-			&trx.Province,
+			&trx.Description,
+			&trx.Category,
+			&trx.Type,
 		); err == nil {
 			trxs = append(trxs, trx)
 		}
@@ -104,22 +101,22 @@ func (t *trxRepo) listTrx(ctx context.Context, query string, args ...interface{}
 	return trxs, nil
 }
 
-func (t *trxRepo) TrxList(ctx context.Context, limit, offset int) ([]*models.Training, error) {
-	query := `SELECT * FROM trx LIMIT ? OFFSET ?`
+func (t *trxRepo) TrxList(ctx context.Context, limit, offset int) ([]*models.Trx, error) {
+	query := `SELECT * FROM trx_master LIMIT ? OFFSET ?`
 	return t.listTrx(ctx, query, limit, offset)
 }
 
-func (t *trxRepo) Insert(ctx context.Context, input models.TrainingInput) (*models.Training, error) {
+func (t *trxRepo) TrxCreate(ctx context.Context, input models.TrxInput) (*models.Trx, error) {
 	exist := t.exists(ctx, input.Name)
 	if !exist {
-		query := `INSERT INTO trx(name, long_name, road_number, city, province) VALUES(?,?,?,?,?)`
-		_, err := m.db.ExecContext(ctx, query, input.Name, input.LongName, input.RoadNumber, input.City, input.Province)
+		query := `INSERT INTO trx_master(name, description) VALUES(?,?)`
+		_, err := t.db.ExecContext(ctx, query, input.Name, input.Description)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	row, err := t.GetByName(ctx, input.Name)
+	row, err := t.TrxByName(ctx, input.Name)
 	if err != nil {
 		return nil, err
 	}

@@ -8,17 +8,17 @@ import (
 	"github.com/blackshirt/trening/models"
 )
 
-type OrgRepository interface {
-	GetById(ctx context.Context, id int) (*models.Org, error)
+type OrgRepo interface {
+	OrgById(ctx context.Context, id int) (*models.Org, error)
 	OrgList(ctx context.Context, limit, offset int) ([]*models.Org, error)
-	Insert(ctx context.Context, input models.OrgInput) (*models.Org, error)
+	OrgCreate(ctx context.Context, input models.OrgInput) (*models.Org, error)
 }
 
 type orgRepo struct {
 	db *sql.DB
 }
 
-func NewOrgRepo(conn *sql.DB) OrgRepository {
+func NewOrgRepo(conn *sql.DB) OrgRepo {
 	return &orgRepo{db: conn}
 }
 
@@ -44,7 +44,7 @@ func (m *orgRepo) getOne(ctx context.Context, query string, args ...interface{})
 	return org, nil
 }
 
-func (m *orgRepo) GetById(ctx context.Context, id int) (*models.Org, error) {
+func (m *orgRepo) OrgById(ctx context.Context, id int) (*models.Org, error) {
 	query := `SELECT * FROM org WHERE id=?`
 	return m.getOne(ctx, query, id)
 }
@@ -107,7 +107,7 @@ func (m *orgRepo) exists(ctx context.Context, name string) bool {
 	}
 }
 
-func (m *orgRepo) Insert(ctx context.Context, input models.OrgInput) (*models.Org, error) {
+func (m *orgRepo) OrgCreate(ctx context.Context, input models.OrgInput) (*models.Org, error) {
 	exist := m.exists(ctx, input.Name)
 	if !exist {
 		query := `INSERT INTO org(name, long_name, road_number, city, province) VALUES(?,?,?,?,?)`

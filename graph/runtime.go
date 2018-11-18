@@ -34,6 +34,8 @@ type ResolverRoot interface {
 	Asn() AsnResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
+	Trx() TrxResolver
+	TrxHistory() TrxHistoryResolver
 }
 
 type DirectiveRoot struct {
@@ -73,9 +75,11 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AsnList func(childComplexity int, pagination *models.Pagination) int
-		OpdList func(childComplexity int, pagination *models.Pagination) int
-		OrgList func(childComplexity int, pagination *models.Pagination) int
+		AsnList     func(childComplexity int) int
+		OpdList     func(childComplexity int, pagination models.Pagination) int
+		OrgList     func(childComplexity int, pagination models.Pagination) int
+		TrxCatList  func(childComplexity int) int
+		TrxTypeList func(childComplexity int) int
 	}
 
 	Trx struct {
@@ -116,9 +120,20 @@ type MutationResolver interface {
 	CreateOrg(ctx context.Context, input models.OrgInput) (*models.Org, error)
 }
 type QueryResolver interface {
-	AsnList(ctx context.Context, pagination *models.Pagination) ([]*models.Asn, error)
-	OpdList(ctx context.Context, pagination *models.Pagination) ([]*models.Opd, error)
-	OrgList(ctx context.Context, pagination *models.Pagination) ([]*models.Org, error)
+	AsnList(ctx context.Context) ([]*models.Asn, error)
+	OpdList(ctx context.Context, pagination models.Pagination) ([]*models.Opd, error)
+	OrgList(ctx context.Context, pagination models.Pagination) ([]*models.Org, error)
+	TrxCatList(ctx context.Context) ([]*models.TrxCat, error)
+	TrxTypeList(ctx context.Context) ([]*models.TrxType, error)
+}
+type TrxResolver interface {
+	Category(ctx context.Context, obj *models.Trx) (*models.TrxCat, error)
+	Type(ctx context.Context, obj *models.Trx) (*models.TrxType, error)
+}
+type TrxHistoryResolver interface {
+	Organizer(ctx context.Context, obj *models.TrxHistory) (*models.Org, error)
+	Location(ctx context.Context, obj *models.TrxHistory) (*models.Org, error)
+	Participants(ctx context.Context, obj *models.TrxHistory) ([]*models.Asn, error)
 }
 
 func field_Mutation_createOpd_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
@@ -151,37 +166,12 @@ func field_Mutation_createOrg_args(rawArgs map[string]interface{}) (map[string]i
 
 }
 
-func field_Query_asnList_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	args := map[string]interface{}{}
-	var arg0 *models.Pagination
-	if tmp, ok := rawArgs["pagination"]; ok {
-		var err error
-		var ptr1 models.Pagination
-		if tmp != nil {
-			ptr1, err = UnmarshalPagination(tmp)
-			arg0 = &ptr1
-		}
-
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["pagination"] = arg0
-	return args, nil
-
-}
-
 func field_Query_opdList_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	args := map[string]interface{}{}
-	var arg0 *models.Pagination
+	var arg0 models.Pagination
 	if tmp, ok := rawArgs["pagination"]; ok {
 		var err error
-		var ptr1 models.Pagination
-		if tmp != nil {
-			ptr1, err = UnmarshalPagination(tmp)
-			arg0 = &ptr1
-		}
-
+		arg0, err = UnmarshalPagination(tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -193,15 +183,10 @@ func field_Query_opdList_args(rawArgs map[string]interface{}) (map[string]interf
 
 func field_Query_orgList_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	args := map[string]interface{}{}
-	var arg0 *models.Pagination
+	var arg0 models.Pagination
 	if tmp, ok := rawArgs["pagination"]; ok {
 		var err error
-		var ptr1 models.Pagination
-		if tmp != nil {
-			ptr1, err = UnmarshalPagination(tmp)
-			arg0 = &ptr1
-		}
-
+		arg0, err = UnmarshalPagination(tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -424,12 +409,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := field_Query_asnList_args(rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.AsnList(childComplexity, args["pagination"].(*models.Pagination)), true
+		return e.complexity.Query.AsnList(childComplexity), true
 
 	case "Query.opdList":
 		if e.complexity.Query.OpdList == nil {
@@ -441,7 +421,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.OpdList(childComplexity, args["pagination"].(*models.Pagination)), true
+		return e.complexity.Query.OpdList(childComplexity, args["pagination"].(models.Pagination)), true
 
 	case "Query.orgList":
 		if e.complexity.Query.OrgList == nil {
@@ -453,7 +433,21 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.OrgList(childComplexity, args["pagination"].(*models.Pagination)), true
+		return e.complexity.Query.OrgList(childComplexity, args["pagination"].(models.Pagination)), true
+
+	case "Query.trxCatList":
+		if e.complexity.Query.TrxCatList == nil {
+			break
+		}
+
+		return e.complexity.Query.TrxCatList(childComplexity), true
+
+	case "Query.trxTypeList":
+		if e.complexity.Query.TrxTypeList == nil {
+			break
+		}
+
+		return e.complexity.Query.TrxTypeList(childComplexity), true
 
 	case "Trx.id":
 		if e.complexity.Trx.Id == nil {
@@ -1313,6 +1307,18 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				out.Values[i] = ec._Query_orgList(ctx, field)
 				wg.Done()
 			}(i, field)
+		case "trxCatList":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Query_trxCatList(ctx, field)
+				wg.Done()
+			}(i, field)
+		case "trxTypeList":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Query_trxTypeList(ctx, field)
+				wg.Done()
+			}(i, field)
 		case "__type":
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
@@ -1332,22 +1338,16 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 func (ec *executionContext) _Query_asnList(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := field_Query_asnList_args(rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
 	rctx := &graphql.ResolverContext{
 		Object: "Query",
-		Args:   args,
+		Args:   nil,
 		Field:  field,
 	}
 	ctx = graphql.WithResolverContext(ctx, rctx)
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AsnList(rctx, args["pagination"].(*models.Pagination))
+		return ec.resolvers.Query().AsnList(rctx)
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -1414,7 +1414,7 @@ func (ec *executionContext) _Query_opdList(ctx context.Context, field graphql.Co
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().OpdList(rctx, args["pagination"].(*models.Pagination))
+		return ec.resolvers.Query().OpdList(rctx, args["pagination"].(models.Pagination))
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -1481,7 +1481,7 @@ func (ec *executionContext) _Query_orgList(ctx context.Context, field graphql.Co
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().OrgList(rctx, args["pagination"].(*models.Pagination))
+		return ec.resolvers.Query().OrgList(rctx, args["pagination"].(models.Pagination))
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -1516,6 +1516,128 @@ func (ec *executionContext) _Query_orgList(ctx context.Context, field graphql.Co
 				}
 
 				return ec._Org(ctx, field.Selections, res[idx1])
+			}()
+		}
+		if isLen1 {
+			f(idx1)
+		} else {
+			go f(idx1)
+		}
+
+	}
+	wg.Wait()
+	return arr1
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Query_trxCatList(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer ec.Tracer.EndFieldExecution(ctx)
+	rctx := &graphql.ResolverContext{
+		Object: "Query",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().TrxCatList(rctx)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*models.TrxCat)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+	var wg sync.WaitGroup
+
+	isLen1 := len(res) == 1
+	if !isLen1 {
+		wg.Add(len(res))
+	}
+
+	for idx1 := range res {
+		idx1 := idx1
+		rctx := &graphql.ResolverContext{
+			Index:  &idx1,
+			Result: res[idx1],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(idx1 int) {
+			if !isLen1 {
+				defer wg.Done()
+			}
+			arr1[idx1] = func() graphql.Marshaler {
+
+				if res[idx1] == nil {
+					return graphql.Null
+				}
+
+				return ec._TrxCat(ctx, field.Selections, res[idx1])
+			}()
+		}
+		if isLen1 {
+			f(idx1)
+		} else {
+			go f(idx1)
+		}
+
+	}
+	wg.Wait()
+	return arr1
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Query_trxTypeList(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer ec.Tracer.EndFieldExecution(ctx)
+	rctx := &graphql.ResolverContext{
+		Object: "Query",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().TrxTypeList(rctx)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*models.TrxType)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+	var wg sync.WaitGroup
+
+	isLen1 := len(res) == 1
+	if !isLen1 {
+		wg.Add(len(res))
+	}
+
+	for idx1 := range res {
+		idx1 := idx1
+		rctx := &graphql.ResolverContext{
+			Index:  &idx1,
+			Result: res[idx1],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(idx1 int) {
+			if !isLen1 {
+				defer wg.Done()
+			}
+			arr1[idx1] = func() graphql.Marshaler {
+
+				if res[idx1] == nil {
+					return graphql.Null
+				}
+
+				return ec._TrxType(ctx, field.Selections, res[idx1])
 			}()
 		}
 		if isLen1 {
@@ -1596,9 +1718,10 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 var trxImplementors = []string{"Trx"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _Trx(ctx context.Context, sel ast.SelectionSet, obj *Trx) graphql.Marshaler {
+func (ec *executionContext) _Trx(ctx context.Context, sel ast.SelectionSet, obj *models.Trx) graphql.Marshaler {
 	fields := graphql.CollectFields(ctx, sel, trxImplementors)
 
+	var wg sync.WaitGroup
 	out := graphql.NewOrderedMap(len(fields))
 	invalid := false
 	for i, field := range fields {
@@ -1614,14 +1737,22 @@ func (ec *executionContext) _Trx(ctx context.Context, sel ast.SelectionSet, obj 
 		case "description":
 			out.Values[i] = ec._Trx_description(ctx, field, obj)
 		case "category":
-			out.Values[i] = ec._Trx_category(ctx, field, obj)
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Trx_category(ctx, field, obj)
+				wg.Done()
+			}(i, field)
 		case "type":
-			out.Values[i] = ec._Trx_type(ctx, field, obj)
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Trx_type(ctx, field, obj)
+				wg.Done()
+			}(i, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-
+	wg.Wait()
 	if invalid {
 		return graphql.Null
 	}
@@ -1629,7 +1760,7 @@ func (ec *executionContext) _Trx(ctx context.Context, sel ast.SelectionSet, obj 
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Trx_id(ctx context.Context, field graphql.CollectedField, obj *Trx) graphql.Marshaler {
+func (ec *executionContext) _Trx_id(ctx context.Context, field graphql.CollectedField, obj *models.Trx) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -1657,7 +1788,7 @@ func (ec *executionContext) _Trx_id(ctx context.Context, field graphql.Collected
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Trx_name(ctx context.Context, field graphql.CollectedField, obj *Trx) graphql.Marshaler {
+func (ec *executionContext) _Trx_name(ctx context.Context, field graphql.CollectedField, obj *models.Trx) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -1685,7 +1816,7 @@ func (ec *executionContext) _Trx_name(ctx context.Context, field graphql.Collect
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Trx_description(ctx context.Context, field graphql.CollectedField, obj *Trx) graphql.Marshaler {
+func (ec *executionContext) _Trx_description(ctx context.Context, field graphql.CollectedField, obj *models.Trx) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -1713,7 +1844,7 @@ func (ec *executionContext) _Trx_description(ctx context.Context, field graphql.
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Trx_category(ctx context.Context, field graphql.CollectedField, obj *Trx) graphql.Marshaler {
+func (ec *executionContext) _Trx_category(ctx context.Context, field graphql.CollectedField, obj *models.Trx) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -1725,12 +1856,12 @@ func (ec *executionContext) _Trx_category(ctx context.Context, field graphql.Col
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Category, nil
+		return ec.resolvers.Trx().Category(rctx, obj)
 	})
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*TrxCat)
+	res := resTmp.(*models.TrxCat)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1742,7 +1873,7 @@ func (ec *executionContext) _Trx_category(ctx context.Context, field graphql.Col
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Trx_type(ctx context.Context, field graphql.CollectedField, obj *Trx) graphql.Marshaler {
+func (ec *executionContext) _Trx_type(ctx context.Context, field graphql.CollectedField, obj *models.Trx) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -1754,12 +1885,12 @@ func (ec *executionContext) _Trx_type(ctx context.Context, field graphql.Collect
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Type, nil
+		return ec.resolvers.Trx().Type(rctx, obj)
 	})
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*TrxType)
+	res := resTmp.(*models.TrxType)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
@@ -1773,7 +1904,7 @@ func (ec *executionContext) _Trx_type(ctx context.Context, field graphql.Collect
 var trxCatImplementors = []string{"TrxCat"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _TrxCat(ctx context.Context, sel ast.SelectionSet, obj *TrxCat) graphql.Marshaler {
+func (ec *executionContext) _TrxCat(ctx context.Context, sel ast.SelectionSet, obj *models.TrxCat) graphql.Marshaler {
 	fields := graphql.CollectFields(ctx, sel, trxCatImplementors)
 
 	out := graphql.NewOrderedMap(len(fields))
@@ -1802,7 +1933,7 @@ func (ec *executionContext) _TrxCat(ctx context.Context, sel ast.SelectionSet, o
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _TrxCat_id(ctx context.Context, field graphql.CollectedField, obj *TrxCat) graphql.Marshaler {
+func (ec *executionContext) _TrxCat_id(ctx context.Context, field graphql.CollectedField, obj *models.TrxCat) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -1830,7 +1961,7 @@ func (ec *executionContext) _TrxCat_id(ctx context.Context, field graphql.Collec
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _TrxCat_name(ctx context.Context, field graphql.CollectedField, obj *TrxCat) graphql.Marshaler {
+func (ec *executionContext) _TrxCat_name(ctx context.Context, field graphql.CollectedField, obj *models.TrxCat) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -1858,7 +1989,7 @@ func (ec *executionContext) _TrxCat_name(ctx context.Context, field graphql.Coll
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _TrxCat_description(ctx context.Context, field graphql.CollectedField, obj *TrxCat) graphql.Marshaler {
+func (ec *executionContext) _TrxCat_description(ctx context.Context, field graphql.CollectedField, obj *models.TrxCat) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -1888,9 +2019,10 @@ func (ec *executionContext) _TrxCat_description(ctx context.Context, field graph
 var trxHistoryImplementors = []string{"TrxHistory"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _TrxHistory(ctx context.Context, sel ast.SelectionSet, obj *TrxHistory) graphql.Marshaler {
+func (ec *executionContext) _TrxHistory(ctx context.Context, sel ast.SelectionSet, obj *models.TrxHistory) graphql.Marshaler {
 	fields := graphql.CollectFields(ctx, sel, trxHistoryImplementors)
 
+	var wg sync.WaitGroup
 	out := graphql.NewOrderedMap(len(fields))
 	invalid := false
 	for i, field := range fields {
@@ -1906,16 +2038,28 @@ func (ec *executionContext) _TrxHistory(ctx context.Context, sel ast.SelectionSe
 		case "finish":
 			out.Values[i] = ec._TrxHistory_finish(ctx, field, obj)
 		case "organizer":
-			out.Values[i] = ec._TrxHistory_organizer(ctx, field, obj)
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._TrxHistory_organizer(ctx, field, obj)
+				wg.Done()
+			}(i, field)
 		case "location":
-			out.Values[i] = ec._TrxHistory_location(ctx, field, obj)
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._TrxHistory_location(ctx, field, obj)
+				wg.Done()
+			}(i, field)
 		case "participants":
-			out.Values[i] = ec._TrxHistory_participants(ctx, field, obj)
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._TrxHistory_participants(ctx, field, obj)
+				wg.Done()
+			}(i, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
 	}
-
+	wg.Wait()
 	if invalid {
 		return graphql.Null
 	}
@@ -1923,7 +2067,7 @@ func (ec *executionContext) _TrxHistory(ctx context.Context, sel ast.SelectionSe
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _TrxHistory_trxId(ctx context.Context, field graphql.CollectedField, obj *TrxHistory) graphql.Marshaler {
+func (ec *executionContext) _TrxHistory_trxId(ctx context.Context, field graphql.CollectedField, obj *models.TrxHistory) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -1951,7 +2095,7 @@ func (ec *executionContext) _TrxHistory_trxId(ctx context.Context, field graphql
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _TrxHistory_start(ctx context.Context, field graphql.CollectedField, obj *TrxHistory) graphql.Marshaler {
+func (ec *executionContext) _TrxHistory_start(ctx context.Context, field graphql.CollectedField, obj *models.TrxHistory) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -1979,7 +2123,7 @@ func (ec *executionContext) _TrxHistory_start(ctx context.Context, field graphql
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _TrxHistory_finish(ctx context.Context, field graphql.CollectedField, obj *TrxHistory) graphql.Marshaler {
+func (ec *executionContext) _TrxHistory_finish(ctx context.Context, field graphql.CollectedField, obj *models.TrxHistory) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -2007,7 +2151,7 @@ func (ec *executionContext) _TrxHistory_finish(ctx context.Context, field graphq
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _TrxHistory_organizer(ctx context.Context, field graphql.CollectedField, obj *TrxHistory) graphql.Marshaler {
+func (ec *executionContext) _TrxHistory_organizer(ctx context.Context, field graphql.CollectedField, obj *models.TrxHistory) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -2019,7 +2163,7 @@ func (ec *executionContext) _TrxHistory_organizer(ctx context.Context, field gra
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Organizer, nil
+		return ec.resolvers.TrxHistory().Organizer(rctx, obj)
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -2036,7 +2180,7 @@ func (ec *executionContext) _TrxHistory_organizer(ctx context.Context, field gra
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _TrxHistory_location(ctx context.Context, field graphql.CollectedField, obj *TrxHistory) graphql.Marshaler {
+func (ec *executionContext) _TrxHistory_location(ctx context.Context, field graphql.CollectedField, obj *models.TrxHistory) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -2048,7 +2192,7 @@ func (ec *executionContext) _TrxHistory_location(ctx context.Context, field grap
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Location, nil
+		return ec.resolvers.TrxHistory().Location(rctx, obj)
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -2065,7 +2209,7 @@ func (ec *executionContext) _TrxHistory_location(ctx context.Context, field grap
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _TrxHistory_participants(ctx context.Context, field graphql.CollectedField, obj *TrxHistory) graphql.Marshaler {
+func (ec *executionContext) _TrxHistory_participants(ctx context.Context, field graphql.CollectedField, obj *models.TrxHistory) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -2077,7 +2221,7 @@ func (ec *executionContext) _TrxHistory_participants(ctx context.Context, field 
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Participants, nil
+		return ec.resolvers.TrxHistory().Participants(rctx, obj)
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -2128,7 +2272,7 @@ func (ec *executionContext) _TrxHistory_participants(ctx context.Context, field 
 var trxTypeImplementors = []string{"TrxType"}
 
 // nolint: gocyclo, errcheck, gas, goconst
-func (ec *executionContext) _TrxType(ctx context.Context, sel ast.SelectionSet, obj *TrxType) graphql.Marshaler {
+func (ec *executionContext) _TrxType(ctx context.Context, sel ast.SelectionSet, obj *models.TrxType) graphql.Marshaler {
 	fields := graphql.CollectFields(ctx, sel, trxTypeImplementors)
 
 	out := graphql.NewOrderedMap(len(fields))
@@ -2157,7 +2301,7 @@ func (ec *executionContext) _TrxType(ctx context.Context, sel ast.SelectionSet, 
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _TrxType_id(ctx context.Context, field graphql.CollectedField, obj *TrxType) graphql.Marshaler {
+func (ec *executionContext) _TrxType_id(ctx context.Context, field graphql.CollectedField, obj *models.TrxType) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -2185,7 +2329,7 @@ func (ec *executionContext) _TrxType_id(ctx context.Context, field graphql.Colle
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _TrxType_name(ctx context.Context, field graphql.CollectedField, obj *TrxType) graphql.Marshaler {
+func (ec *executionContext) _TrxType_name(ctx context.Context, field graphql.CollectedField, obj *models.TrxType) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -2213,7 +2357,7 @@ func (ec *executionContext) _TrxType_name(ctx context.Context, field graphql.Col
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _TrxType_description(ctx context.Context, field graphql.CollectedField, obj *TrxType) graphql.Marshaler {
+func (ec *executionContext) _TrxType_description(ctx context.Context, field graphql.CollectedField, obj *models.TrxType) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rctx := &graphql.ResolverContext{
@@ -3849,25 +3993,15 @@ func UnmarshalPagination(v interface{}) (models.Pagination, error) {
 
 	for k, v := range asMap {
 		switch k {
-		case "offset":
-			var err error
-			var ptr1 int
-			if v != nil {
-				ptr1, err = graphql.UnmarshalInt(v)
-				it.Offset = &ptr1
-			}
-
-			if err != nil {
-				return it, err
-			}
 		case "limit":
 			var err error
-			var ptr1 int
-			if v != nil {
-				ptr1, err = graphql.UnmarshalInt(v)
-				it.Limit = &ptr1
+			it.Limit, err = graphql.UnmarshalInt(v)
+			if err != nil {
+				return it, err
 			}
-
+		case "offset":
+			var err error
+			it.Offset, err = graphql.UnmarshalInt(v)
 			if err != nil {
 				return it, err
 			}
@@ -3877,8 +4011,8 @@ func UnmarshalPagination(v interface{}) (models.Pagination, error) {
 	return it, nil
 }
 
-func UnmarshalTrxInput(v interface{}) (TrxInput, error) {
-	var it TrxInput
+func UnmarshalTrxInput(v interface{}) (models.TrxInput, error) {
+	var it models.TrxInput
 	var asMap = v.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3906,8 +4040,8 @@ func UnmarshalTrxInput(v interface{}) (TrxInput, error) {
 	return it, nil
 }
 
-func UnmarshalTrxTypeInput(v interface{}) (TrxTypeInput, error) {
-	var it TrxTypeInput
+func UnmarshalTrxTypeInput(v interface{}) (models.TrxTypeInput, error) {
+	var it models.TrxTypeInput
 	var asMap = v.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3935,8 +4069,8 @@ func UnmarshalTrxTypeInput(v interface{}) (TrxTypeInput, error) {
 	return it, nil
 }
 
-func UnmarshaltrxCatInput(v interface{}) (TrxCatInput, error) {
-	var it TrxCatInput
+func UnmarshaltrxCatInput(v interface{}) (models.TrxCatInput, error) {
+	var it models.TrxCatInput
 	var asMap = v.(map[string]interface{})
 
 	for k, v := range asMap {
@@ -3993,8 +4127,8 @@ var parsedSchema = gqlparser.MustLoadSchema(
 #https://gqlgen.com/getting-started
 
 input Pagination {
-	offset: Int
-	limit: Int
+	limit: Int!
+	offset: Int!
 }
 
 type TrxCat {
@@ -4094,9 +4228,11 @@ input OpdInput {
 
 # Query
 type Query {
-  asnList(pagination: Pagination): [Asn]
-  opdList(pagination: Pagination): [Opd]
-  orgList(pagination: Pagination): [Org]
+  asnList(): [Asn]
+  opdList(pagination: Pagination!): [Opd]
+  orgList(pagination: Pagination!): [Org]
+  trxCatList(): [TrxCat]
+  trxTypeList(): [TrxType]
 }
 
 

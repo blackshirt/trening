@@ -10,6 +10,7 @@ import (
 	"github.com/blackshirt/trening/core/asn"
 	"github.com/blackshirt/trening/core/opd"
 	"github.com/blackshirt/trening/core/org"
+	"github.com/blackshirt/trening/core/trx"
 	graph "github.com/blackshirt/trening/graph"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -30,10 +31,12 @@ func main() {
 		log.Fatal(err)
 	}
 	defer conn.Close()
-	opdRepo := opd.NewOPDRepo(conn)
+	opdRepo := opd.NewOpdRepo(conn)
 	orgRepo := org.NewOrgRepo(conn)
-	asnRepo := asn.NewASNRepo(conn)
-	gqlService := graph.NewGraphQLService(asnRepo, opdRepo, orgRepo)
+	asnRepo := asn.NewAsnRepo(conn)
+	catRepo := trx.NewTrxCat(conn)
+	typeRepo := trx.NewTrxType(conn)
+	gqlService := graph.NewRepoServices(asnRepo, opdRepo, orgRepo, catRepo, typeRepo)
 
 	http.Handle("/", handler.Playground("GraphQL playground", "/query"))
 	http.Handle("/query", handler.GraphQL(graph.NewExecutableSchema(graph.Config{Resolvers: gqlService})))

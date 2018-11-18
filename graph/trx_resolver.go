@@ -2,55 +2,46 @@ package graph
 
 import (
 	"context"
-	"log"
 
 	"github.com/blackshirt/trening/models"
 )
 
-type queryResolver struct {
+type trxResolver struct {
 	service *RepoServices
 }
 
-func (s *RepoServices) Query() QueryResolver {
-	return &queryResolver{
-		service: s,
+func (gs *RepoServices) Trx() TrxResolver {
+	return &trxResolver{
+		service: gs,
 	}
 }
 
-func (q *queryResolver) AsnList(ctx context.Context) ([]*models.Asn, error) {
-	res, err := q.service.asnRepo.AsnList(ctx)
+func (tr *trxResolver) Category(ctx context.Context, obj *models.Trx) (*models.TrxCat, error) {
+	trxCat, err := tr.service.trxCatRepo.CatById(ctx, *obj.Category.ID)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	return res, nil
+	return trxCat, nil
 }
 
-func (q *queryResolver) OpdList(ctx context.Context, pagination models.Pagination) ([]*models.Opd, error) {
-	res, err := q.service.opdRepo.OpdList(ctx, pagination.Limit, pagination.Offset)
+func (tr *trxResolver) Type(ctx context.Context, obj *models.Trx) (*models.TrxType, error) {
+	trxType, err := tr.service.trxTypeRepo.TypeById(ctx, *obj.Type.ID)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	return res, nil
-
+	return trxType, nil
 }
 
-func (q *queryResolver) OrgList(ctx context.Context, pagination models.Pagination) ([]*models.Org, error) {
-	res, err := q.service.orgRepo.OrgList(ctx, pagination.Limit, pagination.Offset)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return res, nil
-}
-
-func (q *queryResolver) TrxCatList(ctx context.Context) ([]*models.TrxCat, error) {
-	rows, err := q.service.trxCatRepo.CatList(ctx)
+func (tr *trxResolver) TrxCatList(ctx context.Context) ([]*models.TrxCat, error) {
+	rows, err := tr.service.trxCatRepo.CatList(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return rows, nil
 }
-func (q *queryResolver) TrxTypeList(ctx context.Context) ([]*models.TrxType, error) {
-	rows, err := q.service.trxTypeRepo.TypeList(ctx)
+
+func (tr *trxResolver) TrxTypeList(ctx context.Context) ([]*models.TrxType, error) {
+	rows, err := tr.service.trxTypeRepo.TypeList(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +64,7 @@ type MutationResolver interface {
 	CreateOrg(ctx context.Context, input models.OrgInput) (*models.Org, error)
 }
 type QueryResolver interface {
-	AsnList(ctx context.Context) ([]*models.Asn, error)
+	AsnList(ctx context.Context, pagination *models.Pagination) ([]*models.Asn, error)
 	OpdList(ctx context.Context, pagination *models.Pagination) ([]*models.Opd, error)
 	OrgList(ctx context.Context, pagination *models.Pagination) ([]*models.Org, error)
 	TrxCatList(ctx context.Context) ([]*models.TrxCat, error)

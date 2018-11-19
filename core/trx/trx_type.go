@@ -8,23 +8,10 @@ import (
 	"github.com/blackshirt/trening/models"
 )
 
-type TypeRepo interface {
-	TypeById(ctx context.Context, id int) (*models.TrxType, error)
-	TypeByName(ctx context.Context, name string) (*models.TrxType, error)
-	TypeList(ctx context.Context) ([]*models.TrxType, error)
-	TypeCreate(ctx context.Context, input *models.TrxTypeInput) (*models.TrxType, error)
-}
 
-type typeRepo struct {
-	db *sql.DB
-}
-
-func NewTrxType(db *sql.DB) TypeRepo {
-	return &typeRepo{db: db}
-}
 
 // utility function to get single row
-func (t *typeRepo) onetrxType(ctx context.Context, query string, args ...interface{}) (*models.TrxType, error) {
+func (t *trxRepo) get(ctx context.Context, query string, args ...interface{}) (*models.TrxType, error) {
 
 	stmt, err := t.db.PrepareContext(ctx, query)
 	if err != nil {
@@ -48,19 +35,19 @@ func (t *typeRepo) onetrxType(ctx context.Context, query string, args ...interfa
 }
 
 // get type by id
-func (t *typeRepo) TypeById(ctx context.Context, id int) (*models.TrxType, error) {
+func (t *trxRepo) TypeById(ctx context.Context, id int) (*models.TrxType, error) {
 	query := `SELECT * FROM trainix_type WHERE id=?`
-	return t.onetrxType(ctx, query, id)
+	return t.get(ctx, query, id)
 }
 
 // get type by name
-func (t *typeRepo) TypeByName(ctx context.Context, name string) (*models.TrxType, error) {
+func (t *trxRepo) TypeByName(ctx context.Context, name string) (*models.TrxType, error) {
 	query := `SELECT * FROM trainix_type WHERE name=?`
-	return t.onetrxType(ctx, query, name)
+	return t.get(ctx, query, name)
 }
 
 // utility function to check existence of the type
-func (t *typeRepo) exists(ctx context.Context, name string) bool {
+func (t *trxRepo) exists(ctx context.Context, name string) bool {
 	query := `SELECT name FROM trainix_type WHERE name=?`
 	var typename string
 	err := t.db.QueryRowContext(ctx, query, name).Scan(&typename)
@@ -77,7 +64,7 @@ func (t *typeRepo) exists(ctx context.Context, name string) bool {
 }
 
 // type create
-func (t *typeRepo) TypeCreate(ctx context.Context, input *models.TrxTypeInput) (*models.TrxType, error) {
+func (t *trxRepo) TypeCreate(ctx context.Context, input *models.TrxTypeInput) (*models.TrxType, error) {
 	if exists := t.exists(ctx, input.Name); !exists {
 		_, err := t.db.ExecContext(ctx, "INSERT INTO trainix_type(name, description) VALUES(?,?)", input.Name, input.Description)
 		if err != nil {
@@ -92,7 +79,7 @@ func (t *typeRepo) TypeCreate(ctx context.Context, input *models.TrxTypeInput) (
 }
 
 // list all category
-func (t *typeRepo) TypeList(ctx context.Context) ([]*models.TrxType, error) {
+func (t *trxRepo) TypeList(ctx context.Context) ([]*models.TrxType, error) {
 	query := "SELECT * FROM trainix_type"
 	rows, err := t.db.QueryContext(ctx, query)
 
@@ -116,6 +103,5 @@ func (t *typeRepo) TypeList(ctx context.Context) ([]*models.TrxType, error) {
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
-
-	return trxTypes, nil
 }
+	return trxTyp}

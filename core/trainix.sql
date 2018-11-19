@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS `trainix_master` (
 	`name` VARCHAR(150) NOT NULL,
 	`description` VARCHAR(250) NOT NULL,
  	`category` SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-  	`type` SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  `type` SMALLINT UNSIGNED NOT NULL DEFAULT 0,
   
   	PRIMARY KEY (`id`),
   	KEY (`name`),
@@ -115,27 +115,27 @@ INSERT IGNORE INTO `trainix_master`(name, description, category, type) VALUES
 ("Pelatihan Teknis Verifikator Keuangan", "Pelatihan teknis bagi para Verifikator Keuangan", 1, 2),
 ("Pelatihan Fungsional Distric Food Inspector", "Pelatihan fungsional Distric Food Inspector bagi Pengawas Pangan Daerah", 2, 3);
 
-CREATE TABLE IF NOT EXISTS `trainix_history` (
+CREATE TABLE IF NOT EXISTS `trainix_detail` (
   	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   	`trx_id` MEDIUMINT UNSIGNED NOT NULL,
   	`start` DATE NOT NULL DEFAULT CURDATE(),
-	`finish` DATE NOT NULL DEFAULT CURDATE(),
-	
- 	PRIMARY KEY (`id`),
-  	FOREIGN KEY (`trx_id`) REFERENCES `trainix_master`(`id`)
+	 `finish` DATE NOT NULL DEFAULT CURDATE(),
+	 `location` MEDIUMINT UNSIGNED NOT NULL,
+  	`organizer` MEDIUMINT UNSIGNED NOT NULL,
+
+ 	 PRIMARY KEY (`id`),
+  	FOREIGN KEY (`trx_id`) REFERENCES `trainix_master`(`id`),
+  	FOREIGN KEY (`location`) REFERENCES `org`(`id`),
+	 FOREIGN KEY (`organizer`) REFERENCES `org`(`id`)
 ) ENGINE = INNODB;
 
 
 CREATE TABLE IF NOT EXISTS `trainix_asn` (
   	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   	`trx_id` INT UNSIGNED NOT NULL,
-  	`asn` MEDIUMINT UNSIGNED NOT NULL,
-  	`location` MEDIUMINT UNSIGNED NOT NULL,
-  	`organizer` MEDIUMINT UNSIGNED NOT NULL,
-
+  	`asn_id` MEDIUMINT UNSIGNED NOT NULL,
+  	
 	PRIMARY KEY (`id`),
-	FOREIGN KEY (`trx_id`) REFERENCES `trainix_history`(`id`),
-	FOREIGN KEY (`asn`) REFERENCES `asn`(`id`),
-	FOREIGN KEY (`location`) REFERENCES `org`(`id`),
-	FOREIGN KEY (`organizer`) REFERENCES `org`(`id`)
+	FOREIGN KEY (`trx_id`) REFERENCES `trainix_detail`(`id`),
+	FOREIGN KEY (`asn_id`) REFERENCES `asn`(`id`)
 ) ENGINE = INNODB;

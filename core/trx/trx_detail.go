@@ -7,15 +7,10 @@ import (
 	"github.com/blackshirt/trening/models"
 )
 
-type TrxHistoryRepo interface {
-}
 
-type trxHistory struct {
-	db *sql.DB
-}
 
-func (th *trxHistory) HistoryById(ctx context.Context, id int) (*models.TrxHistory, error) {
-	query := `SELECT * FROM trainix_history WHERE id=?`
+func (t *trxRepo) HistoryById(ctx context.Context, id int) (*models.TrxHistory, error) {
+	query := `SELECT * FROM trainix_detail WHERE id=?`
 	row := th.db.QueryRowContext(ctx, query, id)
 
 	trx := new(models.TrxHistory)

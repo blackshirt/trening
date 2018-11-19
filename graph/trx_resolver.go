@@ -90,7 +90,7 @@ type MutationResolver interface {
 	CreateOrg(ctx context.Context, input models.OrgInput) (*models.Org, error)
 }
 type QueryResolver interface {
-	AsnList(ctx context.Context, pagination *models.Pagination) ([]*models.Asn, error)
+	AsnList(ctx context.Context) ([]*models.Asn, error)
 	OpdList(ctx context.Context, pagination *models.Pagination) ([]*models.Opd, error)
 	OrgList(ctx context.Context, pagination *models.Pagination) ([]*models.Org, error)
 	TrxCatList(ctx context.Context) ([]*models.TrxCat, error)

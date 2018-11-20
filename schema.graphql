@@ -23,7 +23,8 @@ type TrxType {
 	name: String
 	description: String
 }
- input TrxTypeInput {
+
+input TrxTypeInput {
 	name: String!
 	description: String
 }
@@ -36,7 +37,7 @@ type Trx {
 	type: TrxType
 }
 
-type TrxHistory {
+type TrxDetail {
 	id: Int
 	trx: Trx
 	start: String
@@ -106,16 +107,18 @@ input OpdInput {
 # Query
 type Query {
   asnList(): [Asn]
-  opdList(pagination: Pagination): [Opd]
-  orgList(pagination: Pagination): [Org]
-  trxCatList(): [TrxCat]
-  trxTypeList(): [TrxType]
+  opdList(): [Opd]
+  orgList(): [Org]
+  trxList(): [TrxDetail]
+  #trxCatList(): [TrxCat]
+  #trxTypeList(): [TrxType]
+  #participants(t: TrxDetail): [Asn]
 }
 
 
 type Mutation {
 	createOpd(input: OpdInput!): Opd
-	createOrg(input: OrgInput!): Org
+	#createOrg(input: OrgInput!): Org
 }
 
 

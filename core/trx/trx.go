@@ -9,10 +9,12 @@ import (
 )
 
 type TrxRepo interface {
-	TrxById(ctx context.Context, id int) (*models.Trx, error)
-	TrxByName(ctx context.Context, name string) (*models.Trx, error)
-	TrxList(ctx context.Context, limit, offset int) ([]*models.Trx, error)
-	TrxCreate(ctx context.Context, input models.TrxInput) (*models.Trx, error)
+	Organizer(ctx context.Context, obj *models.TrxDetail) (*models.Org, error)
+	Location(ctx context.Context, obj *models.TrxDetail) (*models.Org, error)
+	Participants(ctx context.Context, obj *models.TrxDetail) ([]*models.Asn, error)
+	TrxList(ctx context.Context) ([]*models.TrxDetail, error)
+	Category(ctx context.Context, obj *models.Trx) (*models.TrxCat, error)
+	Type(ctx context.Context, obj *models.Trx) (*models.TrxType, error)
 }
 
 type trxRepo struct {
@@ -23,102 +25,156 @@ func NewTrxRepo(conn *sql.DB) TrxRepo {
 	return &trxRepo{db: conn}
 }
 
-func (t *trxRepo) getOne(ctx context.Context, query string, args ...interface{}) (*models.Trx, error) {
+func (t *trxRepo) Type(ctx context.Context, obj *models.Trx) (*models.TrxType, error) {
+	query := "SELECT * FROM trx_type WHERE id=?"
 	stmt, err := t.db.PrepareContext(ctx, query)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
 	}
-	row := stmt.QueryRowContext(ctx, args...)
+	row := stmt.QueryRowContext(ctx, obj.Type.ID)
 	defer stmt.Close()
 
-	trx := new(models.Trx)
+	trxType := new(models.TrxType)
 	if err := row.Scan(
-		&trx.ID,
-		&trx.Name,
-		&trx.Description,
-		&trx.Category,
-		&trx.Type,
+		&trxType.ID,
+		&trxType.Name,
+		&trxType.Description,
 	); err != nil {
 		log.Fatal(err)
+		return nil, err
 	}
 
-	return trx, nil
+	return trxType, nil
 }
-
-func (t *trxRepo) TrxById(ctx context.Context, id int) (*models.Trx, error) {
-	query := `SELECT * FROM trx_master WHERE id=?`
-	return t.getOne(ctx, query, id)
-}
-
-func (t *trxRepo) TrxByName(ctx context.Context, name string) (*models.Trx, error) {
-	query := `SELECT * FROM trx_master WHERE name=?`
-	return t.getOne(ctx, query, name)
-}
-
-func (t *trxRepo) exists(ctx context.Context, name string) bool {
-	query := `SELECT name FROM trx_master WHERE name=?`
-	var trxname string
-	err := t.db.QueryRowContext(ctx, query, name).Scan(&trxname)
-	switch {
-	case err == sql.ErrNoRows:
-		log.Printf("No trx with name: %s", name)
-		return false
-	case err != nil:
-		return false
-	default:
-		log.Printf("There is trx name in db. that is = %s", trxname)
-		return true
+func (t *trxRepo) Category(ctx context.Context, obj *models.Trx) (*models.TrxCat, error) {
+	query := "SELECT * FROM trx_category WHERE id=?"
+	stmt, err := t.db.PrepareContext(ctx, query)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
 	}
+	row := stmt.QueryRowContext(ctx, obj.Category.ID)
+	defer stmt.Close()
+
+	trxCat := new(models.TrxCat)
+	if err := row.Scan(
+		&trxCat.ID,
+		&trxCat.Name,
+		&trxCat.Description,
+	); err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	return trxCat, nil
+}
+func (t *trxRepo) Location(ctx context.Context, obj *models.TrxDetail) (*models.Org, error) {
+	query := "SELECT * FROM org WHERE id=?"
+	stmt, err := t.db.PrepareContext(ctx, query)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	row := stmt.QueryRowContext(ctx, obj.Location.ID)
+	defer stmt.Close()
+
+	trxLoc := new(models.Org)
+	if err := row.Scan(
+		&trxLoc.ID,
+		&trxLoc.Name,
+		&trxLoc.LongName,
+		&trxLoc.RoadNumber,
+		&trxLoc.City,
+		&trxLoc.Province,
+	); err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	return trxLoc, nil
 }
 
-func (t *trxRepo) listTrx(ctx context.Context, query string, args ...interface{}) ([]*models.Trx, error) {
-	rows, err := t.db.QueryContext(ctx, query, args...)
+func (t *trxRepo) Organizer(ctx context.Context, obj *models.TrxDetail) (*models.Org, error) {
+	query := "SELECT * FROM org WHERE id=?"
+	stmt, err := t.db.PrepareContext(ctx, query)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	row := stmt.QueryRowContext(ctx, obj.Organizer.ID)
+	defer stmt.Close()
 
+	trxOrg := new(models.Org)
+	if err := row.Scan(
+		&trxOrg.ID,
+		&trxOrg.Name,
+		&trxOrg.LongName,
+		&trxOrg.RoadNumber,
+		&trxOrg.City,
+		&trxOrg.Province,
+	); err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	return trxOrg, nil
+}
+
+func (t *trxRepo) TrxList(ctx context.Context) ([]*models.TrxDetail, error) {
+	query := `SELECT * FROM trx_detail`
+
+	rows, err := t.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	trxs := make([]*models.Trx, 0)
+	trxLists := make([]*models.TrxDetail, 0)
 	for rows.Next() {
-		trx := new(models.Trx)
+		item := new(models.TrxDetail)
 		if err = rows.Scan(
-			&trx.ID,
-			&trx.Name,
-			&trx.Description,
-			&trx.Category,
-			&trx.Type,
-		); err == nil {
-			trxs = append(trxs, trx)
+			&item.ID,
+			&item.Trx.ID,
+			&item.Start,
+			&item.Finish,
+			&item.Organizer,
+			&item.Location,
+		); err != nil {
+			trxLists = append(trxLists, item)
 		}
 	}
-
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return trxs, nil
+	return trxLists, nil
 }
 
-func (t *trxRepo) TrxList(ctx context.Context, limit, offset int) ([]*models.Trx, error) {
-	query := `SELECT * FROM trx_master LIMIT ? OFFSET ?`
-	return t.listTrx(ctx, query, limit, offset)
-}
+// participants of trx
+func (t *trxRepo) Participants(ctx context.Context, trx *models.TrxDetail) ([]*models.Asn, error) {
+	//
+	query := `SELECT t.asn_id, asn.name, asn.nip, asn.current_job,asn.current_grade, asn.current_places 
+				FROM trx_asn t
+				JOIN asn ON t.asn_id = asn.id
+				JOIN org on asn.current_places = org.id
+				WHERE t.trx_detail_id=?`
 
-func (t *trxRepo) TrxCreate(ctx context.Context, input models.TrxInput) (*models.Trx, error) {
-	exist := t.exists(ctx, input.Name)
-	if !exist {
-		query := `INSERT INTO trx_master(name, description) VALUES(?,?)`
-		_, err := t.db.ExecContext(ctx, query, input.Name, input.Description)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	row, err := t.TrxByName(ctx, input.Name)
+	rows, err := t.db.QueryContext(ctx, query, trx.Trx.ID)
 	if err != nil {
 		return nil, err
 	}
-	return row, nil
+	defer rows.Close()
+
+	asns := make([]*models.Asn, 0)
+	for rows.Next() {
+		asn := new(models.Asn)
+		if err = rows.Scan(
+			&asn.ID,
+			&asn.Name,
+			&asn.Nip,
+			&asn.CurrentJob,
+			&asn.CurrentGrade,
+			&asn.CurrentPlaces,
+		); err != nil {
+			asns = append(asns, asn)
+		}
+	}
+	return asns, nil
 }

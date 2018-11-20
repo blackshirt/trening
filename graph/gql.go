@@ -8,19 +8,17 @@ import (
 )
 
 type RepoServices struct {
-	asnRepo     asn.AsnRepo
-	opdRepo     opd.OpdRepo
-	orgRepo     org.OrgRepo
-	trxCatRepo  trx.CatRepo
-	trxTypeRepo trx.TypeRepo
+	asnRepo asn.AsnRepo
+	opdRepo opd.OpdRepo
+	orgRepo org.OrgRepo
+	trxRepo trx.TrxRepo
 }
 
-func NewRepoServices(asn asn.AsnRepo, opd opd.OpdRepo, org org.OrgRepo, cat trx.CatRepo, tp trx.TypeRepo) *RepoServices {
+func NewRepoServices(asn asn.AsnRepo, opd opd.OpdRepo, org org.OrgRepo, trx trx.TrxRepo) *RepoServices {
 	return &RepoServices{
-		asnRepo:     asn,
-		opdRepo:     opd,
-		orgRepo:     org,
-		trxCatRepo:  cat,
-		trxTypeRepo: tp,
+		asnRepo: asn,
+		opdRepo: opd,
+		orgRepo: org,
+		trxRepo: trx,
 	}
 }

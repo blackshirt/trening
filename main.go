@@ -34,9 +34,9 @@ func main() {
 	opdRepo := opd.NewOpdRepo(conn)
 	orgRepo := org.NewOrgRepo(conn)
 	asnRepo := asn.NewAsnRepo(conn)
-	catRepo := trx.NewTrxCat(conn)
-	typeRepo := trx.NewTrxType(conn)
-	gqlService := graph.NewRepoServices(asnRepo, opdRepo, orgRepo, catRepo, typeRepo)
+	trxRepo := trx.NewTrxRepo(conn)
+
+	gqlService := graph.NewRepoServices(asnRepo, opdRepo, orgRepo, trxRepo)
 
 	http.Handle("/", handler.Playground("GraphQL playground", "/query"))
 	http.Handle("/query", handler.GraphQL(graph.NewExecutableSchema(graph.Config{Resolvers: gqlService})))

@@ -10,7 +10,7 @@ import (
 
 type OrgRepo interface {
 	OrgById(ctx context.Context, id int) (*models.Org, error)
-	OrgList(ctx context.Context, limit, offset int) ([]*models.Org, error)
+	OrgList(ctx context.Context) ([]*models.Org, error)
 	OrgCreate(ctx context.Context, input models.OrgInput) (*models.Org, error)
 }
 
@@ -86,9 +86,9 @@ func (m *orgRepo) listOrg(ctx context.Context, query string, args ...interface{}
 	return orgs, nil
 }
 
-func (m orgRepo) OrgList(ctx context.Context, limit, offset int) ([]*models.Org, error) {
-	query := `SELECT * FROM org LIMIT ? OFFSET ? `
-	return m.listOrg(ctx, query, limit, offset)
+func (m *orgRepo) OrgList(ctx context.Context) ([]*models.Org, error) {
+	query := `SELECT * FROM org`
+	return m.listOrg(ctx, query)
 }
 
 func (m *orgRepo) exists(ctx context.Context, name string) bool {

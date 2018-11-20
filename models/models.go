@@ -35,7 +35,7 @@ type Trx struct {
 	Type        *TrxType `json:"type"`
 }
 
-type TrxHistory struct {
+type TrxDetail struct {
 	ID           *int    `json:"id"`
 	Trx          *Trx    `json:"trx"`
 	Start        *string `json:"start"`

@@ -79,7 +79,7 @@ func (a *asnRepo) listAsn(ctx context.Context, query string, args ...interface{}
 			&asn.Nip,
 			&asn.CurrentJob,
 			&asn.CurrentGrade,
-			&asn.CurrentPlaces,
+			&asn.CurrentPlaces.ID,
 		); err != nil {
 			log.Fatal(err)
 		}

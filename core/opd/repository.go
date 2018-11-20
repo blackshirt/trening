@@ -11,7 +11,7 @@ import (
 type OpdRepo interface {
 	OpdById(ctx context.Context, id int) (*models.Opd, error)
 	OpdByName(ctx context.Context, name string) (*models.Opd, error)
-	OpdList(ctx context.Context, limit, offset int) ([]*models.Opd, error)
+	OpdList(ctx context.Context) ([]*models.Opd, error)
 	OpdCreate(ctx context.Context, input models.OpdInput) (*models.Opd, error)
 }
 
@@ -102,9 +102,9 @@ func (o *opdRepo) listOPD(ctx context.Context, query string, args ...interface{}
 	return opds, nil
 }
 
-func (o *opdRepo) OpdList(ctx context.Context, limit, offset int) ([]*models.Opd, error) {
-	query := `SELECT * FROM opd LIMIT ? OFFSET ?`
-	return o.listOPD(ctx, query, limit, offset)
+func (o *opdRepo) OpdList(ctx context.Context) ([]*models.Opd, error) {
+	query := `SELECT * FROM opd`
+	return o.listOPD(ctx, query)
 }
 
 func (o *opdRepo) OpdCreate(ctx context.Context, input models.OpdInput) (*models.Opd, error) {

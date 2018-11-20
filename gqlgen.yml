@@ -24,8 +24,8 @@ models:
         resolver: true
       type:
         resolver: true
-  TrxHistory:
-    model: github.com/blackshirt/trening/models.TrxHistory
+  TrxDetail:
+    model: github.com/blackshirt/trening/models.TrxDetail
     fields:
       organizer:
         resolver: true

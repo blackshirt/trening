@@ -104,15 +104,16 @@ input OpdInput {
 }
 
 
+
 # Query
 type Query {
   asnList(): [Asn]
   opdList(): [Opd]
   orgList(): [Org]
-  trxList(): [TrxDetail]
+  trxList(): [TrxDetail!]
   #trxCatList(): [TrxCat]
   #trxTypeList(): [TrxType]
-  #participants(t: TrxDetail): [Asn]
+  #peserta(trx_detail: Int): [Asn]
 }
 
 

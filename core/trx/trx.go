@@ -12,9 +12,10 @@ type TrxRepo interface {
 	Organizer(ctx context.Context, obj *models.TrxDetail) (*models.Org, error)
 	Location(ctx context.Context, obj *models.TrxDetail) (*models.Org, error)
 	Participants(ctx context.Context, obj *models.TrxDetail) ([]*models.Asn, error)
-	TrxList(ctx context.Context) ([]*models.TrxDetail, error)
+	TrxList(ctx context.Context) ([]models.TrxDetail, error)
 	Category(ctx context.Context, obj *models.Trx) (*models.TrxCat, error)
 	Type(ctx context.Context, obj *models.Trx) (*models.TrxType, error)
+	//Peserta(ctx context.Context, trx_detail *int) ([]*models.Asn, error)
 }
 
 type trxRepo struct {
@@ -121,29 +122,38 @@ func (t *trxRepo) Organizer(ctx context.Context, obj *models.TrxDetail) (*models
 	return trxOrg, nil
 }
 
-func (t *trxRepo) TrxList(ctx context.Context) ([]*models.TrxDetail, error) {
-	query := `SELECT * FROM trx_detail`
+func (t *trxRepo) TrxList(ctx context.Context) ([]models.TrxDetail, error) {
+	query := `SELECT id, trx_id, start, finish, organizer, location FROM trx_detail`
 
 	rows, err := t.db.QueryContext(ctx, query)
 	if err != nil {
+		log.Fatal("Error from trx_detail")
 		return nil, err
 	}
-	defer rows.Close()
 
-	trxLists := make([]*models.TrxDetail, 0)
+	trxLists := make([]models.TrxDetail, 0)
+	trx := &models.Trx{}
 	for rows.Next() {
-		item := new(models.TrxDetail)
-		if err = rows.Scan(
+		item := models.TrxDetail{}
+		err := rows.Scan(
 			&item.ID,
-			&item.Trx.ID,
+			&trx.ID,
 			&item.Start,
 			&item.Finish,
-			&item.Organizer,
-			&item.Location,
-		); err != nil {
-			trxLists = append(trxLists, item)
+			&item.Organizer.ID,
+			&item.Location.ID,
+		)
+		if err != nil {
+			log.Printf("Error scan:", err)
+			return nil, err
 		}
+		item.Trx = trx
+		asns, _ := t.Peserta(ctx, item.Trx.ID)
+		item.Participants = asns
+		trxLists = append(trxLists, item)
+
 	}
+	defer rows.Close()
 	return trxLists, nil
 }
 
@@ -156,7 +166,37 @@ func (t *trxRepo) Participants(ctx context.Context, trx *models.TrxDetail) ([]*m
 				JOIN org on asn.current_places = org.id
 				WHERE t.trx_detail_id=?`
 
-	rows, err := t.db.QueryContext(ctx, query, trx.Trx.ID)
+	rows, err := t.db.QueryContext(ctx, query, trx.ID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	asns := make([]*models.Asn, 0)
+	for rows.Next() {
+		asn := new(models.Asn)
+		if err = rows.Scan(
+			&asn.ID,
+			&asn.Name,
+			&asn.Nip,
+			&asn.CurrentJob,
+			&asn.CurrentGrade,
+			&asn.CurrentPlaces,
+		); err != nil {
+			asns = append(asns, asn)
+		}
+	}
+	return asns, nil
+}
+
+func (t *trxRepo) Peserta(ctx context.Context, trx_detail *int) ([]*models.Asn, error) {
+	query := `SELECT t.asn_id, asn.name, asn.nip, asn.current_job,asn.current_grade, asn.current_places
+				FROM trx_asn t
+				JOIN asn ON t.asn_id = asn.id
+				JOIN org on asn.current_places = org.id
+				WHERE t.trx_detail_id=?`
+
+	rows, err := t.db.QueryContext(ctx, query, trx_detail)
 	if err != nil {
 		return nil, err
 	}

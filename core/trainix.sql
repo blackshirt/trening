@@ -33,6 +33,8 @@ CREATE TABLE IF NOT EXISTS `org` (
 ) ENGINE = INNODB;
 
 INSERT IGNORE INTO `org`(name,long_name,road_number,city,province) VALUES
+	("Hotel Candisari", "Hotel Candisari & Resto", "Jl. Raya Karanganyar Km. 2", "Kebumen", "Jawa Tengah"),
+	("BKPPD", "Badan Kepegawaian Pendidikan dan Pelatihan Daerah", "Jl. Veteran No. 2", "Kebumen", "Jawa Tengah"),
 	("BPSDMD Jateng", "Badan Pengembangan Sumber Daya Manusia Daerah Provinsi Jawa Tengah", "Jl. Setiabudi No. 201 A Srondol", "Semarang", "Jawa Tengah"),
 	("PPSDM Kemendagri Regional Yogyakarta", "Pusat Pengembangan Sumber Daya Manusia Kemendagri Regional Yogyakarta", "Jl. Melati Kulon No. 1 Baciro", "Yogyakarta", "DI Yogyakarta"),
 	("BKN Kanreg I Yogyakarta", "Badan Kepegawaian Negara Kantor Regional I Yogyakarta", "Jl. Raya Magelang Km 7,5 Sleman", "Yogyakarta", "DI Yogyakarta");
@@ -57,7 +59,8 @@ INSERT IGNORE INTO `asn`(name,nip,current_job,current_grade,current_places) VALU
 ("Suwanto, SIP", "197409261997031001","Kasubid Diklat Teknis Fungsional","Penata Tk. I - III/d",1),
 ("Sekar Satiti, S.STP", "199106112012062001","Analis Diklat","Penata Muda Tk. I - III/b",1),
 ("Mohamad Nasikhun", "196302111986031016","Pengelola Penyelenggaraan Diklat","Penata Muda Tk. I - III/b",1),
-("Fatkhul Muslimin, S.Si", "198005062006041011","Analis Diklat","Penata Muda - III/a",1);
+("Fatkhul Muslimin, S.Si", "198005062006041011","Analis Diklat","Penata Muda - III/a",1),
+("Suparjono", "198312012010011004","Pengelola Keuangan","Pengatur - II/c",1);
 
 
 CREATE TABLE IF NOT EXISTS `trx_category` (
@@ -129,6 +132,10 @@ CREATE TABLE IF NOT EXISTS `trx_detail` (
 	FOREIGN KEY (`organizer`) REFERENCES `org`(`id`)
 ) ENGINE = INNODB;
 
+INSERT IGNORE INTO `trx_detail`(trx_id,start,finish,location,organizer) VALUES
+(1,"2018-05-09","2018-05-14",1,2), 
+(2,"2018-10-12","2018-10-19",1,2),
+(3,"2018-09-28","2018-10-05",1,2);
 
 CREATE TABLE IF NOT EXISTS `trx_asn` (
   	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -139,3 +146,6 @@ CREATE TABLE IF NOT EXISTS `trx_asn` (
 	FOREIGN KEY (`trx_detail_id`) REFERENCES `trx_detail`(`id`),
 	FOREIGN KEY (`asn_id`) REFERENCES `asn`(`id`)
 ) ENGINE = INNODB;
+
+INSERT IGNORE INTO `trx_asn`(trx_detail_id, asn_id) VALUES
+(1,7),(1,6),(2,7),(3,7);

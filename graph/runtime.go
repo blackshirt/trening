@@ -52,7 +52,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateOpd func(childComplexity int, input models.OpdInput) int
+		CreateOrg func(childComplexity int, input models.OrgInput) int
 	}
 
 	Opd struct {
@@ -74,9 +74,6 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AsnList func(childComplexity int) int
-		OpdList func(childComplexity int) int
-		OrgList func(childComplexity int) int
 		TrxList func(childComplexity int) int
 	}
 
@@ -115,30 +112,29 @@ type AsnResolver interface {
 	CurrentPlaces(ctx context.Context, obj *models.Asn) (*models.Opd, error)
 }
 type MutationResolver interface {
-	CreateOpd(ctx context.Context, input models.OpdInput) (*models.Opd, error)
+	CreateOrg(ctx context.Context, input models.OrgInput) (*models.Org, error)
 }
 type QueryResolver interface {
-	AsnList(ctx context.Context) ([]*models.Asn, error)
-	OpdList(ctx context.Context) ([]*models.Opd, error)
-	OrgList(ctx context.Context) ([]*models.Org, error)
-	TrxList(ctx context.Context) ([]models.TrxDetail, error)
+	TrxList(ctx context.Context) ([]*models.TrxDetail, error)
 }
+
 type TrxResolver interface {
 	Category(ctx context.Context, obj *models.Trx) (*models.TrxCat, error)
 	Type(ctx context.Context, obj *models.Trx) (*models.TrxType, error)
 }
 type TrxDetailResolver interface {
+	Trx(ctx context.Context, obj *models.TrxDetail) (*models.Trx, error)
 	Organizer(ctx context.Context, obj *models.TrxDetail) (*models.Org, error)
 	Location(ctx context.Context, obj *models.TrxDetail) (*models.Org, error)
 	Participants(ctx context.Context, obj *models.TrxDetail) ([]*models.Asn, error)
 }
 
-func field_Mutation_createOpd_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func field_Mutation_createOrg_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	args := map[string]interface{}{}
-	var arg0 models.OpdInput
+	var arg0 models.OrgInput
 	if tmp, ok := rawArgs["input"]; ok {
 		var err error
-		arg0, err = UnmarshalOpdInput(tmp)
+		arg0, err = UnmarshalOrgInput(tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -248,17 +244,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Asn.CurrentPlaces(childComplexity), true
 
-	case "Mutation.createOpd":
-		if e.complexity.Mutation.CreateOpd == nil {
+	case "Mutation.createOrg":
+		if e.complexity.Mutation.CreateOrg == nil {
 			break
 		}
 
-		args, err := field_Mutation_createOpd_args(rawArgs)
+		args, err := field_Mutation_createOrg_args(rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateOpd(childComplexity, args["input"].(models.OpdInput)), true
+		return e.complexity.Mutation.CreateOrg(childComplexity, args["input"].(models.OrgInput)), true
 
 	case "Opd.id":
 		if e.complexity.Opd.Id == nil {
@@ -343,27 +339,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Org.Province(childComplexity), true
-
-	case "Query.asnList":
-		if e.complexity.Query.AsnList == nil {
-			break
-		}
-
-		return e.complexity.Query.AsnList(childComplexity), true
-
-	case "Query.opdList":
-		if e.complexity.Query.OpdList == nil {
-			break
-		}
-
-		return e.complexity.Query.OpdList(childComplexity), true
-
-	case "Query.orgList":
-		if e.complexity.Query.OrgList == nil {
-			break
-		}
-
-		return e.complexity.Query.OrgList(childComplexity), true
 
 	case "Query.trxList":
 		if e.complexity.Query.TrxList == nil {
@@ -729,8 +704,8 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "createOpd":
-			out.Values[i] = ec._Mutation_createOpd(ctx, field)
+		case "createOrg":
+			out.Values[i] = ec._Mutation_createOrg(ctx, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -743,9 +718,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Mutation_createOpd(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+func (ec *executionContext) _Mutation_createOrg(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := field_Mutation_createOpd_args(rawArgs)
+	args, err := field_Mutation_createOrg_args(rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -758,19 +733,19 @@ func (ec *executionContext) _Mutation_createOpd(ctx context.Context, field graph
 	ctx = graphql.WithResolverContext(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateOpd(rctx, args["input"].(models.OpdInput))
+		return ec.resolvers.Mutation().CreateOrg(rctx, args["input"].(models.OrgInput))
 	})
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*models.Opd)
+	res := resTmp.(*models.Org)
 	rctx.Result = res
 
 	if res == nil {
 		return graphql.Null
 	}
 
-	return ec._Opd(ctx, field.Selections, res)
+	return ec._Org(ctx, field.Selections, res)
 }
 
 var opdImplementors = []string{"Opd"}
@@ -1106,24 +1081,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "asnList":
-			wg.Add(1)
-			go func(i int, field graphql.CollectedField) {
-				out.Values[i] = ec._Query_asnList(ctx, field)
-				wg.Done()
-			}(i, field)
-		case "opdList":
-			wg.Add(1)
-			go func(i int, field graphql.CollectedField) {
-				out.Values[i] = ec._Query_opdList(ctx, field)
-				wg.Done()
-			}(i, field)
-		case "orgList":
-			wg.Add(1)
-			go func(i int, field graphql.CollectedField) {
-				out.Values[i] = ec._Query_orgList(ctx, field)
-				wg.Done()
-			}(i, field)
 		case "trxList":
 			wg.Add(1)
 			go func(i int, field graphql.CollectedField) {
@@ -1146,177 +1103,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Query_asnList(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
-	rctx := &graphql.ResolverContext{
-		Object: "Query",
-		Args:   nil,
-		Field:  field,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AsnList(rctx)
-	})
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*models.Asn)
-	rctx.Result = res
-
-	arr1 := make(graphql.Array, len(res))
-	var wg sync.WaitGroup
-
-	isLen1 := len(res) == 1
-	if !isLen1 {
-		wg.Add(len(res))
-	}
-
-	for idx1 := range res {
-		idx1 := idx1
-		rctx := &graphql.ResolverContext{
-			Index:  &idx1,
-			Result: res[idx1],
-		}
-		ctx := graphql.WithResolverContext(ctx, rctx)
-		f := func(idx1 int) {
-			if !isLen1 {
-				defer wg.Done()
-			}
-			arr1[idx1] = func() graphql.Marshaler {
-
-				if res[idx1] == nil {
-					return graphql.Null
-				}
-
-				return ec._Asn(ctx, field.Selections, res[idx1])
-			}()
-		}
-		if isLen1 {
-			f(idx1)
-		} else {
-			go f(idx1)
-		}
-
-	}
-	wg.Wait()
-	return arr1
-}
-
-// nolint: vetshadow
-func (ec *executionContext) _Query_opdList(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
-	rctx := &graphql.ResolverContext{
-		Object: "Query",
-		Args:   nil,
-		Field:  field,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().OpdList(rctx)
-	})
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*models.Opd)
-	rctx.Result = res
-
-	arr1 := make(graphql.Array, len(res))
-	var wg sync.WaitGroup
-
-	isLen1 := len(res) == 1
-	if !isLen1 {
-		wg.Add(len(res))
-	}
-
-	for idx1 := range res {
-		idx1 := idx1
-		rctx := &graphql.ResolverContext{
-			Index:  &idx1,
-			Result: res[idx1],
-		}
-		ctx := graphql.WithResolverContext(ctx, rctx)
-		f := func(idx1 int) {
-			if !isLen1 {
-				defer wg.Done()
-			}
-			arr1[idx1] = func() graphql.Marshaler {
-
-				if res[idx1] == nil {
-					return graphql.Null
-				}
-
-				return ec._Opd(ctx, field.Selections, res[idx1])
-			}()
-		}
-		if isLen1 {
-			f(idx1)
-		} else {
-			go f(idx1)
-		}
-
-	}
-	wg.Wait()
-	return arr1
-}
-
-// nolint: vetshadow
-func (ec *executionContext) _Query_orgList(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
-	rctx := &graphql.ResolverContext{
-		Object: "Query",
-		Args:   nil,
-		Field:  field,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().OrgList(rctx)
-	})
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*models.Org)
-	rctx.Result = res
-
-	arr1 := make(graphql.Array, len(res))
-	var wg sync.WaitGroup
-
-	isLen1 := len(res) == 1
-	if !isLen1 {
-		wg.Add(len(res))
-	}
-
-	for idx1 := range res {
-		idx1 := idx1
-		rctx := &graphql.ResolverContext{
-			Index:  &idx1,
-			Result: res[idx1],
-		}
-		ctx := graphql.WithResolverContext(ctx, rctx)
-		f := func(idx1 int) {
-			if !isLen1 {
-				defer wg.Done()
-			}
-			arr1[idx1] = func() graphql.Marshaler {
-
-				if res[idx1] == nil {
-					return graphql.Null
-				}
-
-				return ec._Org(ctx, field.Selections, res[idx1])
-			}()
-		}
-		if isLen1 {
-			f(idx1)
-		} else {
-			go f(idx1)
-		}
-
-	}
-	wg.Wait()
-	return arr1
-}
-
-// nolint: vetshadow
 func (ec *executionContext) _Query_trxList(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
 	rctx := &graphql.ResolverContext{
 		Object: "Query",
@@ -1331,7 +1117,7 @@ func (ec *executionContext) _Query_trxList(ctx context.Context, field graphql.Co
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]models.TrxDetail)
+	res := resTmp.([]*models.TrxDetail)
 	rctx.Result = res
 
 	arr1 := make(graphql.Array, len(res))
@@ -1346,7 +1132,7 @@ func (ec *executionContext) _Query_trxList(ctx context.Context, field graphql.Co
 		idx1 := idx1
 		rctx := &graphql.ResolverContext{
 			Index:  &idx1,
-			Result: &res[idx1],
+			Result: res[idx1],
 		}
 		ctx := graphql.WithResolverContext(ctx, rctx)
 		f := func(idx1 int) {
@@ -1355,7 +1141,11 @@ func (ec *executionContext) _Query_trxList(ctx context.Context, field graphql.Co
 			}
 			arr1[idx1] = func() graphql.Marshaler {
 
-				return ec._TrxDetail(ctx, field.Selections, &res[idx1])
+				if res[idx1] == nil {
+					return graphql.Null
+				}
+
+				return ec._TrxDetail(ctx, field.Selections, res[idx1])
 			}()
 		}
 		if isLen1 {
@@ -1712,7 +1502,11 @@ func (ec *executionContext) _TrxDetail(ctx context.Context, sel ast.SelectionSet
 		case "id":
 			out.Values[i] = ec._TrxDetail_id(ctx, field, obj)
 		case "trx":
-			out.Values[i] = ec._TrxDetail_trx(ctx, field, obj)
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._TrxDetail_trx(ctx, field, obj)
+				wg.Done()
+			}(i, field)
 		case "start":
 			out.Values[i] = ec._TrxDetail_start(ctx, field, obj)
 		case "finish":
@@ -1780,7 +1574,7 @@ func (ec *executionContext) _TrxDetail_trx(ctx context.Context, field graphql.Co
 	ctx = graphql.WithResolverContext(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Trx, nil
+		return ec.resolvers.TrxDetail().Trx(rctx, obj)
 	})
 	if resTmp == nil {
 		return graphql.Null
@@ -3712,6 +3506,7 @@ type TrxDetail {
 	participants: [Asn]
 }
 
+
 input TrxInput {
   	name: String!
   	description: String
@@ -3772,19 +3567,14 @@ input OpdInput {
 
 # Query
 type Query {
-  asnList(): [Asn]
-  opdList(): [Opd]
-  orgList(): [Org]
-  trxList(): [TrxDetail!]
-  #trxCatList(): [TrxCat]
-  #trxTypeList(): [TrxType]
-  #peserta(trx_detail: Int): [Asn]
+  
+  trxList(): [TrxDetail]
+ 
 }
 
 
 type Mutation {
-	createOpd(input: OpdInput!): Opd
-	#createOrg(input: OrgInput!): Org
+	createOrg(input: OrgInput!): Org
 }
 
 

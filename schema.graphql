@@ -47,6 +47,7 @@ type TrxDetail {
 	participants: [Asn]
 }
 
+
 input TrxInput {
   	name: String!
   	description: String
@@ -107,19 +108,14 @@ input OpdInput {
 
 # Query
 type Query {
-  asnList(): [Asn]
-  opdList(): [Opd]
-  orgList(): [Org]
-  trxList(): [TrxDetail!]
-  #trxCatList(): [TrxCat]
-  #trxTypeList(): [TrxType]
-  #peserta(trx_detail: Int): [Asn]
+  
+  trxList(): [TrxDetail]
+ 
 }
 
 
 type Mutation {
-	createOpd(input: OpdInput!): Opd
-	#createOrg(input: OrgInput!): Org
+	createOrg(input: OrgInput!): Org
 }
 
 

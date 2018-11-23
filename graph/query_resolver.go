@@ -45,20 +45,11 @@ func (q *queryResolver) OrgList(ctx context.Context) ([]*models.Org, error) {
 	return res, nil
 }
 
-func (q *queryResolver) TrxList(ctx context.Context) ([]models.TrxDetail, error) {
+func (q *queryResolver) TrxList(ctx context.Context) ([]*models.TrxDetail, error) {
 	rows, err := q.service.trxRepo.TrxList(ctx)
 	if err != nil {
+		log.Fatal("ERRRORR BRO")
 		return nil, err
 	}
 	return rows, nil
 }
-
-/*
-func (q *queryResolver) Peserta(ctx context.Context, trx_detail *int) ([]*models.Asn, error) {
-	rows, err := q.service.trxRepo.Participants(ctx, trx_detail)
-	if err != nil {
-		return nil, err
-	}
-	return rows, nil
-}
-*/

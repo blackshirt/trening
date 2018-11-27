@@ -195,36 +195,34 @@ func (t *trxRepo) Participants(ctx context.Context, trx *models.TrxDetail) ([]*m
 }
 
 func (t *trxRepo) TrxList(ctx context.Context) ([]*models.TrxDetail, error) {
-	query := `SELECT id, trx_id, start, finish, organizer, location FROM trx_detail`
-
+	query := `SELECT * FROM trx_detail`
 	rows, err := t.db.QueryContext(ctx, query)
 	if err != nil {
-		log.Fatal("Error from trx_detail")
+		log.Fatal(err)
 		return nil, err
 	}
+
 	defer rows.Close()
 	trxLists := make([]*models.TrxDetail, 0)
 
 	for rows.Next() {
-		item := new(models.TrxDetail)
+		item := models.TrxDetail{}
 
-		if err = rows.Scan(
-			item.ID,
-			item.Trx,
-			item.Start,
-			item.Finish,
-			item.Organizer,
-			item.Location,
-		); err != nil {
+		err = rows.Scan(
+			&item.ID,
+			item.Trx.ID,
+			&item.Start,
+			&item.Finish,
+			item.Organizer.ID,
+			item.Location.ID,
+		)
+
+		if err != nil {
+			log.Fatal("ERROR SIR", err, item)
 			return nil, err
 		}
-		asns, err := t.Peserta(ctx, item.ID)
-		if err != nil {
-			log.Fatal("ERRRORR BRO sdsds")
-			asns = []*models.Asn{}
-		}
-		item.Participants = asns
-		trxLists = append(trxLists, item)
+
+		trxLists = append(trxLists, &item)
 
 	}
 

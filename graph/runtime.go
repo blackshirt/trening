@@ -74,6 +74,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		AsnList func(childComplexity int) int
 		TrxList func(childComplexity int) int
 	}
 
@@ -92,13 +93,12 @@ type ComplexityRoot struct {
 	}
 
 	TrxDetail struct {
-		Id           func(childComplexity int) int
-		Trx          func(childComplexity int) int
-		Start        func(childComplexity int) int
-		Finish       func(childComplexity int) int
-		Organizer    func(childComplexity int) int
-		Location     func(childComplexity int) int
-		Participants func(childComplexity int) int
+		Id        func(childComplexity int) int
+		Trx       func(childComplexity int) int
+		Start     func(childComplexity int) int
+		Finish    func(childComplexity int) int
+		Organizer func(childComplexity int) int
+		Location  func(childComplexity int) int
 	}
 
 	TrxType struct {
@@ -115,18 +115,18 @@ type MutationResolver interface {
 	CreateOrg(ctx context.Context, input models.OrgInput) (*models.Org, error)
 }
 type QueryResolver interface {
+	AsnList(ctx context.Context) ([]*models.Asn, error)
 	TrxList(ctx context.Context) ([]*models.TrxDetail, error)
 }
-
 type TrxResolver interface {
 	Category(ctx context.Context, obj *models.Trx) (*models.TrxCat, error)
 	Type(ctx context.Context, obj *models.Trx) (*models.TrxType, error)
 }
 type TrxDetailResolver interface {
 	Trx(ctx context.Context, obj *models.TrxDetail) (*models.Trx, error)
+
 	Organizer(ctx context.Context, obj *models.TrxDetail) (*models.Org, error)
 	Location(ctx context.Context, obj *models.TrxDetail) (*models.Org, error)
-	Participants(ctx context.Context, obj *models.TrxDetail) ([]*models.Asn, error)
 }
 
 func field_Mutation_createOrg_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
@@ -340,6 +340,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Org.Province(childComplexity), true
 
+	case "Query.asnList":
+		if e.complexity.Query.AsnList == nil {
+			break
+		}
+
+		return e.complexity.Query.AsnList(childComplexity), true
+
 	case "Query.trxList":
 		if e.complexity.Query.TrxList == nil {
 			break
@@ -444,13 +451,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TrxDetail.Location(childComplexity), true
-
-	case "TrxDetail.participants":
-		if e.complexity.TrxDetail.Participants == nil {
-			break
-		}
-
-		return e.complexity.TrxDetail.Participants(childComplexity), true
 
 	case "TrxType.id":
 		if e.complexity.TrxType.Id == nil {
@@ -576,9 +576,13 @@ func (ec *executionContext) _Asn_id(ctx context.Context, field graphql.Collected
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(*int)
 	rctx.Result = res
-	return graphql.MarshalInt(res)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalInt(*res)
 }
 
 // nolint: vetshadow
@@ -596,9 +600,13 @@ func (ec *executionContext) _Asn_name(ctx context.Context, field graphql.Collect
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	rctx.Result = res
-	return graphql.MarshalString(res)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
 }
 
 // nolint: vetshadow
@@ -616,9 +624,13 @@ func (ec *executionContext) _Asn_nip(ctx context.Context, field graphql.Collecte
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	rctx.Result = res
-	return graphql.MarshalString(res)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
 }
 
 // nolint: vetshadow
@@ -636,9 +648,13 @@ func (ec *executionContext) _Asn_current_job(ctx context.Context, field graphql.
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	rctx.Result = res
-	return graphql.MarshalString(res)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
 }
 
 // nolint: vetshadow
@@ -656,9 +672,13 @@ func (ec *executionContext) _Asn_current_grade(ctx context.Context, field graphq
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	rctx.Result = res
-	return graphql.MarshalString(res)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
 }
 
 // nolint: vetshadow
@@ -800,9 +820,13 @@ func (ec *executionContext) _Opd_id(ctx context.Context, field graphql.Collected
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(*int)
 	rctx.Result = res
-	return graphql.MarshalInt(res)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalInt(*res)
 }
 
 // nolint: vetshadow
@@ -820,9 +844,13 @@ func (ec *executionContext) _Opd_name(ctx context.Context, field graphql.Collect
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	rctx.Result = res
-	return graphql.MarshalString(res)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
 }
 
 // nolint: vetshadow
@@ -840,9 +868,13 @@ func (ec *executionContext) _Opd_long_name(ctx context.Context, field graphql.Co
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	rctx.Result = res
-	return graphql.MarshalString(res)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
 }
 
 // nolint: vetshadow
@@ -860,9 +892,13 @@ func (ec *executionContext) _Opd_road_number(ctx context.Context, field graphql.
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	rctx.Result = res
-	return graphql.MarshalString(res)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
 }
 
 // nolint: vetshadow
@@ -880,9 +916,13 @@ func (ec *executionContext) _Opd_city(ctx context.Context, field graphql.Collect
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	rctx.Result = res
-	return graphql.MarshalString(res)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
 }
 
 // nolint: vetshadow
@@ -900,9 +940,13 @@ func (ec *executionContext) _Opd_province(ctx context.Context, field graphql.Col
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	rctx.Result = res
-	return graphql.MarshalString(res)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
 }
 
 var orgImplementors = []string{"Org"}
@@ -957,9 +1001,13 @@ func (ec *executionContext) _Org_id(ctx context.Context, field graphql.Collected
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(*int)
 	rctx.Result = res
-	return graphql.MarshalInt(res)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalInt(*res)
 }
 
 // nolint: vetshadow
@@ -977,9 +1025,13 @@ func (ec *executionContext) _Org_name(ctx context.Context, field graphql.Collect
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	rctx.Result = res
-	return graphql.MarshalString(res)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
 }
 
 // nolint: vetshadow
@@ -997,9 +1049,13 @@ func (ec *executionContext) _Org_long_name(ctx context.Context, field graphql.Co
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	rctx.Result = res
-	return graphql.MarshalString(res)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
 }
 
 // nolint: vetshadow
@@ -1017,9 +1073,13 @@ func (ec *executionContext) _Org_road_number(ctx context.Context, field graphql.
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	rctx.Result = res
-	return graphql.MarshalString(res)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
 }
 
 // nolint: vetshadow
@@ -1037,9 +1097,13 @@ func (ec *executionContext) _Org_city(ctx context.Context, field graphql.Collect
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	rctx.Result = res
-	return graphql.MarshalString(res)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
 }
 
 // nolint: vetshadow
@@ -1057,9 +1121,13 @@ func (ec *executionContext) _Org_province(ctx context.Context, field graphql.Col
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	rctx.Result = res
-	return graphql.MarshalString(res)
+
+	if res == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalString(*res)
 }
 
 var queryImplementors = []string{"Query"}
@@ -1081,6 +1149,12 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
+		case "asnList":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._Query_asnList(ctx, field)
+				wg.Done()
+			}(i, field)
 		case "trxList":
 			wg.Add(1)
 			go func(i int, field graphql.CollectedField) {
@@ -1100,6 +1174,63 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		return graphql.Null
 	}
 	return out
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _Query_asnList(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+	rctx := &graphql.ResolverContext{
+		Object: "Query",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().AsnList(rctx)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*models.Asn)
+	rctx.Result = res
+
+	arr1 := make(graphql.Array, len(res))
+	var wg sync.WaitGroup
+
+	isLen1 := len(res) == 1
+	if !isLen1 {
+		wg.Add(len(res))
+	}
+
+	for idx1 := range res {
+		idx1 := idx1
+		rctx := &graphql.ResolverContext{
+			Index:  &idx1,
+			Result: res[idx1],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(idx1 int) {
+			if !isLen1 {
+				defer wg.Done()
+			}
+			arr1[idx1] = func() graphql.Marshaler {
+
+				if res[idx1] == nil {
+					return graphql.Null
+				}
+
+				return ec._Asn(ctx, field.Selections, res[idx1])
+			}()
+		}
+		if isLen1 {
+			f(idx1)
+		} else {
+			go f(idx1)
+		}
+
+	}
+	wg.Wait()
+	return arr1
 }
 
 // nolint: vetshadow
@@ -1523,12 +1654,6 @@ func (ec *executionContext) _TrxDetail(ctx context.Context, sel ast.SelectionSet
 				out.Values[i] = ec._TrxDetail_location(ctx, field, obj)
 				wg.Done()
 			}(i, field)
-		case "participants":
-			wg.Add(1)
-			go func(i int, field graphql.CollectedField) {
-				out.Values[i] = ec._TrxDetail_participants(ctx, field, obj)
-				wg.Done()
-			}(i, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1685,63 +1810,6 @@ func (ec *executionContext) _TrxDetail_location(ctx context.Context, field graph
 	}
 
 	return ec._Org(ctx, field.Selections, res)
-}
-
-// nolint: vetshadow
-func (ec *executionContext) _TrxDetail_participants(ctx context.Context, field graphql.CollectedField, obj *models.TrxDetail) graphql.Marshaler {
-	rctx := &graphql.ResolverContext{
-		Object: "TrxDetail",
-		Args:   nil,
-		Field:  field,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.TrxDetail().Participants(rctx, obj)
-	})
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]*models.Asn)
-	rctx.Result = res
-
-	arr1 := make(graphql.Array, len(res))
-	var wg sync.WaitGroup
-
-	isLen1 := len(res) == 1
-	if !isLen1 {
-		wg.Add(len(res))
-	}
-
-	for idx1 := range res {
-		idx1 := idx1
-		rctx := &graphql.ResolverContext{
-			Index:  &idx1,
-			Result: res[idx1],
-		}
-		ctx := graphql.WithResolverContext(ctx, rctx)
-		f := func(idx1 int) {
-			if !isLen1 {
-				defer wg.Done()
-			}
-			arr1[idx1] = func() graphql.Marshaler {
-
-				if res[idx1] == nil {
-					return graphql.Null
-				}
-
-				return ec._Asn(ctx, field.Selections, res[idx1])
-			}()
-		}
-		if isLen1 {
-			f(idx1)
-		} else {
-			go f(idx1)
-		}
-
-	}
-	wg.Wait()
-	return arr1
 }
 
 var trxTypeImplementors = []string{"TrxType"}
@@ -3503,7 +3571,6 @@ type TrxDetail {
 	finish: String
 	organizer: Org
 	location: Org
-	participants: [Asn]
 }
 
 
@@ -3567,7 +3634,7 @@ input OpdInput {
 
 # Query
 type Query {
-  
+  asnList(): [Asn]
   trxList(): [TrxDetail]
  
 }

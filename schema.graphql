@@ -44,7 +44,6 @@ type TrxDetail {
 	finish: String
 	organizer: Org
 	location: Org
-	participants: [Asn]
 }
 
 
@@ -108,7 +107,7 @@ input OpdInput {
 
 # Query
 type Query {
-  
+  asnList(): [Asn]
   trxList(): [TrxDetail]
  
 }

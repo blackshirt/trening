@@ -47,8 +47,11 @@ func (q *queryResolver) OrgList(ctx context.Context) ([]*models.Org, error) {
 
 func (q *queryResolver) TrxList(ctx context.Context) ([]*models.TrxDetail, error) {
 	rows, err := q.service.trxRepo.TrxList(ctx)
+	if rows == nil {
+		log.Fatal("Error rows", rows)
+	}
 	if err != nil {
-		log.Fatal("ERRRORR BRO")
+		log.Fatal("ERRRORR BRO", rows, err)
 		return nil, err
 	}
 	return rows, nil

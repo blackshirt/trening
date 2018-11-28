@@ -13,7 +13,7 @@ type TrxCat {
 	description: String
 }
 
-input trxCatInput {
+input TrxCatInput {
 	name: String!
 	description: String
 }
@@ -39,7 +39,7 @@ type Trx {
 
 type TrxDetail {
 	id: Int
-	trx: Trx
+	trx: Trx!
 	start: String
 	finish: String
 	organizer: Org
@@ -107,8 +107,8 @@ input OpdInput {
 
 # Query
 type Query {
-  asnList(): [Asn]
-  trxList(): [TrxDetail]
+  asnList(): [Asn!]
+  trxList(): [TrxDetail!]
  
 }
 

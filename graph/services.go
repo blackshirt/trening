@@ -31,7 +31,6 @@ type resolver struct {
 	service *RepoServices
 }
 
-
 // RepoServices implement ResolverRoot interface for generated graphql runtime
 func (s *RepoServices) Asn() AsnResolver {
 	return &resolver{
@@ -60,8 +59,6 @@ func (s *RepoServices) Mutation() MutationResolver {
 	return &resolver{service: s}
 }
 
-
-
 // Service implementation call underlying repository backed by sql database
 // Asn resolver
 func (a *resolver) CurrentPlaces(ctx context.Context, obj *models.Asn) (*models.Opd, error) {
@@ -73,7 +70,7 @@ func (a *resolver) CurrentPlaces(ctx context.Context, obj *models.Asn) (*models.
 }
 
 // Trx detail resolver
-func (a *resolver) Trx(ctx context.Context, obj *models.TrxDetail) (*models.Trx, error) {
+func (a *resolver) Trx(ctx context.Context, obj *models.TrxDetail) (models.Trx, error) {
 	row, err := a.service.trxRepo.Trx(ctx, obj)
 	if err != nil {
 		log.Fatal("Error in trx get by id", err, row)
@@ -97,7 +94,6 @@ func (a *resolver) Location(ctx context.Context, obj *models.TrxDetail) (*models
 	return row, nil
 }
 
-
 // Trx resolver
 func (a *resolver) Category(ctx context.Context, obj *models.Trx) (*models.TrxCat, error) {
 	row, err := a.service.trxRepo.Category(ctx, obj)
@@ -115,9 +111,8 @@ func (a *resolver) Type(ctx context.Context, obj *models.Trx) (*models.TrxType, 
 	return row, nil
 }
 
-
 // Query resolver
-func (q *resolver) AsnList(ctx context.Context) ([]*models.Asn, error) {
+func (q *resolver) AsnList(ctx context.Context) ([]models.Asn, error) {
 	res, err := q.service.asnRepo.AsnList(ctx)
 	if err != nil {
 		log.Fatal(err)
@@ -142,7 +137,7 @@ func (q *resolver) OrgList(ctx context.Context) ([]*models.Org, error) {
 	return res, nil
 }
 
-func (q *resolver) TrxList(ctx context.Context) ([]*models.TrxDetail, error) {
+func (q *resolver) TrxList(ctx context.Context) ([]models.TrxDetail, error) {
 	rows, err := q.service.trxRepo.TrxList(ctx)
 	if rows == nil {
 		log.Fatal("Error rows", rows)
@@ -153,7 +148,6 @@ func (q *resolver) TrxList(ctx context.Context) ([]*models.TrxDetail, error) {
 	}
 	return rows, nil
 }
-
 
 // Mutation resolver
 func (m *resolver) CreateOpd(ctx context.Context, input models.OpdInput) (*models.Opd, error) {
@@ -173,7 +167,3 @@ func (m *resolver) CreateOrg(ctx context.Context, input models.OrgInput) (*model
 	}
 	return res, nil
 }
-
-
-
-

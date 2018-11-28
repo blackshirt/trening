@@ -37,6 +37,11 @@ type TrxCat struct {
 	Description *string `json:"description"`
 }
 
+type TrxCatInput struct {
+	Name        string  `json:"name"`
+	Description *string `json:"description"`
+}
+
 type TrxInput struct {
 	Name        string  `json:"name"`
 	Description *string `json:"description"`
@@ -49,11 +54,6 @@ type TrxType struct {
 }
 
 type TrxTypeInput struct {
-	Name        string  `json:"name"`
-	Description *string `json:"description"`
-}
-
-type TrxCatInput struct {
 	Name        string  `json:"name"`
 	Description *string `json:"description"`
 }

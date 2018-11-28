@@ -12,11 +12,11 @@ type TrxRepo interface {
 	Category(ctx context.Context, obj *models.Trx) (*models.TrxCat, error)
 	Type(ctx context.Context, obj *models.Trx) (*models.TrxType, error)
 
-	Trx(ctx context.Context, obj *models.TrxDetail) (*models.Trx, error)
+	Trx(ctx context.Context, obj *models.TrxDetail) (models.Trx, error)
 	Organizer(ctx context.Context, obj *models.TrxDetail) (*models.Org, error)
 	Location(ctx context.Context, obj *models.TrxDetail) (*models.Org, error)
 	Participants(ctx context.Context, obj *models.TrxDetail) ([]*models.Asn, error)
-	TrxList(ctx context.Context) ([]*models.TrxDetail, error)
+	TrxList(ctx context.Context) ([]models.TrxDetail, error)
 }
 
 type trxRepo struct {
@@ -26,11 +26,6 @@ type trxRepo struct {
 func NewTrxRepo(conn *sql.DB) TrxRepo {
 	return &trxRepo{db: conn}
 }
-
-//type TrxResolver interface {
-//	Category(ctx context.Context, obj *models.Trx) (*models.TrxCat, error)
-//	Type(ctx context.Context, obj *models.Trx) (*models.TrxType, error)
-//}
 
 func (t *trxRepo) Category(ctx context.Context, obj *models.Trx) (*models.TrxCat, error) {
 	query := "SELECT * FROM trx_category WHERE id=?"
@@ -78,37 +73,31 @@ func (t *trxRepo) Type(ctx context.Context, obj *models.Trx) (*models.TrxType, e
 	return trxType, nil
 }
 
-// trxdetail
-// type TrxDetailResolver interface {
-//	Trx(ctx context.Context, obj *models.TrxDetail) (*models.Trx, error)
-//	Organizer(ctx context.Context, obj *models.TrxDetail) (*models.Org, error)
-//	Location(ctx context.Context, obj *models.TrxDetail) (*models.Org, error)
-//	Participants(ctx context.Context, obj *models.TrxDetail) ([]*models.Asn, error)
-//}
-
-func (t *trxRepo) Trx(ctx context.Context, obj *models.TrxDetail) (*models.Trx, error) {
+func (t *trxRepo) Trx(ctx context.Context, obj *models.TrxDetail) (models.Trx, error) {
 	query := "SELECT * FROM trx_master WHERE id=?"
 	stmt, err := t.db.PrepareContext(ctx, query)
 	if err != nil {
 		log.Fatal(err)
-		return nil, err
 	}
 	row := stmt.QueryRowContext(ctx, obj.Trx.ID)
 	defer stmt.Close()
 
-	trx := new(models.Trx)
+	trx := models.Trx{}
+	cat := models.TrxCat{}
+	tp := models.TrxType{}
 	if err := row.Scan(
 		&trx.ID,
 		&trx.Name,
 		&trx.Description,
-		&trx.Category.ID,
-		&trx.Type,
+		&cat.ID,
+		&tp.ID,
 	); err != nil {
 		log.Fatal(err)
-		return nil, err
+		//return nil, err
 	}
-	cat, _ := t.Category(ctx, trx)
-	trx.Category = cat
+
+	trx.Category = &cat
+	trx.Type = &tp
 	return trx, nil
 }
 
@@ -194,7 +183,7 @@ func (t *trxRepo) Participants(ctx context.Context, trx *models.TrxDetail) ([]*m
 	return asns, nil
 }
 
-func (t *trxRepo) TrxList(ctx context.Context) ([]*models.TrxDetail, error) {
+func (t *trxRepo) TrxList(ctx context.Context) ([]models.TrxDetail, error) {
 	query := `SELECT * FROM trx_detail`
 	rows, err := t.db.QueryContext(ctx, query)
 	if err != nil {
@@ -203,26 +192,30 @@ func (t *trxRepo) TrxList(ctx context.Context) ([]*models.TrxDetail, error) {
 	}
 
 	defer rows.Close()
-	trxLists := make([]*models.TrxDetail, 0)
+	trxLists := make([]models.TrxDetail, 0)
 
 	for rows.Next() {
 		item := models.TrxDetail{}
-
+		t := models.Trx{}
+		org := models.Org{}
+		loc := models.Org{}
 		err = rows.Scan(
 			&item.ID,
-			item.Trx.ID,
+			&t.ID,
 			&item.Start,
 			&item.Finish,
-			item.Organizer.ID,
-			item.Location.ID,
+			&org.ID,
+			&loc.ID,
 		)
 
 		if err != nil {
 			log.Fatal("ERROR SIR", err, item)
 			return nil, err
 		}
-
-		trxLists = append(trxLists, &item)
+		item.Trx = t
+		item.Organizer = &org
+		item.Location = &loc
+		trxLists = append(trxLists, item)
 
 	}
 

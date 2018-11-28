@@ -37,7 +37,7 @@ type Trx struct {
 
 type TrxDetail struct {
 	ID        *int    `json:"id"`
-	Trx       *Trx    `json:"trx"`
+	Trx       Trx     `json:"trx"`
 	Start     *string `json:"start"`
 	Finish    *string `json:"finish"`
 	Organizer *Org    `json:"organizer"`

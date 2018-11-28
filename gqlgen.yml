@@ -10,10 +10,10 @@ exec:
 model:
   filename: models/models_gen.go
   package: models
-resolver:
-  filename: graph/resolver.go
-  package: graph
-  type: Resolver
+#resolver:
+#  filename: graph/resolver.go
+#  package: graph
+#  type: Resolver
 
 
 models:
@@ -24,15 +24,15 @@ models:
         resolver: true
       type:
         resolver: true
-#  TrxDetail:
-#    model: github.com/blackshirt/trening/models.TrxDetail
-#    fields:
-#      trx:
-#        resolver: true
-#      organizer:
-#        resolver: true
-#      location:
-#        resolver: true
+  TrxDetail:
+    model: github.com/blackshirt/trening/models.TrxDetail
+    fields:
+      trx:
+        resolver: true
+      organizer:
+        resolver: true
+      location:
+        resolver: true
       #participants:
       #  resolver: true
       

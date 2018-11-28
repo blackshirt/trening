@@ -36,10 +36,11 @@ type Trx struct {
 }
 
 type TrxDetail struct {
-	ID        *int    `json:"id"`
-	Trx       Trx     `json:"trx"`
-	Start     *string `json:"start"`
-	Finish    *string `json:"finish"`
-	Organizer *Org    `json:"organizer"`
-	Location  *Org    `json:"location"`
+	ID           *int    `json:"id"`
+	Trx          Trx     `json:"trx"`
+	Start        *string `json:"start"`
+	Finish       *string `json:"finish"`
+	Organizer    *Org    `json:"organizer"`
+	Location     *Org    `json:"location"`
+	Participants []*Asn  `json:"participants"`
 }

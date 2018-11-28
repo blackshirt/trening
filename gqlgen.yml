@@ -33,8 +33,8 @@ models:
         resolver: true
       location:
         resolver: true
-      #participants:
-      #  resolver: true
+      participants:
+        resolver: true
       
   Org:
     model: github.com/blackshirt/trening/models.Org

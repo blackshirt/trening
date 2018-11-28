@@ -93,12 +93,13 @@ type ComplexityRoot struct {
 	}
 
 	TrxDetail struct {
-		Id        func(childComplexity int) int
-		Trx       func(childComplexity int) int
-		Start     func(childComplexity int) int
-		Finish    func(childComplexity int) int
-		Organizer func(childComplexity int) int
-		Location  func(childComplexity int) int
+		Id           func(childComplexity int) int
+		Trx          func(childComplexity int) int
+		Start        func(childComplexity int) int
+		Finish       func(childComplexity int) int
+		Organizer    func(childComplexity int) int
+		Location     func(childComplexity int) int
+		Participants func(childComplexity int) int
 	}
 
 	TrxType struct {
@@ -127,6 +128,7 @@ type TrxDetailResolver interface {
 
 	Organizer(ctx context.Context, obj *models.TrxDetail) (*models.Org, error)
 	Location(ctx context.Context, obj *models.TrxDetail) (*models.Org, error)
+	Participants(ctx context.Context, obj *models.TrxDetail) ([]models.Asn, error)
 }
 
 func field_Mutation_createOrg_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
@@ -451,6 +453,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.TrxDetail.Location(childComplexity), true
+
+	case "TrxDetail.participants":
+		if e.complexity.TrxDetail.Participants == nil {
+			break
+		}
+
+		return e.complexity.TrxDetail.Participants(childComplexity), true
 
 	case "TrxType.id":
 		if e.complexity.TrxType.Id == nil {
@@ -1773,6 +1782,12 @@ func (ec *executionContext) _TrxDetail(ctx context.Context, sel ast.SelectionSet
 				out.Values[i] = ec._TrxDetail_location(ctx, field, obj)
 				wg.Done()
 			}(i, field)
+		case "participants":
+			wg.Add(1)
+			go func(i int, field graphql.CollectedField) {
+				out.Values[i] = ec._TrxDetail_participants(ctx, field, obj)
+				wg.Done()
+			}(i, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -1952,6 +1967,63 @@ func (ec *executionContext) _TrxDetail_location(ctx context.Context, field graph
 	}
 
 	return ec._Org(ctx, field.Selections, res)
+}
+
+// nolint: vetshadow
+func (ec *executionContext) _TrxDetail_participants(ctx context.Context, field graphql.CollectedField, obj *models.TrxDetail) graphql.Marshaler {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer ec.Tracer.EndFieldExecution(ctx)
+	rctx := &graphql.ResolverContext{
+		Object: "TrxDetail",
+		Args:   nil,
+		Field:  field,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp := ec.FieldMiddleware(ctx, obj, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TrxDetail().Participants(rctx, obj)
+	})
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]models.Asn)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+
+	arr1 := make(graphql.Array, len(res))
+	var wg sync.WaitGroup
+
+	isLen1 := len(res) == 1
+	if !isLen1 {
+		wg.Add(len(res))
+	}
+
+	for idx1 := range res {
+		idx1 := idx1
+		rctx := &graphql.ResolverContext{
+			Index:  &idx1,
+			Result: &res[idx1],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(idx1 int) {
+			if !isLen1 {
+				defer wg.Done()
+			}
+			arr1[idx1] = func() graphql.Marshaler {
+
+				return ec._Asn(ctx, field.Selections, &res[idx1])
+			}()
+		}
+		if isLen1 {
+			f(idx1)
+		} else {
+			go f(idx1)
+		}
+
+	}
+	wg.Wait()
+	return arr1
 }
 
 var trxTypeImplementors = []string{"TrxType"}
@@ -3853,6 +3925,7 @@ type TrxDetail {
 	finish: String
 	organizer: Org
 	location: Org
+	participants: [Asn!]
 }
 
 

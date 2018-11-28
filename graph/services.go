@@ -62,9 +62,10 @@ func (s *RepoServices) Mutation() MutationResolver {
 // Service implementation call underlying repository backed by sql database
 // Asn resolver
 func (a *resolver) CurrentPlaces(ctx context.Context, obj *models.Asn) (*models.Opd, error) {
-	row, err := a.service.opdRepo.OpdById(ctx, *obj.CurrentPlaces.ID)
+	row, err := a.service.asnRepo.CurrentPlaces(ctx, obj)
 	if err != nil {
 		log.Fatal("Error in opd get by id", err, row)
+		return nil, err
 	}
 	return row, nil
 }
@@ -74,6 +75,7 @@ func (a *resolver) Trx(ctx context.Context, obj *models.TrxDetail) (models.Trx, 
 	row, err := a.service.trxRepo.Trx(ctx, obj)
 	if err != nil {
 		log.Fatal("Error in trx get by id", err, row)
+		//return nil, err
 	}
 	return row, nil
 }
@@ -94,11 +96,20 @@ func (a *resolver) Location(ctx context.Context, obj *models.TrxDetail) (*models
 	return row, nil
 }
 
+func (a *resolver) Participants(ctx context.Context, obj *models.TrxDetail) ([]models.Asn, error) {
+	row, err := a.service.trxRepo.Participants(ctx, obj)
+	if err != nil {
+		log.Fatal("Error in cat get by id", err, row)
+	}
+	return row, nil
+}
+
 // Trx resolver
 func (a *resolver) Category(ctx context.Context, obj *models.Trx) (*models.TrxCat, error) {
 	row, err := a.service.trxRepo.Category(ctx, obj)
 	if err != nil {
 		log.Fatal("Error in cat get by id", err, row)
+		return nil, err
 	}
 	return row, nil
 }

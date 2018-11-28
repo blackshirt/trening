@@ -12,6 +12,7 @@ type AsnRepo interface {
 	AsnById(ctx context.Context, id int) (*models.Asn, error)
 	AsnByNip(ctx context.Context, nip string) (*models.Asn, error)
 	AsnList(ctx context.Context) ([]models.Asn, error)
+	CurrentPlaces(ctx context.Context, obj *models.Asn) (*models.Opd, error)
 }
 
 type asnRepo struct {
@@ -98,4 +99,30 @@ func (a *asnRepo) listAsn(ctx context.Context, query string, args ...interface{}
 func (a *asnRepo) AsnList(ctx context.Context) ([]models.Asn, error) {
 	query := `SELECT * FROM asn`
 	return a.listAsn(ctx, query)
+}
+
+func (a *asnRepo) CurrentPlaces(ctx context.Context, obj *models.Asn) (*models.Opd, error) {
+	query := `SELECT * FROM opd WHERE id=?`
+	stmt, err := a.db.PrepareContext(ctx, query)
+	if err != nil {
+		log.Fatal("error prepare:", err)
+	}
+	if obj == nil {
+		obj = new(models.Asn)
+	}
+	row := stmt.QueryRowContext(ctx, obj.CurrentPlaces.ID)
+
+	opd := new(models.Opd)
+	if err := row.Scan(
+		&opd.ID,
+		&opd.Name,
+		&opd.LongName,
+		&opd.RoadNumber,
+		&opd.City,
+		&opd.Province,
+	); err != nil {
+		log.Fatal("error in scan:", err)
+	}
+	defer stmt.Close()
+	return opd, nil
 }

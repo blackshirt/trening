@@ -15,7 +15,8 @@ type TrxRepo interface {
 	Trx(ctx context.Context, obj *models.TrxDetail) (models.Trx, error)
 	Organizer(ctx context.Context, obj *models.TrxDetail) (*models.Org, error)
 	Location(ctx context.Context, obj *models.TrxDetail) (*models.Org, error)
-	Participants(ctx context.Context, obj *models.TrxDetail) ([]*models.Asn, error)
+	Participants(ctx context.Context, obj *models.TrxDetail) ([]models.Asn, error)
+
 	TrxList(ctx context.Context) ([]models.TrxDetail, error)
 }
 
@@ -153,32 +154,35 @@ func (t *trxRepo) Location(ctx context.Context, obj *models.TrxDetail) (*models.
 	return trxLoc, nil
 }
 
-func (t *trxRepo) Participants(ctx context.Context, trx *models.TrxDetail) ([]*models.Asn, error) {
+func (t *trxRepo) Participants(ctx context.Context, obj *models.TrxDetail) ([]models.Asn, error) {
 	query := `SELECT t.asn_id, asn.name, asn.nip, asn.current_job,asn.current_grade, asn.current_places
 				FROM trx_asn t
 				JOIN asn ON t.asn_id = asn.id
 				JOIN org on asn.current_places = org.id
 				WHERE t.trx_detail_id=?`
 
-	rows, err := t.db.QueryContext(ctx, query, trx.ID)
+	rows, err := t.db.QueryContext(ctx, query, obj.Trx.ID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	asns := make([]*models.Asn, 0)
+	asns := make([]models.Asn, 0)
 	for rows.Next() {
-		asn := new(models.Asn)
+		asn := models.Asn{}
+		opd := models.Opd{}
 		if err = rows.Scan(
 			&asn.ID,
 			&asn.Name,
 			&asn.Nip,
 			&asn.CurrentJob,
 			&asn.CurrentGrade,
-			&asn.CurrentPlaces,
+			&opd.ID,
 		); err != nil {
-			asns = append(asns, asn)
+			log.Fatal("error scan participants:", err)
 		}
+		asn.CurrentPlaces = &opd
+		asns = append(asns, asn)
 	}
 	return asns, nil
 }
@@ -220,34 +224,4 @@ func (t *trxRepo) TrxList(ctx context.Context) ([]models.TrxDetail, error) {
 	}
 
 	return trxLists, nil
-}
-
-func (t *trxRepo) Peserta(ctx context.Context, trx_detail *int) ([]*models.Asn, error) {
-	query := `SELECT t.asn_id, asn.name, asn.nip, asn.current_job,asn.current_grade, asn.current_places
-				FROM trx_asn t
-				JOIN asn ON t.asn_id = asn.id
-				JOIN org on asn.current_places = org.id
-				WHERE t.trx_detail_id=?`
-
-	rows, err := t.db.QueryContext(ctx, query, trx_detail)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	asns := make([]*models.Asn, 0)
-	for rows.Next() {
-		asn := new(models.Asn)
-		if err = rows.Scan(
-			&asn.ID,
-			&asn.Name,
-			&asn.Nip,
-			&asn.CurrentJob,
-			&asn.CurrentGrade,
-			&asn.CurrentPlaces,
-		); err != nil {
-			asns = append(asns, asn)
-		}
-	}
-	return asns, nil
 }

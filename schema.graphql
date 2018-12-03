@@ -2,9 +2,24 @@
 #
 #https://gqlgen.com/getting-started
 
-input Pagination {
-	limit: Int!
-	offset: Int!
+interface Node {
+  oid: ID!
+  name: String!
+}
+
+type Edge {
+  node: Node!
+  cursor: String!
+}
+
+type PageInfo {
+  hasPreviousPage: Boolean!
+  hasNextPage: Boolean!
+}
+
+type NodeConnection {
+  edges: [Edge]
+  pageInfo: PageInfo
 }
 
 type TrxCat {

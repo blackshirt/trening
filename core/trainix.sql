@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS `opd` (
 	`id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`obj_id` VARCHAR(32) UNIQUE,
 	`name` VARCHAR(50) UNIQUE,
 	`long_name` VARCHAR(200) UNIQUE,
 	`road_number` VARCHAR(50) NOT NULL,
@@ -22,6 +23,7 @@ INSERT IGNORE INTO `opd`(name,long_name,road_number,city,province) VALUES
 
 CREATE TABLE IF NOT EXISTS `org` (
 	`id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`obj_id` VARCHAR(32) UNIQUE,
 	`name` VARCHAR(100) UNIQUE,
 	`long_name` VARCHAR(200) UNIQUE,
 	`road_number` VARCHAR(50) NOT NULL,
@@ -42,6 +44,7 @@ INSERT IGNORE INTO `org`(name,long_name,road_number,city,province) VALUES
 
 CREATE TABLE IF NOT EXISTS `asn` (
 	`id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`obj_id` VARCHAR(32) UNIQUE,
 	`name` VARCHAR(50) NOT NULL,
 	`nip` CHAR(18) NOT NULL UNIQUE, # nip exactly 18 char
 	`current_job` VARCHAR(100) NOT NULL,
@@ -102,6 +105,7 @@ INSERT IGNORE INTO `trx_type`(name, description) VALUES
 
 CREATE TABLE IF NOT EXISTS `trx_master` (
 	`id` MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`obj_id` VARCHAR(32) UNIQUE,
 	`name` VARCHAR(150) NOT NULL UNIQUE,
 	`description` VARCHAR(250) NOT NULL,
  	`category` SMALLINT UNSIGNED NOT NULL DEFAULT 0,
@@ -120,6 +124,7 @@ INSERT IGNORE INTO `trx_master`(name, description, category, type) VALUES
 
 CREATE TABLE IF NOT EXISTS `trx_detail` (
   	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	`obj_id` VARCHAR(32) UNIQUE,
   	`trx_id` MEDIUMINT UNSIGNED NOT NULL,
   	`start` DATE NOT NULL DEFAULT CURDATE(),
 	`finish` DATE NOT NULL DEFAULT CURDATE(),

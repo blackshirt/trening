@@ -2,6 +2,16 @@
 
 package models
 
+type Asn struct {
+	ID            *int    `json:"id"`
+	ObjID         *string `json:"obj_id"`
+	Name          *string `json:"name"`
+	Nip           *string `json:"nip"`
+	CurrentJob    *string `json:"current_job"`
+	CurrentGrade  *string `json:"current_grade"`
+	CurrentPlaces *Opd    `json:"current_places"`
+}
+
 type AsnInput struct {
 	Name          string    `json:"name"`
 	Nip           *string   `json:"nip"`
@@ -10,11 +20,31 @@ type AsnInput struct {
 	CurrentPlaces *OpdInput `json:"current_places"`
 }
 
+type Opd struct {
+	ID         *int    `json:"id"`
+	ObjID      *string `json:"obj_id"`
+	Name       *string `json:"name"`
+	LongName   *string `json:"long_name"`
+	RoadNumber *string `json:"road_number"`
+	City       *string `json:"city"`
+	Province   *string `json:"province"`
+}
+
 type OpdInput struct {
 	Name       string  `json:"name"`
 	LongName   string  `json:"long_name"`
 	RoadNumber *string `json:"road_number"`
 	City       string  `json:"city"`
+	Province   *string `json:"province"`
+}
+
+type Org struct {
+	ID         *int    `json:"id"`
+	ObjID      *string `json:"obj_id"`
+	Name       *string `json:"name"`
+	LongName   *string `json:"long_name"`
+	RoadNumber *string `json:"road_number"`
+	City       *string `json:"city"`
 	Province   *string `json:"province"`
 }
 
@@ -26,9 +56,20 @@ type OrgInput struct {
 	Province   *string `json:"province"`
 }
 
-type Pagination struct {
-	Limit  int `json:"limit"`
-	Offset int `json:"offset"`
+type PageInfo struct {
+	StartCursor     string `json:"startCursor"`
+	EndCursor       string `json:"endCursor"`
+	HasPreviousPage bool   `json:"hasPreviousPage"`
+	HasNextPage     bool   `json:"hasNextPage"`
+}
+
+type Trx struct {
+	ID          *int     `json:"id"`
+	ObjID       *string  `json:"obj_id"`
+	Name        *string  `json:"name"`
+	Description *string  `json:"description"`
+	Category    *TrxCat  `json:"category"`
+	Type        *TrxType `json:"type"`
 }
 
 type TrxCat struct {
@@ -40,6 +81,28 @@ type TrxCat struct {
 type TrxCatInput struct {
 	Name        string  `json:"name"`
 	Description *string `json:"description"`
+}
+
+type TrxDetail struct {
+	ID           *int    `json:"id"`
+	ObjID        *string `json:"obj_id"`
+	Trx          Trx     `json:"trx"`
+	Start        *string `json:"start"`
+	Finish       *string `json:"finish"`
+	Organizer    *Org    `json:"organizer"`
+	Location     *Org    `json:"location"`
+	Participants []Asn   `json:"participants"`
+}
+
+type TrxDetailConnection struct {
+	TotalCount *int            `json:"totalCount"`
+	Edges      []TrxDetailEdge `json:"edges"`
+	PageInfo   *PageInfo       `json:"pageInfo"`
+}
+
+type TrxDetailEdge struct {
+	Node   TrxDetail `json:"node"`
+	Cursor string    `json:"cursor"`
 }
 
 type TrxInput struct {

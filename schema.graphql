@@ -2,23 +2,21 @@
 #
 #https://gqlgen.com/getting-started
 
-interface Node {
-  oid: ID!
-  name: String!
-}
-
-type Edge {
-  node: Node!
+type TrxDetailEdge {
+  node: TrxDetail!
   cursor: String!
 }
 
 type PageInfo {
+  startCursor: String!
+  endCursor: String!
   hasPreviousPage: Boolean!
   hasNextPage: Boolean!
 }
 
-type NodeConnection {
-  edges: [Edge]
+type TrxDetailConnection {
+  totalCount: Int
+  edges: [TrxDetailEdge!]
   pageInfo: PageInfo
 }
 
@@ -46,6 +44,7 @@ input TrxTypeInput {
 
 type Trx {
 	id: Int
+	obj_id: String
 	name: String
 	description: String
 	category: TrxCat
@@ -54,6 +53,7 @@ type Trx {
 
 type TrxDetail {
 	id: Int
+	obj_id: String
 	trx: Trx!
 	start: String
 	finish: String
@@ -70,6 +70,7 @@ input TrxInput {
 
 type Org {
   	id: Int
+	obj_id: String
   	name: String
   	long_name: String
   	road_number: String
@@ -87,6 +88,7 @@ input OrgInput {
 
 type Asn {
 	id: Int
+	obj_id: String
 	name: String
 	nip: String
 	current_job: String
@@ -104,6 +106,7 @@ input AsnInput {
 
 type Opd {
   	id: Int
+	obj_id: String
   	name: String
   	long_name: String
   	road_number: String

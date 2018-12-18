@@ -123,15 +123,15 @@ func (a *resolver) Type(ctx context.Context, obj *models.Trx) (*models.TrxType, 
 }
 
 // Query resolver
-func (q *resolver) AsnList(ctx context.Context) ([]models.Asn, error) {
-	res, err := q.service.asnRepo.AsnList(ctx)
+func (q *resolver) AsnList(ctx context.Context, first int, after string) ([]models.Asn, error) {
+	res, err := q.service.asnRepo.AsnList(ctx, first, after)
 	if err != nil {
 		log.Fatal(err)
 	}
 	return res, nil
 }
 
-func (q *resolver) OpdList(ctx context.Context) ([]*models.Opd, error) {
+func (q *resolver) OpdList(ctx context.Context, first int, after string) ([]*models.Opd, error) {
 	res, err := q.service.opdRepo.OpdList(ctx)
 	if err != nil {
 		log.Fatal(err)

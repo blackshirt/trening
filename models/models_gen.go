@@ -2,14 +2,15 @@
 
 package models
 
-type Asn struct {
-	ID            *int    `json:"id"`
-	ObjID         *string `json:"obj_id"`
-	Name          *string `json:"name"`
-	Nip           *string `json:"nip"`
-	CurrentJob    *string `json:"current_job"`
-	CurrentGrade  *string `json:"current_grade"`
-	CurrentPlaces *Opd    `json:"current_places"`
+type AsnConnection struct {
+	TotalCount int        `json:"totalCount"`
+	Edges      []*AsnEdge `json:"edges"`
+	PageInfo   PageInfo   `json:"pageInfo"`
+}
+
+type AsnEdge struct {
+	Node   Asn    `json:"node"`
+	Cursor string `json:"cursor"`
 }
 
 type AsnInput struct {
@@ -20,14 +21,15 @@ type AsnInput struct {
 	CurrentPlaces *OpdInput `json:"current_places"`
 }
 
-type Opd struct {
-	ID         *int    `json:"id"`
-	ObjID      *string `json:"obj_id"`
-	Name       *string `json:"name"`
-	LongName   *string `json:"long_name"`
-	RoadNumber *string `json:"road_number"`
-	City       *string `json:"city"`
-	Province   *string `json:"province"`
+type OpdConnection struct {
+	TotalCount int        `json:"totalCount"`
+	Edges      []*OpdEdge `json:"edges"`
+	PageInfo   PageInfo   `json:"pageInfo"`
+}
+
+type OpdEdge struct {
+	Node   Opd    `json:"node"`
+	Cursor string `json:"cursor"`
 }
 
 type OpdInput struct {
@@ -35,16 +37,6 @@ type OpdInput struct {
 	LongName   string  `json:"long_name"`
 	RoadNumber *string `json:"road_number"`
 	City       string  `json:"city"`
-	Province   *string `json:"province"`
-}
-
-type Org struct {
-	ID         *int    `json:"id"`
-	ObjID      *string `json:"obj_id"`
-	Name       *string `json:"name"`
-	LongName   *string `json:"long_name"`
-	RoadNumber *string `json:"road_number"`
-	City       *string `json:"city"`
 	Province   *string `json:"province"`
 }
 
@@ -57,19 +49,10 @@ type OrgInput struct {
 }
 
 type PageInfo struct {
-	StartCursor     string `json:"startCursor"`
-	EndCursor       string `json:"endCursor"`
-	HasPreviousPage bool   `json:"hasPreviousPage"`
-	HasNextPage     bool   `json:"hasNextPage"`
-}
-
-type Trx struct {
-	ID          *int     `json:"id"`
-	ObjID       *string  `json:"obj_id"`
-	Name        *string  `json:"name"`
-	Description *string  `json:"description"`
-	Category    *TrxCat  `json:"category"`
-	Type        *TrxType `json:"type"`
+	StartCursor     *string `json:"startCursor"`
+	EndCursor       *string `json:"endCursor"`
+	HasPreviousPage bool    `json:"hasPreviousPage"`
+	HasNextPage     bool    `json:"hasNextPage"`
 }
 
 type TrxCat struct {
@@ -83,21 +66,10 @@ type TrxCatInput struct {
 	Description *string `json:"description"`
 }
 
-type TrxDetail struct {
-	ID           *int    `json:"id"`
-	ObjID        *string `json:"obj_id"`
-	Trx          Trx     `json:"trx"`
-	Start        *string `json:"start"`
-	Finish       *string `json:"finish"`
-	Organizer    *Org    `json:"organizer"`
-	Location     *Org    `json:"location"`
-	Participants []Asn   `json:"participants"`
-}
-
 type TrxDetailConnection struct {
-	TotalCount *int            `json:"totalCount"`
-	Edges      []TrxDetailEdge `json:"edges"`
-	PageInfo   *PageInfo       `json:"pageInfo"`
+	TotalCount *int             `json:"totalCount"`
+	Edges      []*TrxDetailEdge `json:"edges"`
+	PageInfo   PageInfo         `json:"pageInfo"`
 }
 
 type TrxDetailEdge struct {

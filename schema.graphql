@@ -2,133 +2,157 @@
 #
 #https://gqlgen.com/getting-started
 
+type AsnEdge {
+  node: Asn!
+  cursor: String!
+}
+
+type AsnConnection {
+  totalCount: Int!
+  edges: [AsnEdge]! 
+  pageInfo: PageInfo!
+}
+
+type OpdEdge {
+  node: Opd!
+  cursor: String!
+}
+
+type OpdConnection {
+  totalCount: Int!
+  edges: [OpdEdge]!
+  pageInfo: PageInfo!
+}
+
+
+type PageInfo {
+  startCursor: String
+  endCursor: String
+  hasPreviousPage: Boolean!
+  hasNextPage: Boolean!
+}
+
+
 type TrxDetailEdge {
   node: TrxDetail!
   cursor: String!
 }
 
-type PageInfo {
-  startCursor: String!
-  endCursor: String!
-  hasPreviousPage: Boolean!
-  hasNextPage: Boolean!
-}
-
 type TrxDetailConnection {
   totalCount: Int
-  edges: [TrxDetailEdge!]
-  pageInfo: PageInfo
+  edges: [TrxDetailEdge]!
+  pageInfo: PageInfo!
 }
 
 type TrxCat {
-	id: Int
-	name: String
-	description: String
+  id: Int
+  name: String
+  description: String
 }
 
 input TrxCatInput {
-	name: String!
-	description: String
+  name: String!
+  description: String
 }
 
 type TrxType {
-	id: Int
-	name: String
-	description: String
+  id: Int
+  name: String
+  description: String
 }
 
 input TrxTypeInput {
-	name: String!
-	description: String
+  name: String!
+  description: String
 }
 
 type Trx {
-	id: Int
-	obj_id: String
-	name: String
-	description: String
-	category: TrxCat
-	type: TrxType
+  id: Int
+  obj_id: String
+  name: String
+  description: String
+  category: TrxCat
+  type: TrxType
 }
 
 type TrxDetail {
-	id: Int
-	obj_id: String
-	trx: Trx!
-	start: String
-	finish: String
-	organizer: Org
-	location: Org
-	participants: [Asn!]
+  id: Int
+  obj_id: String
+  trx: Trx!
+  start: String
+  finish: String
+  organizer: Org
+  location: Org
+  participants: [Asn!]
 }
 
 
 input TrxInput {
-  	name: String!
-  	description: String
+  name: String!
+  description: String
 }
 
 type Org {
-  	id: Int
-	obj_id: String
-  	name: String
-  	long_name: String
-  	road_number: String
-	city: String
-	province: String
+  id: Int
+  obj_id: String
+  name: String
+  long_name: String
+  road_number: String
+  city: String
+  province: String
 }
 
 input OrgInput {
-	name: String!
-	long_name: String!
-	road_number: String
-	city: String!
-	province: String
+  name: String!
+  long_name: String!
+  road_number: String
+  city: String!
+  province: String
 }
 
 type Asn {
-	id: Int
-	obj_id: String
-	name: String
-	nip: String
-	current_job: String
-	current_grade: String
-	current_places: Opd
+  id: Int
+  obj_id: String
+  name: String
+  nip: String
+  current_job: String
+  current_grade: String
+  current_places: Opd
 }
 
 input AsnInput {
-  	name: String!
-  	nip: String
-  	current_job: String
-  	current_grade: String
-  	current_places: OpdInput
+  name: String!
+  nip: String
+  current_job: String
+  current_grade: String
+  current_places: OpdInput
 }
 
 type Opd {
-  	id: Int
-	obj_id: String
-  	name: String
-  	long_name: String
-  	road_number: String
-	city: String
-	province: String
+  id: Int
+  obj_id: String
+  name: String
+  long_name: String
+  road_number: String
+  city: String
+  province: String
 }
 
 input OpdInput {
-  	name: String!
-  	long_name: String!
-  	road_number: String
-	city: String!
-	province: String
+  name: String!
+  long_name: String!
+  road_number: String
+  city: String!
+  province: String
 }
 
 
 
 # Query
 type Query {
-  asnList(): [Asn!]
-  trxList(): [TrxDetail!]
- 
+  opdList(first: Int, after: String): OpdConnection!
+  asnList(first: Int, after: String): AsnConnection!
+  trxList(first: Int, after: String): TrxDetailConnection! 
 }
 
 

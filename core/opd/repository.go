@@ -11,7 +11,7 @@ import (
 type OpdRepo interface {
 	OpdById(ctx context.Context, id int) (*models.Opd, error)
 	OpdByName(ctx context.Context, name string) (*models.Opd, error)
-	OpdList(ctx context.Context) ([]*models.Opd, error)
+	OpdList(ctx context.Context, first int, after string) ([]*models.Opd, error)
 	OpdCreate(ctx context.Context, input models.OpdInput) (*models.Opd, error)
 }
 
@@ -102,9 +102,9 @@ func (o *opdRepo) listOPD(ctx context.Context, query string, args ...interface{}
 	return opds, nil
 }
 
-func (o *opdRepo) OpdList(ctx context.Context) ([]*models.Opd, error) {
-	query := `SELECT * FROM opd`
-	return o.listOPD(ctx, query)
+func (o *opdRepo) OpdList(ctx context.Context, first int, after string) ([]*models.Opd, error) {
+	query := `SELECT * FROM opd WHERE obj_id >= ? ORDER BY obj_id DESC LIMIT ?`
+	return o.listOPD(ctx, query, after, first)
 }
 
 func (o *opdRepo) OpdCreate(ctx context.Context, input models.OpdInput) (*models.Opd, error) {

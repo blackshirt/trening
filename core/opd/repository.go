@@ -11,7 +11,8 @@ import (
 type OpdRepo interface {
 	OpdById(ctx context.Context, id int) (*models.Opd, error)
 	OpdByName(ctx context.Context, name string) (*models.Opd, error)
-	OpdList(ctx context.Context, first int, after string) ([]*models.Opd, error)
+	OpdList(ctx context.Context, first, after *int) ([]*models.Opd, error)
+	OpdListFull(ctx context.Context) ([]*models.Opd, error)
 	OpdCreate(ctx context.Context, input models.OpdInput) (*models.Opd, error)
 }
 
@@ -102,9 +103,24 @@ func (o *opdRepo) listOPD(ctx context.Context, query string, args ...interface{}
 	return opds, nil
 }
 
-func (o *opdRepo) OpdList(ctx context.Context, first int, after string) ([]*models.Opd, error) {
-	query := `SELECT * FROM opd WHERE obj_id >= ? ORDER BY obj_id DESC LIMIT ?`
+func (o *opdRepo) OpdList(ctx context.Context, first, after *int) ([]*models.Opd, error) {
+	var (
+		defaultFirst  = 5
+		defaultCursor = 1
+	)
+	if first == nil {
+		first = &defaultFirst
+	}
+	if after == nil {
+		after = &defaultCursor
+	}
+	query := `SELECT id, name, long_name, road_number, city, province FROM opd WHERE id >= ? ORDER BY id ASC LIMIT ?`
 	return o.listOPD(ctx, query, after, first)
+}
+
+func (o *opdRepo) OpdListFull(ctx context.Context) ([]*models.Opd, error) {
+	query := `SELECT id, name, long_name, road_number, city, province FROM opd`
+	return o.listOPD(ctx, query)
 }
 
 func (o *opdRepo) OpdCreate(ctx context.Context, input models.OpdInput) (*models.Opd, error) {

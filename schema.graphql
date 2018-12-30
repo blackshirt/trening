@@ -15,7 +15,7 @@ type AsnConnection {
 
 type OpdEdge {
   node: Opd!
-  cursor: String!
+  cursor: Int!
 }
 
 type OpdConnection {
@@ -26,8 +26,8 @@ type OpdConnection {
 
 
 type PageInfo {
-  startCursor: String
-  endCursor: String
+  startCursor: Int
+  endCursor: Int
   hasPreviousPage: Boolean!
   hasNextPage: Boolean!
 }
@@ -150,9 +150,11 @@ input OpdInput {
 
 # Query
 type Query {
-  opdList(first: Int, after: String): OpdConnection!
-  asnList(first: Int, after: String): AsnConnection!
-  trxList(first: Int, after: String): TrxDetailConnection! 
+  opdList(first: Int, after: Int): OpdConnection!
+  opdListManual(first: Int, after: Int): [Opd]!
+  opdListFull(): [Opd]!
+  #asnList(first: Int, after: String): AsnConnection!
+  #trxList(first: Int, after: String): TrxDetailConnection! 
 }
 
 

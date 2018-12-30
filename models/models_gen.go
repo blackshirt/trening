@@ -28,8 +28,8 @@ type OpdConnection struct {
 }
 
 type OpdEdge struct {
-	Node   Opd    `json:"node"`
-	Cursor string `json:"cursor"`
+	Node   Opd `json:"node"`
+	Cursor int `json:"cursor"`
 }
 
 type OpdInput struct {
@@ -49,10 +49,10 @@ type OrgInput struct {
 }
 
 type PageInfo struct {
-	StartCursor     *string `json:"startCursor"`
-	EndCursor       *string `json:"endCursor"`
-	HasPreviousPage bool    `json:"hasPreviousPage"`
-	HasNextPage     bool    `json:"hasNextPage"`
+	StartCursor     *int `json:"startCursor"`
+	EndCursor       *int `json:"endCursor"`
+	HasPreviousPage bool `json:"hasPreviousPage"`
+	HasNextPage     bool `json:"hasNextPage"`
 }
 
 type TrxCat struct {

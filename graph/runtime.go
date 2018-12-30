@@ -106,9 +106,9 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		OpdList func(childComplexity int, first *int, after *string) int
-		AsnList func(childComplexity int, first *int, after *string) int
-		TrxList func(childComplexity int, first *int, after *string) int
+		OpdList       func(childComplexity int, first *int, after *int) int
+		OpdListManual func(childComplexity int, first *int, after *int) int
+		OpdListFull   func(childComplexity int) int
 	}
 
 	Trx struct {
@@ -162,9 +162,9 @@ type MutationResolver interface {
 	CreateOrg(ctx context.Context, input models.OrgInput) (*models.Org, error)
 }
 type QueryResolver interface {
-	OpdList(ctx context.Context, first *int, after *string) (models.OpdConnection, error)
-	AsnList(ctx context.Context, first *int, after *string) (models.AsnConnection, error)
-	TrxList(ctx context.Context, first *int, after *string) (models.TrxDetailConnection, error)
+	OpdList(ctx context.Context, first *int, after *int) (models.OpdConnection, error)
+	OpdListManual(ctx context.Context, first *int, after *int) ([]*models.Opd, error)
+	OpdListFull(ctx context.Context) ([]*models.Opd, error)
 }
 type TrxResolver interface {
 	Category(ctx context.Context, obj *models.Trx) (*models.TrxCat, error)
@@ -209,12 +209,12 @@ func field_Query_opdList_args(rawArgs map[string]interface{}) (map[string]interf
 		}
 	}
 	args["first"] = arg0
-	var arg1 *string
+	var arg1 *int
 	if tmp, ok := rawArgs["after"]; ok {
 		var err error
-		var ptr1 string
+		var ptr1 int
 		if tmp != nil {
-			ptr1, err = graphql.UnmarshalString(tmp)
+			ptr1, err = graphql.UnmarshalInt(tmp)
 			arg1 = &ptr1
 		}
 
@@ -227,7 +227,7 @@ func field_Query_opdList_args(rawArgs map[string]interface{}) (map[string]interf
 
 }
 
-func field_Query_asnList_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func field_Query_opdListManual_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	args := map[string]interface{}{}
 	var arg0 *int
 	if tmp, ok := rawArgs["first"]; ok {
@@ -243,46 +243,12 @@ func field_Query_asnList_args(rawArgs map[string]interface{}) (map[string]interf
 		}
 	}
 	args["first"] = arg0
-	var arg1 *string
+	var arg1 *int
 	if tmp, ok := rawArgs["after"]; ok {
-		var err error
-		var ptr1 string
-		if tmp != nil {
-			ptr1, err = graphql.UnmarshalString(tmp)
-			arg1 = &ptr1
-		}
-
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["after"] = arg1
-	return args, nil
-
-}
-
-func field_Query_trxList_args(rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	args := map[string]interface{}{}
-	var arg0 *int
-	if tmp, ok := rawArgs["first"]; ok {
 		var err error
 		var ptr1 int
 		if tmp != nil {
 			ptr1, err = graphql.UnmarshalInt(tmp)
-			arg0 = &ptr1
-		}
-
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["first"] = arg0
-	var arg1 *string
-	if tmp, ok := rawArgs["after"]; ok {
-		var err error
-		var ptr1 string
-		if tmp != nil {
-			ptr1, err = graphql.UnmarshalString(tmp)
 			arg1 = &ptr1
 		}
 
@@ -620,31 +586,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.OpdList(childComplexity, args["first"].(*int), args["after"].(*string)), true
+		return e.complexity.Query.OpdList(childComplexity, args["first"].(*int), args["after"].(*int)), true
 
-	case "Query.asnList":
-		if e.complexity.Query.AsnList == nil {
+	case "Query.opdListManual":
+		if e.complexity.Query.OpdListManual == nil {
 			break
 		}
 
-		args, err := field_Query_asnList_args(rawArgs)
+		args, err := field_Query_opdListManual_args(rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.AsnList(childComplexity, args["first"].(*int), args["after"].(*string)), true
+		return e.complexity.Query.OpdListManual(childComplexity, args["first"].(*int), args["after"].(*int)), true
 
-	case "Query.trxList":
-		if e.complexity.Query.TrxList == nil {
+	case "Query.opdListFull":
+		if e.complexity.Query.OpdListFull == nil {
 			break
 		}
 
-		args, err := field_Query_trxList_args(rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.TrxList(childComplexity, args["first"].(*int), args["after"].(*string)), true
+		return e.complexity.Query.OpdListFull(childComplexity), true
 
 	case "Trx.id":
 		if e.complexity.Trx.Id == nil {
@@ -1901,10 +1862,10 @@ func (ec *executionContext) _OpdEdge_cursor(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
-	return graphql.MarshalString(res)
+	return graphql.MarshalInt(res)
 }
 
 var orgImplementors = []string{"Org"}
@@ -2199,14 +2160,14 @@ func (ec *executionContext) _PageInfo_startCursor(ctx context.Context, field gra
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(*int)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
 	if res == nil {
 		return graphql.Null
 	}
-	return graphql.MarshalString(*res)
+	return graphql.MarshalInt(*res)
 }
 
 // nolint: vetshadow
@@ -2227,14 +2188,14 @@ func (ec *executionContext) _PageInfo_endCursor(ctx context.Context, field graph
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(*int)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
 	if res == nil {
 		return graphql.Null
 	}
-	return graphql.MarshalString(*res)
+	return graphql.MarshalInt(*res)
 }
 
 // nolint: vetshadow
@@ -2319,19 +2280,19 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				}
 				wg.Done()
 			}(i, field)
-		case "asnList":
+		case "opdListManual":
 			wg.Add(1)
 			go func(i int, field graphql.CollectedField) {
-				out.Values[i] = ec._Query_asnList(ctx, field)
+				out.Values[i] = ec._Query_opdListManual(ctx, field)
 				if out.Values[i] == graphql.Null {
 					invalid = true
 				}
 				wg.Done()
 			}(i, field)
-		case "trxList":
+		case "opdListFull":
 			wg.Add(1)
 			go func(i int, field graphql.CollectedField) {
-				out.Values[i] = ec._Query_trxList(ctx, field)
+				out.Values[i] = ec._Query_opdListFull(ctx, field)
 				if out.Values[i] == graphql.Null {
 					invalid = true
 				}
@@ -2371,7 +2332,7 @@ func (ec *executionContext) _Query_opdList(ctx context.Context, field graphql.Co
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().OpdList(rctx, args["first"].(*int), args["after"].(*string))
+		return ec.resolvers.Query().OpdList(rctx, args["first"].(*int), args["after"].(*int))
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -2387,11 +2348,11 @@ func (ec *executionContext) _Query_opdList(ctx context.Context, field graphql.Co
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Query_asnList(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+func (ec *executionContext) _Query_opdListManual(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := field_Query_asnList_args(rawArgs)
+	args, err := field_Query_opdListManual_args(rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -2405,7 +2366,7 @@ func (ec *executionContext) _Query_asnList(ctx context.Context, field graphql.Co
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AsnList(rctx, args["first"].(*int), args["after"].(*string))
+		return ec.resolvers.Query().OpdListManual(rctx, args["first"].(*int), args["after"].(*int))
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -2413,33 +2374,63 @@ func (ec *executionContext) _Query_asnList(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.AsnConnection)
+	res := resTmp.([]*models.Opd)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
-	return ec._AsnConnection(ctx, field.Selections, &res)
+	arr1 := make(graphql.Array, len(res))
+	var wg sync.WaitGroup
+
+	isLen1 := len(res) == 1
+	if !isLen1 {
+		wg.Add(len(res))
+	}
+
+	for idx1 := range res {
+		idx1 := idx1
+		rctx := &graphql.ResolverContext{
+			Index:  &idx1,
+			Result: res[idx1],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(idx1 int) {
+			if !isLen1 {
+				defer wg.Done()
+			}
+			arr1[idx1] = func() graphql.Marshaler {
+
+				if res[idx1] == nil {
+					return graphql.Null
+				}
+
+				return ec._Opd(ctx, field.Selections, res[idx1])
+			}()
+		}
+		if isLen1 {
+			f(idx1)
+		} else {
+			go f(idx1)
+		}
+
+	}
+	wg.Wait()
+	return arr1
 }
 
 // nolint: vetshadow
-func (ec *executionContext) _Query_trxList(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
+func (ec *executionContext) _Query_opdListFull(ctx context.Context, field graphql.CollectedField) graphql.Marshaler {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer ec.Tracer.EndFieldExecution(ctx)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := field_Query_trxList_args(rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
 	rctx := &graphql.ResolverContext{
 		Object: "Query",
-		Args:   args,
+		Args:   nil,
 		Field:  field,
 	}
 	ctx = graphql.WithResolverContext(ctx, rctx)
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp := ec.FieldMiddleware(ctx, nil, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().TrxList(rctx, args["first"].(*int), args["after"].(*string))
+		return ec.resolvers.Query().OpdListFull(rctx)
 	})
 	if resTmp == nil {
 		if !ec.HasError(rctx) {
@@ -2447,11 +2438,47 @@ func (ec *executionContext) _Query_trxList(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(models.TrxDetailConnection)
+	res := resTmp.([]*models.Opd)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
-	return ec._TrxDetailConnection(ctx, field.Selections, &res)
+	arr1 := make(graphql.Array, len(res))
+	var wg sync.WaitGroup
+
+	isLen1 := len(res) == 1
+	if !isLen1 {
+		wg.Add(len(res))
+	}
+
+	for idx1 := range res {
+		idx1 := idx1
+		rctx := &graphql.ResolverContext{
+			Index:  &idx1,
+			Result: res[idx1],
+		}
+		ctx := graphql.WithResolverContext(ctx, rctx)
+		f := func(idx1 int) {
+			if !isLen1 {
+				defer wg.Done()
+			}
+			arr1[idx1] = func() graphql.Marshaler {
+
+				if res[idx1] == nil {
+					return graphql.Null
+				}
+
+				return ec._Opd(ctx, field.Selections, res[idx1])
+			}()
+		}
+		if isLen1 {
+			f(idx1)
+		} else {
+			go f(idx1)
+		}
+
+	}
+	wg.Wait()
+	return arr1
 }
 
 // nolint: vetshadow
@@ -5258,7 +5285,7 @@ type AsnConnection {
 
 type OpdEdge {
   node: Opd!
-  cursor: String!
+  cursor: Int!
 }
 
 type OpdConnection {
@@ -5267,16 +5294,18 @@ type OpdConnection {
   pageInfo: PageInfo!
 }
 
+
+type PageInfo {
+  startCursor: Int
+  endCursor: Int
+  hasPreviousPage: Boolean!
+  hasNextPage: Boolean!
+}
+
+
 type TrxDetailEdge {
   node: TrxDetail!
   cursor: String!
-}
-
-type PageInfo {
-  startCursor: String
-  endCursor: String
-  hasPreviousPage: Boolean!
-  hasNextPage: Boolean!
 }
 
 type TrxDetailConnection {
@@ -5391,10 +5420,11 @@ input OpdInput {
 
 # Query
 type Query {
-  opdList(first: Int, after: String): OpdConnection!
-  asnList(first: Int, after: String): AsnConnection!
-  trxList(first: Int, after: String): TrxDetailConnection!
- 
+  opdList(first: Int, after: Int): OpdConnection!
+  opdListManual(first: Int, after: Int): [Opd]!
+  opdListFull(): [Opd]!
+  #asnList(first: Int, after: String): AsnConnection!
+  #trxList(first: Int, after: String): TrxDetailConnection! 
 }
 
 

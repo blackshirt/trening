@@ -11,10 +11,10 @@ import (
 
  */
 
-func (o *resolver) opdList(ctx context.Context, first, after *int) (models.OpdConnection, error) {
+func (o *resolver) opdList(ctx context.Context, first, after *int) (*models.OpdConnection, error) {
 
 	edges := make([]*models.OpdEdge, 0)
-	resConn := models.OpdConnection{}
+	resConn := new(models.OpdConnection)
 
 	//type OpdEdge struct {
 	//	Node   Opd    `json:"node"`
@@ -25,6 +25,7 @@ func (o *resolver) opdList(ctx context.Context, first, after *int) (models.OpdCo
 	res, err := o.service.opdRepo.OpdList(ctx, first, after)
 	if err != nil {
 		log.Fatal(err)
+		return nil, err
 	}
 	//type PageInfo struct {
 	//StartCursor     *string `json:"startCursor"`

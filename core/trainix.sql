@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS `opd` (
 	`obj_id` VARCHAR(32) UNIQUE,
 	`name` VARCHAR(50) UNIQUE,
 	`long_name` VARCHAR(200) UNIQUE,
-	`road_number` VARCHAR(50) NOT NULL,
+	`road_number` VARCHAR(100) NOT NULL,
 	`city` VARCHAR(50) NOT NULL,
 	`province` VARCHAR(50) NOT NULL,
 
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `org` (
 	`obj_id` VARCHAR(32) UNIQUE,
 	`name` VARCHAR(100) UNIQUE,
 	`long_name` VARCHAR(200) UNIQUE,
-	`road_number` VARCHAR(50) NOT NULL,
+	`road_number` VARCHAR(100) NOT NULL,
 	`city` VARCHAR(50) NOT NULL,
 	`province` VARCHAR(50) NOT NULL,
 

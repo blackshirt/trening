@@ -162,7 +162,7 @@ type MutationResolver interface {
 	CreateOrg(ctx context.Context, input models.OrgInput) (*models.Org, error)
 }
 type QueryResolver interface {
-	OpdList(ctx context.Context, first *int, after *int) (models.OpdConnection, error)
+	OpdList(ctx context.Context, first *int, after *int) (*models.OpdConnection, error)
 	OpdListManual(ctx context.Context, first *int, after *int) ([]*models.Opd, error)
 	OpdListFull(ctx context.Context) ([]*models.Opd, error)
 }
@@ -2275,9 +2275,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			wg.Add(1)
 			go func(i int, field graphql.CollectedField) {
 				out.Values[i] = ec._Query_opdList(ctx, field)
-				if out.Values[i] == graphql.Null {
-					invalid = true
-				}
 				wg.Done()
 			}(i, field)
 		case "opdListManual":
@@ -2335,16 +2332,17 @@ func (ec *executionContext) _Query_opdList(ctx context.Context, field graphql.Co
 		return ec.resolvers.Query().OpdList(rctx, args["first"].(*int), args["after"].(*int))
 	})
 	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(models.OpdConnection)
+	res := resTmp.(*models.OpdConnection)
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 
-	return ec._OpdConnection(ctx, field.Selections, &res)
+	if res == nil {
+		return graphql.Null
+	}
+
+	return ec._OpdConnection(ctx, field.Selections, res)
 }
 
 // nolint: vetshadow
@@ -5420,7 +5418,7 @@ input OpdInput {
 
 # Query
 type Query {
-  opdList(first: Int, after: Int): OpdConnection!
+  opdList(first: Int, after: Int): OpdConnection
   opdListManual(first: Int, after: Int): [Opd]!
   opdListFull(): [Opd]!
   #asnList(first: Int, after: String): AsnConnection!

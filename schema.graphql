@@ -150,7 +150,7 @@ input OpdInput {
 
 # Query
 type Query {
-  opdList(first: Int, after: Int): OpdConnection!
+  opdList(first: Int, after: Int): OpdConnection
   opdListManual(first: Int, after: Int): [Opd]!
   opdListFull(): [Opd]!
   #asnList(first: Int, after: String): AsnConnection!

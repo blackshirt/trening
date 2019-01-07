@@ -34,6 +34,7 @@ func (o *resolver) opdList(ctx context.Context, first, after *int) (*models.OpdC
 	//HasNextPage     bool    `json:"hasNextPage"`
 	//}
 	pageinfo := models.PageInfo{}
+
 	for _, item := range res {
 		edge := models.OpdEdge{
 			Node:   *item,
@@ -48,4 +49,44 @@ func (o *resolver) opdList(ctx context.Context, first, after *int) (*models.OpdC
 	resConn.PageInfo = pageinfo
 
 	return resConn, nil
+}
+
+func (o *resolver) minimax(ctx context.Context) ([]int, error) {
+	res, err := o.service.opdRepo.CursorBound(ctx)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func (o *resolver) hasPreviousPage(ctx context.Context, cursor int) (bool, error) {
+	res, err := o.minimax(ctx)
+	if err != nil {
+		return false, err
+	}
+	min := res[0]
+	switch {
+	case cursor > min:
+		return true, nil
+	default:
+		return false, err
+	}
+
+}
+
+func (o *resolver) hasNextPage(ctx context.Context, cursor int) (bool, error) {
+	res, err := o.minimax(ctx)
+	if err != nil {
+		return false, err
+	}
+	max := res[1]
+	switch {
+	case cursor < max:
+		return true, nil
+	default:
+		return false, err
+	}
+
 }

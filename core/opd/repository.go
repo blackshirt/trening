@@ -9,6 +9,7 @@ import (
 )
 
 type OpdRepo interface {
+	CursorBound(ctx context.Context) ([]int, error)
 	OpdById(ctx context.Context, id int) (*models.Opd, error)
 	OpdByName(ctx context.Context, name string) (*models.Opd, error)
 	OpdList(ctx context.Context, first, after *int) ([]*models.Opd, error)
@@ -24,6 +25,41 @@ func NewOpdRepo(conn *sql.DB) OpdRepo {
 	return &opdRepo{db: conn}
 }
 
+func (o *opdRepo) CursorBound(ctx context.Context) ([]int, error) {
+	query := `SELECT MIN(id), MAX(id) FROM opd ORDER BY id`
+	row := o.db.QueryRowContext(ctx, query)
+
+	var res = []int{0, 0}
+	if err := row.Scan(
+		&res[0],
+		&res[1],
+	); err != nil {
+		log.Fatal(err)
+		return res, err
+	}
+	return res, nil
+}
+
+func (o *opdRepo) min(ctx context.Context) (int, error) {
+	query := `SELECT MIN(id) FROM opd ORDER BY id`
+	var min int
+	err := o.db.QueryRowContext(ctx, query).Scan(&min)
+	if err != nil {
+		return 0, err
+	}
+	return min, nil
+}
+
+func (o *opdRepo) max(ctx context.Context) (int, error) {
+	query := `SELECT MAX(id) FROM opd ORDER BY id`
+	var max int
+	err := o.db.QueryRowContext(ctx, query).Scan(&max)
+	if err != nil {
+		return 0, err
+	}
+	return max, nil
+
+}
 func (o *opdRepo) getOne(ctx context.Context, query string, args ...interface{}) (*models.Opd, error) {
 	stmt, err := o.db.PrepareContext(ctx, query)
 	if err != nil {
@@ -108,10 +144,29 @@ func (o *opdRepo) OpdList(ctx context.Context, first, after *int) ([]*models.Opd
 		defaultFirst  = 5
 		defaultCursor = 1
 	)
-	if first == nil {
+	/*if first == nil {
 		first = &defaultFirst
 	}
 	if after == nil {
+		after = &defaultCursor
+	}
+	*/
+	min, err := o.min(ctx)
+	if err != nil {
+		return nil, err
+	}
+	max, err := o.max(ctx)
+	if err != nil {
+		return nil, err
+	}
+	switch {
+	case first == nil || *first <= 0:
+		first = &defaultFirst
+	case after == nil || *after > max || *after <= min:
+		after = &defaultCursor
+
+	default:
+		first = &defaultFirst
 		after = &defaultCursor
 	}
 	query := `SELECT id, name, long_name, road_number, city, province FROM opd WHERE id >= ? ORDER BY id ASC LIMIT ?`

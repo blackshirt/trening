@@ -147,6 +147,7 @@ func (q *resolver) OpdList(ctx context.Context, first int, after string) ([]*mod
 func (q *resolver) OpdList(ctx context.Context, first, after *int) (*models.OpdConnection, error) {
 
 	res, err := q.opdList(ctx, first, after)
+
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
